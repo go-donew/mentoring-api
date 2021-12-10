@@ -1,0 +1,16 @@
+// ~/tsconfig.json
+// Typescript compiler configuration for the library
+
+{
+	"include": ["source/"],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"declaration": true,
+		"sourceMap": false,
+		"outDir": "build/",
+		"strict": true,
+		"moduleResolution": "node",
+		"esModuleInterop": true
+	}
+}

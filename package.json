@@ -1,0 +1,95 @@
+{
+	"name": "@godonew/today-api",
+	"version": "0.0.0",
+	"description": "The source code for the DoNew Today API server",
+	"author": {
+		"name": "Vedant K",
+		"url": "https://github.com/gamemaker1"
+	},
+	"license": "ISC",
+	"main": "build/index.js",
+	"exports": "./build/index.js",
+	"type": "module",
+	"files": [
+		"build",
+		"package.json",
+		"tsconfig.json",
+		"pnpm-lock.yaml",
+		"license.md",
+		"readme.md"
+	],
+	"scripts": {
+		"clean": "del-cli build/ coverage/ *.log",
+		"build": "tsc",
+		"watch": "tsc -w",
+		"compile": "run-s clean build",
+		"start": "firebase emulators:start",
+		"lint": "xo --fix",
+		"test": "run-s compile && xo && cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+		"prepare": "run-s compile && husky install config/husky"
+	},
+	"engines": {
+		"node": "16",
+		"pnpm": "6"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.13",
+		"@types/jest": "^27.0.3",
+		"@types/node": "^16.11.11",
+		"cross-env": "^7.0.3",
+		"del-cli": "^4.0.1",
+		"firebase-tools": "^9.23.1",
+		"husky": "^7.0.4",
+		"jest": "^27.4.2",
+		"lint-staged": "^12.1.2",
+		"npm-run-all": "^4.1.5",
+		"serve": "^13.0.2",
+		"ts-jest": "^27.0.7",
+		"ts-node": "^10.4.0",
+		"tsconfig-paths": "^3.12.0",
+		"typescript": "^4.5.2",
+		"xo": "^0.47.0"
+	},
+	"xo": {
+		"prettier": true
+	},
+	"prettier": {
+		"semi": false,
+		"useTabs": true,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"trailingComma": "es5",
+		"proseWrap": "always",
+		"endOfLine": "lf"
+	},
+	"jest": {
+		"preset": "ts-jest/presets/default-esm",
+		"globals": {
+			"ts-jest": {
+				"useESM": true
+			}
+		},
+		"collectCoverage": false,
+		"collectCoverageFrom": [
+			"build/**/*.js"
+		],
+		"testTimeout": 30000,
+		"testMatch": [
+			"**/test/**/*.test.[jt]s"
+		],
+		"moduleFileExtensions": [
+			"js",
+			"json",
+			"ts"
+		],
+		"moduleNameMapper": {
+			"^(\\.{1,2}/.*)\\.js$": "$1"
+		}
+	},
+	"lint-staged": {
+		"{source,test}/**/*.ts": "xo --fix"
+	},
+	"dependencies": {
+		"express": "^4.17.1"
+	}
+}
