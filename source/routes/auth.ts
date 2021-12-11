@@ -134,5 +134,58 @@ endpoint.post(
 	}
 )
 
+/**
+ * The payload needed to make a request to refresh a user's tokens.
+ *
+ * @typedef {object} TokenRefreshPayload
+ * @property {string} refreshToken.required - The user's refresh token.
+ */
+
+/**
+ * The response from the token refresh endpoint.
+ *
+ * @typedef {object} TokenRefreshResponse
+ * @property {Tokens} tokens.required - The tokens the user can use to access other endpoints.
+ */
+
+/**
+ * POST /auth/refresh-token
+ *
+ * @summary Returns a new set of tokens for a user.
+ * @tags auth
+ *
+ * @param {TokenRefreshPayload} request.body.required - The refresh token the user is given while signing up/in.
+ *
+ * @returns {TokenRefreshResponse} 200 - The new token set for the user.
+ * @returns {ImproperPayloadError} 400 - The refresh token passed was invalid.
+ * @returns {IncorrectCredentialsError} 401 - The refresh token had expired.
+ * @returns {TooManyRequestsError} 429 - The client has been rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @example request - An example payload.
+ * {
+ * 	"refreshToken": "..."
+ * }
+ *
+ * @endpoint
+ */
+endpoint.post(
+	'/refresh-token',
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			response.status(200).send({
+				tokens: await Auth.refreshTokens(request.body.refreshToken),
+			})
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
 // Export the router
 export default endpoint

@@ -1,8 +1,6 @@
 // @/integration-tests/index.test.ts
 // Tests all APIs
 
-// Import the server so coverage can be calculated
-import _server from '../../source/app.js' // eslint-disable-line @typescript-eslint/no-unused-vars
 import { fetch, fetchError } from '../helpers/request.js'
 import { testData } from '../helpers/test-data.js'
 
@@ -19,15 +17,15 @@ declare global {
 }
 
 // Data to persist throughout the test
-const users = { bofh: {}, pfy: {} }
-const tokens = { bofh: {}, pfy: {} }
+const users: { bofh: any; pfy: any } = { bofh: {}, pfy: {} }
+const tokens: { bofh: any; pfy: any } = { bofh: {}, pfy: {} }
 
 /**
  * Test the authentication endpoints.
  */
 describe('auth', () => {
 	describe('post /auth/signup', () => {
-		test('invalid name', async () => {
+		it('should return an `improper-payload` error when an invalid name is passed', async () => {
 			const data = await testData('auth/signup/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -39,7 +37,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('invalid email', async () => {
+		it('should return an `improper-payload` error when an invalid email is passed', async () => {
 			const data = await testData('auth/signup/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -51,7 +49,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('invalid password', async () => {
+		it('should return an `improper-payload` error when an invalid password is passed', async () => {
 			const data = await testData('auth/signup/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -63,7 +61,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('weak password (< 6 letters)', async () => {
+		it('should return an `improper-payload` error when a weak password (< 6 letters) is passed', async () => {
 			const data = await testData('auth/signup/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -75,7 +73,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('successful request (bofh)', async () => {
+		it('should return the user and tokens upon a valid request (bofh)', async () => {
 			const data = await testData('auth/signup/bofh')
 			const { body, status } = await fetch({
 				method: 'post',
@@ -102,7 +100,7 @@ describe('auth', () => {
 			tokens.bofh = body.tokens
 		})
 
-		test('successful request (pfy)', async () => {
+		it('should return the user and tokens upon a valid request (pfy)', async () => {
 			const data = await testData('auth/signup/pfy')
 			const { body, status } = await fetch({
 				method: 'post',
@@ -131,7 +129,7 @@ describe('auth', () => {
 	})
 
 	describe('post /auth/signin', () => {
-		test('invalid email', async () => {
+		it('should return an `improper-payload` error when an invalid email is passed', async () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -143,7 +141,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('invalid password', async () => {
+		it('should return an `improper-payload` error when an invalid password is passed', async () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -155,7 +153,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('improper-payload')
 		})
 
-		test('wrong password', async () => {
+		it('should return an `incorrect-credentials` error when an incorrect password is passed', async () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -167,7 +165,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('incorrect-credentials')
 		})
 
-		test('wrong email', async () => {
+		it('should return an `entity-not-found` error when an email for a user that does not exist is passed', async () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
@@ -179,7 +177,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('entity-not-found')
 		})
 
-		test('successful request (bofh)', async () => {
+		it('should return the user and tokens upon a valid request (bofh)', async () => {
 			const data = await testData('auth/signin/bofh')
 			const { body, status } = await fetch({
 				method: 'post',
@@ -206,7 +204,7 @@ describe('auth', () => {
 			tokens.bofh = body.tokens
 		})
 
-		test('successful request (pfy)', async () => {
+		it('should return the user and tokens upon a valid request (pfy)', async () => {
 			const data = await testData('auth/signin/bofh')
 			const { body, status } = await fetch({
 				method: 'post',
@@ -230,6 +228,78 @@ describe('auth', () => {
 			})
 
 			users.pfy = body.user
+			tokens.pfy = body.tokens
+		})
+	})
+
+	describe('post /auth/refresh-token', () => {
+		it('should return an `improper-payload` error when an invalid refresh token is passed', async () => {
+			const data = await testData('auth/refresh-token/bofh', {
+				refreshToken: tokens.bofh.refresh,
+			})
+			const error = await fetchError({
+				method: 'post',
+				url: 'auth/refresh-token',
+				json: { ...data, refreshToken: 'weird!stuff' },
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return an `improper-payload` error when a bearer token is passed instead of a refresh token', async () => {
+			const data = await testData('auth/refresh-token/bofh', {
+				refreshToken: tokens.bofh.refresh,
+			})
+			const error = await fetchError({
+				method: 'post',
+				url: 'auth/refresh-token',
+				json: { ...data, refreshToken: tokens.bofh.bearer },
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return a new set of tokens upon a valid request (bofh)', async () => {
+			const data = await testData('auth/refresh-token/bofh', {
+				refreshToken: tokens.bofh.refresh,
+			})
+			const { body, status } = await fetch({
+				method: 'post',
+				url: 'auth/refresh-token',
+				json: data,
+			})
+
+			expect(status).toEqual(200)
+			expect(body).toMatchShapeOf({
+				tokens: {
+					bearer: 'string',
+					refresh: 'string',
+				},
+			})
+
+			tokens.bofh = body.tokens
+		})
+
+		it('should return a new set of tokens upon a valid request (pfy)', async () => {
+			const data = await testData('auth/refresh-token/pfy', {
+				refreshToken: tokens.pfy.refresh,
+			})
+			const { body, status } = await fetch({
+				method: 'post',
+				url: 'auth/refresh-token',
+				json: data,
+			})
+
+			expect(status).toEqual(200)
+			expect(body).toMatchShapeOf({
+				tokens: {
+					bearer: 'string',
+					refresh: 'string',
+				},
+			})
+
 			tokens.pfy = body.tokens
 		})
 	})

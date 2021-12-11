@@ -9,13 +9,24 @@ import { readFile } from 'node:fs/promises'
  * @param {string} path - The path to the test data file.
  */
 export const testData = async (
-	path: string
+	path: string,
+	data?: Record<string, string>
 ): Promise<Record<string, unknown>> => {
-	// Read the file and return its contents
-	return JSON.parse(
+	// Read the file
+	let json = JSON.parse(
 		await readFile(
 			`test/data/${/\.[json]$/.test(path) ? path : path + '.json'}`,
 			'utf-8'
 		)
 	) as Record<string, unknown>
+
+	// Replace all placeholders
+	for (const [field, value] of Object.entries(data ?? {})) {
+		json = JSON.parse(
+			JSON.stringify(json).replace(new RegExp(`{${field}}`, 'gm'), value)
+		)
+	}
+
+	// Return the data
+	return json
 }

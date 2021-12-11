@@ -26,6 +26,12 @@ const load = async (app: Application): Promise<void> => {
 				version: '0.1.0',
 				description: 'The OpenAPI specification for the DoNew Today API.',
 			},
+			security: {
+				bearer: {
+					type: 'http',
+					scheme: 'bearer',
+				},
+			},
 
 			// Extract comments from the following compiled files
 			baseDir: getAbsolutePath(__dirname, '../../../build/'),
@@ -38,7 +44,7 @@ const load = async (app: Application): Promise<void> => {
 
 			// Expose the swagger UI as the /docs endpoint
 			exposeSwaggerUI: true, // eslint-disable-line @typescript-eslint/naming-convention
-			swaggerUIPath: '/docs', // eslint-disable-line @typescript-eslint/naming-convention
+			swaggerUIPath: '/docs/interactive', // eslint-disable-line @typescript-eslint/naming-convention
 			// Expose the generated JSON spec as /docs/spec.json
 			exposeApiDocs: true,
 			apiDocsPath: '/docs/spec.json',

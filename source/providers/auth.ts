@@ -247,7 +247,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 
 			if ((error.message as string).startsWith('INVALID_REFRESH_TOKEN'))
 				throw new ServerError(
-					'incorrect-credentials',
+					'improper-payload',
 					'The refresh token passed in the request body was invalid. Please try again with a valid refresh token.'
 				)
 			if ((error.message as string).startsWith('TOKEN_EXPIRED'))

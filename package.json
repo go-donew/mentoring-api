@@ -108,7 +108,7 @@
 				"useESM": true
 			}
 		},
-		"collectCoverage": true,
+		"collectCoverage": false,
 		"collectCoverageFrom": [
 			"build/**/*.js"
 		],
