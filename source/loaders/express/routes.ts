@@ -32,13 +32,17 @@ const load = async (app: Application): Promise<void> => {
 			if (caughtError instanceof ServerError) {
 				response.sendError(caughtError)
 			} else if ((caughtError as any).status === 400) {
-				// Intercept errors thrown by the validator
 				response.sendError(
 					new ServerError(
 						'improper-payload',
 						`An error occurred while validating your request: ${caughtError.message}.`
 					)
 				)
+			} else if (
+				(caughtError as any).status === 404 &&
+				(caughtError as any).path
+			) {
+				response.sendError(new ServerError('route-not-found'))
 			} else {
 				console.trace('Unexpected error:', caughtError)
 				response.sendError('server-crash')

@@ -33,7 +33,7 @@ const endpoint = createRouter()
 /**
  * POST /auth/signup
  *
- * @summary Creates a DoNew Today account for the user.
+ * @summary Create a DoNew Today account
  * @tags auth
  *
  * @param {SignUpPayload} request.body.required - The name, email address and password of the user to create.
@@ -96,7 +96,7 @@ endpoint.post(
 /**
  * POST /auth/signin
  *
- * @summary Signs a user into their DoNew Today account.
+ * @summary Sign into your DoNew Today account
  * @tags auth
  *
  * @param {SignInPayload} request.body.required - The email address and password of the user to sign in.
@@ -151,12 +151,12 @@ endpoint.post(
 /**
  * POST /auth/refresh-token
  *
- * @summary Returns a new set of tokens for a user.
+ * @summary Refresh access token
  * @tags auth
  *
  * @param {TokenRefreshPayload} request.body.required - The refresh token the user is given while signing up/in.
  *
- * @returns {TokenRefreshResponse} 200 - The new token set for the user.
+ * @returns {TokenRefreshResponse} 200 - The new set of tokens the user can use.
  * @returns {ImproperPayloadError} 400 - The refresh token passed was invalid.
  * @returns {IncorrectCredentialsError} 401 - The refresh token had expired.
  * @returns {TooManyRequestsError} 429 - The client has been rate-limited.

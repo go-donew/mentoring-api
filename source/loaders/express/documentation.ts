@@ -4,7 +4,7 @@
 import { dirname, resolve as getAbsolutePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Application } from 'express'
+import { Application, Response, static as serve } from 'express'
 import generateOpenApiSpec from 'express-jsdoc-swagger'
 import { middleware as validate } from 'express-openapi-validator'
 
@@ -24,8 +24,19 @@ const load = async (app: Application): Promise<void> => {
 			info: {
 				title: 'The DoNew Today API',
 				version: '0.1.0',
-				description: 'The OpenAPI specification for the DoNew Today API.',
+				description:
+					'This is the documentation for the DoNew Today API. Pick a request from the sidebar on the left to know more about it.',
 			},
+			servers: [
+				{
+					url: 'http://today.godonew.com',
+					description: 'Public facing API server',
+				},
+				{
+					url: 'http://localhost:5000',
+					description: 'For local development only',
+				},
+			],
 			security: {
 				bearer: {
 					type: 'http',
@@ -41,20 +52,19 @@ const load = async (app: Application): Promise<void> => {
 				'utils/errors.js',
 				'types.d.ts',
 			],
-
-			// Expose the swagger UI as the /docs endpoint
-			exposeSwaggerUI: true, // eslint-disable-line @typescript-eslint/naming-convention
-			swaggerUIPath: '/docs/interactive', // eslint-disable-line @typescript-eslint/naming-convention
 			// Expose the generated JSON spec as /docs/spec.json
 			exposeApiDocs: true,
 			apiDocsPath: '/docs/spec.json',
-
-			// Tell swagger UI where the spec is
-			swaggerUiOptions: {
-				swaggerUrl: '/docs/spec.json',
-			},
 		}).on('finish', resolve)
 	})
+	// Render documentation using Elements
+	app.use(
+		'/docs',
+		serve(getAbsolutePath(__dirname, '../../../assets/docs.html'), {
+			setHeaders: (response: Response) =>
+				response.setHeader('content-security-policy', ''),
+		})
+	)
 
 	// Use the validation middleware
 	app.use(

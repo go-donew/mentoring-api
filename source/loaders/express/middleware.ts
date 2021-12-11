@@ -24,8 +24,21 @@ import ServerError, { ErrorCode } from '../../utils/errors.js'
 const load = async (app: Application): Promise<void> => {
 	// Tweak server settings
 	// This one allows us to get the client's IP address
-	app.enable('trust proxy')
+	app.set('trust proxy', 1)
 	app.set('x-powered-by', 'people doing something new')
+
+	// Add a custom method to the request object
+	app.use((_request: Request, response: Response, next: NextFunction) => {
+		response.sendError = (error: ErrorCode | ServerError) => {
+			const serverError =
+				typeof error === 'string' ? new ServerError(error) : error
+			response.status(serverError.status).send({
+				error: serverError,
+			})
+		}
+
+		next()
+	})
 
 	// Register body-parsing middleware
 	app.use(parseJsonBodies())
@@ -55,21 +68,11 @@ const load = async (app: Application): Promise<void> => {
 			// of the `X-RateLimit-*` headers.
 			useStandardizedHeaders: true,
 			headers: false,
+			// Use the IP address of the client as the key
+			keyGenerator: (request: Request): string =>
+				request.ip ?? request.ips[0] ?? request.socket.remoteAddress,
 		})
 	)
-
-	// Add a custom method to the request object
-	app.use((_request: Request, response: Response, next: NextFunction) => {
-		response.sendError = (error: ErrorCode | ServerError) => {
-			const serverError =
-				typeof error === 'string' ? new ServerError(error) : error
-			response.status(serverError.status).send({
-				error: serverError,
-			})
-		}
-
-		next()
-	})
 }
 
 export default load
