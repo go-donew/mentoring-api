@@ -1,7 +1,13 @@
 // @/app.ts
 // Defines and exports the ExpressJS server
 
-import createServer, { Application } from 'express'
+import createServer from 'express'
 
-// Create an express `Application` and load up various components
-export const app: Application = createServer()
+import load from './loaders/index.js'
+
+// Create an express `Application`
+const app = createServer()
+// Load the middleware and endpoints as well as initialize all services
+await load(app)
+
+export default app
