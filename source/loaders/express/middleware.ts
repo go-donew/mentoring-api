@@ -9,6 +9,7 @@ import {
 	json as parseJsonBodies,
 } from 'express'
 import secureResponses from 'helmet'
+import enableCors from 'cors'
 import addRequestId from 'express-request-id'
 import rateLimitRequests from 'express-rate-limit'
 
@@ -30,6 +31,8 @@ const load = async (app: Application): Promise<void> => {
 	app.use(parseJsonBodies())
 	// Make our responses secure using the `helmet` library
 	app.use(secureResponses())
+	// Allow cross-origin requests
+	app.use(enableCors())
 	// Add a request ID to every request
 	app.use(addRequestId())
 	// Authenticate the user making the request

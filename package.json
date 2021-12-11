@@ -35,6 +35,7 @@
 	"dependencies": {
 		"@google-cloud/functions-framework": "^2.1.0",
 		"class-transformer": "^0.5.1",
+		"cors": "^2.8.5",
 		"express": "^4.17.1",
 		"express-jsdoc-swagger": "^1.6.7",
 		"express-openapi-validator": "^4.13.4",
