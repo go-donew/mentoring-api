@@ -25,7 +25,7 @@ const load = async (app: Application): Promise<void> => {
 				title: 'The DoNew Today API',
 				version: '0.1.0',
 				description:
-					'This is the documentation for the DoNew Today API. Pick a request from the sidebar on the left to know more about it.',
+					'This is the documentation for the DoNew Today API. Pick an endpoint from the sidebar on the left to know more about it.',
 			},
 			servers: [
 				{
