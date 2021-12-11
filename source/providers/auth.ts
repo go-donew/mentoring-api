@@ -312,4 +312,4 @@ export class FirebaseAuthProvider implements AuthProvider {
 }
 
 // Export a new instance of the auth provider
-export const Auth = new FirebaseAuthProvider() // eslint-disable-line @typescript-eslint/naming-convention
+export default new FirebaseAuthProvider()

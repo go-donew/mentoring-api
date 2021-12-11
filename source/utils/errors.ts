@@ -29,7 +29,7 @@ const errors = {
 	 * @property {number} status.required - The HTTP error code. - enum:401
 	 */
 	'invalid-token': {
-		message: `The bearer token passed was invalid. Please pass a valid token in the 'Authorization' header and try again.`,
+		message: `Could not find a valid access token in either the 'Authorization' header or 'token' query parameter. Please retrieve an access token by authenticating via the /api/auth/signin endpoint, and place it in the 'Authorization' header.`,
 		status: 401,
 	},
 
@@ -100,7 +100,7 @@ const errors = {
 	 * @property {number} status.required - The HTTP error code. - enum:429
 	 */
 	'too-many-requests': {
-		message: `Woah! You need to enhance your calm...`,
+		message: `Woah! You made too many requests within one hour. Try again after some time (rate limit related info is passed in the 'RateLimit-*' headers).`,
 		status: 429,
 	},
 

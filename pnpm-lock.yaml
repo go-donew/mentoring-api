@@ -13,6 +13,7 @@ specifiers:
   express: ^4.17.1
   express-jsdoc-swagger: ^1.6.7
   express-openapi-validator: ^4.13.4
+  express-rate-limit: github:gamemaker1/express-rate-limit#opiniated-improvements
   express-request-id: ^1.4.1
   firebase-admin: ^10.0.0
   firebase-functions: ^3.16.0
@@ -39,6 +40,7 @@ dependencies:
   express: 4.17.1
   express-jsdoc-swagger: 1.6.7
   express-openapi-validator: 4.13.4
+  express-rate-limit: github.com/gamemaker1/express-rate-limit/e094bc457ab7da8a123161a3bd0e4c49b1f3249b_express@4.17.1
   express-request-id: 1.4.1
   firebase-admin: 10.0.0
   firebase-functions: 3.16.0_firebase-admin@10.0.0
@@ -9497,3 +9499,16 @@ packages:
       compress-commons: 4.1.1
       readable-stream: 3.6.0
     dev: true
+
+  github.com/gamemaker1/express-rate-limit/e094bc457ab7da8a123161a3bd0e4c49b1f3249b_express@4.17.1:
+    resolution: {tarball: https://codeload.github.com/gamemaker1/express-rate-limit/tar.gz/e094bc457ab7da8a123161a3bd0e4c49b1f3249b}
+    id: github.com/gamemaker1/express-rate-limit/e094bc457ab7da8a123161a3bd0e4c49b1f3249b
+    name: express-rate-limit
+    version: 6.0.0-alpha.0
+    prepare: true
+    requiresBuild: true
+    peerDependencies:
+      express: ^4
+    dependencies:
+      express: 4.17.1
+    dev: false

@@ -38,6 +38,7 @@
 		"express": "^4.17.1",
 		"express-jsdoc-swagger": "^1.6.7",
 		"express-openapi-validator": "^4.13.4",
+		"express-rate-limit": "github:gamemaker1/express-rate-limit#opiniated-improvements",
 		"express-request-id": "^1.4.1",
 		"firebase-admin": "^10.0.0",
 		"firebase-functions": "^3.16.0",

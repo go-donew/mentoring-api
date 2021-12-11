@@ -10,7 +10,9 @@ import {
 } from 'express'
 import secureResponses from 'helmet'
 import addRequestId from 'express-request-id'
+import rateLimitRequests from 'express-rate-limit'
 
+import authenticateUsers from '../../middleware/authentication.js'
 import ServerError, { ErrorCode } from '../../utils/errors.js'
 
 /**
@@ -30,6 +32,28 @@ const load = async (app: Application): Promise<void> => {
 	app.use(secureResponses())
 	// Add a request ID to every request
 	app.use(addRequestId())
+	// Authenticate the user making the request
+	app.use(authenticateUsers())
+	// Rate limit the user making the request
+	app.use(
+		rateLimitRequests({
+			// Authenticated users can make 2k requests per hour, while
+			// unauthenticated users can make only 50 per hour. Groot can
+			// make 10k requests in an hour.
+			max: (request: Request): number =>
+				request.user ? (request.user.isGroot ? 10_000 : 2000) : 50,
+			// Time duration is one hour
+			windowMs: 60 * 60 * 1000,
+			// Send a `too-many-requests` error when you have exceeded the limit
+			handler: (_request: Request, response: Response) => {
+				response.sendError('too-many-requests')
+			},
+			// Use the `RateLimit-*` headers to send rate limit information instead
+			// of the `X-RateLimit-*` headers.
+			useStandardizedHeaders: true,
+			headers: false,
+		})
+	)
 
 	// Add a custom method to the request object
 	app.use((_request: Request, response: Response, next: NextFunction) => {

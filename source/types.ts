@@ -17,7 +17,7 @@ declare global {
 			/**
 			 * The user making the request.
 			 */
-			user: User & { isGroot: boolean }
+			user?: User & { isGroot: boolean }
 		}
 
 		interface Response {

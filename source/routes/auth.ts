@@ -8,7 +8,7 @@ import {
 	NextFunction,
 } from 'express'
 
-import { Auth } from '../providers/auth.js'
+import Auth from '../providers/auth.js'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
