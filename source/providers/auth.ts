@@ -11,7 +11,7 @@ import User from '../models/user.js'
 import ServerError from '../utils/errors.js'
 import { AuthProvider, CustomClaims, DecodedToken, Tokens } from '../types.js'
 
-import Users from './data/user.js'
+import Users from './data/users.js'
 
 // The auth endpoint to sign in/up users
 const signInUpEndpoint =

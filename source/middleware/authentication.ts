@@ -4,7 +4,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 
 import Auth from '../providers/auth.js'
-import Users from '../providers/data/user.js'
+import Users from '../providers/data/users.js'
 import ServerError from '../utils/errors.js'
 
 /**

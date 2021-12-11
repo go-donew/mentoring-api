@@ -1,5 +1,5 @@
-// @/routes/auth
-// Sign In and signup API Endpoint handler
+// @/routes/auth.ts
+// Sign up/in and token refresh API endpoint handler
 
 import {
 	Router as createRouter,

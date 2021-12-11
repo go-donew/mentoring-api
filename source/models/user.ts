@@ -1,7 +1,7 @@
 // @/models/user.ts
 // A class representing a user
 
-import Users from '../providers/data/user.js'
+import Users from '../providers/data/users.js'
 
 /**
  * A class representing a user.
