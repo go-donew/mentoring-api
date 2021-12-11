@@ -3,11 +3,11 @@
 
 import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
+import { instanceToPlain, plainToInstance } from 'class-transformer'
 
 import ServerError from '../../utils/errors.js'
 import User from '../../models/user.js'
 import { Query, DataProvider } from '../../types.js'
-import { classToPlain, plainToClass } from '../../utils/index.js'
 
 /**
  * A interface that a data provider must implement.
@@ -50,7 +50,7 @@ class UserProvider implements DataProvider<User> {
 			data.lastSignedIn = data.lastSignedIn.toDate()
 
 			// Add it to the array
-			users.push(plainToClass({ data, to: User }))
+			users.push(plainToInstance(User, data))
 		}
 
 		return users
@@ -91,7 +91,7 @@ class UserProvider implements DataProvider<User> {
 		data.lastSignedIn = data.lastSignedIn.toDate()
 
 		// Return the object as an instance of the `User` class
-		return plainToClass({ data, to: User })
+		return plainToInstance(User, data)
 	}
 
 	/**
@@ -116,7 +116,7 @@ class UserProvider implements DataProvider<User> {
 			}
 
 			// Else insert away!
-			const serializedUser = classToPlain({ data })
+			const serializedUser = instanceToPlain(data)
 			await getFirestore().collection('users').doc(id).set(serializedUser)
 
 			// If the transaction was successful, return the created user
@@ -154,16 +154,13 @@ class UserProvider implements DataProvider<User> {
 				}
 
 				// Else insert away!
-				await userDocument.set(classToPlain({ data }), { merge: true })
+				await userDocument.set(instanceToPlain(data), { merge: true })
 			})
 
 			// If the transaction was successfull, return the updated user
-			return plainToClass({
-				data: {
-					existingUser,
-					...data,
-				},
-				to: User,
+			return plainToInstance(User, {
+				existingUser,
+				...data,
 			})
 		} catch (error: unknown) {
 			// Pass on any error as a backend error

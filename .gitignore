@@ -4,6 +4,7 @@
 node_modules/
 build/
 coverage/
+test-export/
 
 .idea/
 .vscode/

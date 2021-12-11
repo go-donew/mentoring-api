@@ -21,6 +21,7 @@ const endpoint = createRouter()
  * @property {string} email.required - The user's email address. - email
  * @property {string} password.required - The user's password. - password
  */
+
 /**
  * The response from the sign up endpoint.
  *
@@ -70,6 +71,63 @@ endpoint.post(
 						request.body.password
 					)
 				)
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
+/**
+ * The payload needed to make a request to sign in a user.
+ *
+ * @typedef {object} SignInPayload
+ * @property {string} email.required - The user's email address. - email
+ * @property {string} password.required - The user's password. - password
+ */
+
+/**
+ * The response from the sign in endpoint.
+ *
+ * @typedef {object} SignInResponse
+ * @property {User} user.required - The signed in user.
+ * @property {Tokens} tokens.required - The tokens the user can use to access other endpoints.
+ */
+
+/**
+ * POST /auth/signin
+ *
+ * @summary Signs a user into their DoNew Today account.
+ * @tags auth
+ *
+ * @param {SignInPayload} request.body.required - The email address and password of the user to sign in.
+ *
+ * @returns {SignInResponse} 200 - The signed in user and the tokens for that user.
+ * @returns {ImproperPayloadError} 400 - The email or password passed were invalid.
+ * @returns {IncorrectCredentialsError} 401 - The password for that account was incorrect.
+ * @returns {EntityNotFoundError} 404 - A user with the email address passed in the request does not exists.
+ * @returns {TooManyRequestsError} 429 - The client has been rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @example request - An example payload.
+ * {
+ * 	"email": "user@example.com",
+ * 	"password": "secret"
+ * }
+ *
+ * @endpoint
+ */
+endpoint.post(
+	'/signin',
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			response
+				.status(200)
+				.send(await Auth.signIn(request.body.email, request.body.password))
 		} catch (error: unknown) {
 			next(error)
 		}

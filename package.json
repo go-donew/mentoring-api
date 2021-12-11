@@ -19,13 +19,13 @@
 		"readme.md"
 	],
 	"scripts": {
-		"clean": "del-cli build/ coverage/ *.log",
+		"clean": "del-cli build/ coverage/ test-export/ *.log",
 		"build": "tsc",
 		"watch": "tsc -w",
 		"compile": "run-s clean build",
 		"start": "firebase emulators:start",
 		"lint": "xo --fix",
-		"test": "run-s compile && xo && firebase emulators:exec \"pnpx cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand --coverage\"",
+		"test": "run-s compile && xo && firebase emulators:exec --export-on-exit test-export \"pnpx cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand --coverage\"",
 		"prepare": "run-s compile && husky install config/husky"
 	},
 	"engines": {
