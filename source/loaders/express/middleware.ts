@@ -53,21 +53,27 @@ const load = async (app: Application): Promise<void> => {
 	// Rate limit the user making the request
 	app.use(
 		rateLimitRequests({
-			// Authenticated users can make 2k requests per hour, while
-			// unauthenticated users can make only 50 per hour. Groot can
-			// make 10k requests in an hour.
-			max: (request: Request): number =>
-				request.user ? (request.user.isGroot ? 10_000 : 2000) : 50,
 			// Time duration is one hour
 			windowMs: 60 * 60 * 1000,
-			// Send a `too-many-requests` error when you have exceeded the limit
-			handler: (_request: Request, response: Response) => {
-				response.sendError('too-many-requests')
-			},
 			// Use the `RateLimit-*` headers to send rate limit information instead
 			// of the `X-RateLimit-*` headers.
 			useStandardizedHeaders: true,
 			headers: false,
+			// Authenticated users can make 2k requests per hour, while
+			// unauthenticated users can make only 50 per hour. Groot can make 10k
+			// requests in an hour. Users viewing documentation can make 500 per hour
+			max: (request: Request): number =>
+				request.user
+					? request.user.isGroot
+						? 10_000
+						: 2000
+					: request.url.startsWith('/docs')
+					? 500
+					: 50,
+			// Send a `too-many-requests` error when you have exceeded the limit
+			handler: (_request: Request, response: Response) => {
+				response.sendError('too-many-requests')
+			},
 			// Use the IP address of the client as the key
 			keyGenerator: (request: Request): string =>
 				request.ip ?? request.ips[0] ?? request.socket.remoteAddress,
