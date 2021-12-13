@@ -14,9 +14,7 @@ import Users from '../providers/data/users.js'
  * @property {string} lastSignedIn.required - The time the user last signed in to their account. - date
  */
 class User {
-	static async fromUserId(id: string): Promise<User> {
-		return Users.get(id)
-	}
+	static fromUserId = async (id: string): Promise<User> => Users.get(id)
 
 	id: string
 	name: string

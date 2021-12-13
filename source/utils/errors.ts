@@ -49,6 +49,20 @@ const errors = {
 	},
 
 	/**
+	 * Error to return when the user is not authorized to perform an operation.
+	 *
+	 * @typedef {object} NotAllowedError
+	 *
+	 * @property {string} code.required - The error code. - enum:not-allowed
+	 * @property {string} message.required - The error message.
+	 * @property {number} status.required - The HTTP error code. - enum:403
+	 */
+	'not-allowed': {
+		message: `You cannot perform this operation.`,
+		status: 403,
+	},
+
+	/**
 	 * Error to return when the requested entity was not found.
 	 *
 	 * @typedef {object} EntityNotFoundError

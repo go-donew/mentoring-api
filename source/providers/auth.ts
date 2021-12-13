@@ -220,7 +220,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @param {string} refreshToken The refresh token returned when signing in/up.
 	 *
 	 * @returns {Tokens} A new set of tokens for the user.
-	 * @throws {ServerError} 'improper-payload' | 'backend-error'
+	 * @throws {ServerError} - 'improper-payload' | 'backend-error'
 	 *
 	 * @async
 	 */
@@ -272,7 +272,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @param {string} token The token to verify.
 	 *
 	 * @returns {DecodedToken} The contents of the bearer token.
-	 * @throws {ServerError} 'improper-payload' | 'backend-error'
+	 * @throws {ServerError} - 'improper-payload' | 'backend-error'
 	 *
 	 * @async
 	 */
@@ -293,7 +293,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @param {string} userId The ID of the user whose claims to retrieve.
 	 *
 	 * @returns {CustomClaims} The custom claims set on a user.
-	 * @throws {HttpError} 'backend-error'
+	 * @throws {ServerError} - 'backend-error'
 	 *
 	 * @async
 	 */

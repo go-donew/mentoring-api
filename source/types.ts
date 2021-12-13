@@ -17,7 +17,10 @@ declare global {
 			/**
 			 * The user making the request.
 			 */
-			user?: User & { isGroot: boolean }
+			user?: User & {
+				isGroot: boolean
+				token: string
+			}
 		}
 
 		interface Response {
@@ -28,6 +31,39 @@ declare global {
 		}
 	}
 }
+
+/**
+ * List of participants in a group.
+ *
+ * @typedef {object} ParticipantList
+ * @property {string} userId.required - The participating user's ID. - enum:mentee,mentor,supermentor
+ */
+export declare type ParticipantList = Record<
+	string,
+	'mentee' | 'mentor' | 'supermentor'
+>
+
+/**
+ * List of conversations the group's participants are allowed to take part in.
+ *
+ * @typedef {object} ConversationsList
+ * @property {string} conversationId.required - The conversation ID. - enum:mentee,mentor,supermentor
+ */
+export declare type ConversationsList = Record<
+	string,
+	'mentee' | 'mentor' | 'supermentor'
+>
+
+/**
+ * List of reports the group's participants can view.
+ *
+ * @typedef {object} ReportsList
+ * @property {string} reportId.required - The report ID. - enum:mentee,mentor,supermentor
+ */
+export declare type ReportsList = Record<
+	string,
+	'mentee' | 'mentor' | 'supermentor'
+>
 
 /**
  * The bearer token and refresh token set returned when a user signs in/up or
@@ -102,7 +138,7 @@ export declare type Query<T> = {
 	 *
 	 * @type {string}
 	 */
-	operator: '==' | '!=' | '>' | '<' | '>=' | '<='
+	operator: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'includes'
 
 	/**
 	 * The value the field should be equal to, not equal to, etc.

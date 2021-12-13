@@ -1,84 +1,81 @@
-// @/providers/data/users.ts
-// Retrieves, creates, updates and deletes users in Firebase.
+// @/providers/data/group.ts
+// Retrieves, creates, updates and deletes groups in Firebase.
 
 import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
 
 import ServerError from '../../utils/errors.js'
-import User from '../../models/user.js'
+import Group from '../../models/group.js'
 import { Query, DataProvider } from '../../types.js'
 
 /**
  * A interface that a data provider must implement.
  */
-class UserProvider implements DataProvider<User> {
+class GroupProvider implements DataProvider<Group> {
 	/**
-	 * Lists/searches through all users.
+	 * Lists/searches through all groups.
 	 *
-	 * @param {Array<Query>} queries A list of queries to filter the users.
+	 * @param {Array<Query>} queries A list of queries to filter the groups.
 	 *
-	 * @returns {User[]} Array of users matching the query.
+	 * @returns {Group[]} Array of groups matching the query.
 	 * @throws {ServerError} - 'backend-error'
 	 */
-	async find(queries: Array<Query<User>>): Promise<User[]> {
+	async find(queries: Array<Query<Group>>): Promise<Group[]> {
 		// Build the query
-		const usersQuery = getFirestore().collection('users')
+		const groupsQuery = getFirestore().collection('groups')
 		for (const query of queries) {
 			let field = query.field as string
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
 			let value = query.value as any
 
 			if (query.operator === 'includes') {
-				field = `__${query.field}.${query.value}`
+				field = `__${query.field}.${query.value as string}`
 				operator = '=='
 				value = true
 			}
 
-			usersQuery.where(field, operator, value)
+			groupsQuery.where(field, operator, value)
 		}
 
 		// Execute the query
 		let docs
 		try {
-			;({ docs } = await usersQuery.get())
+			;({ docs } = await groupsQuery.get())
 		} catch (error: unknown) {
 			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
-		// Convert the documents retrieved into instances of a `User` class
-		const users = []
+		// Convert the documents retrieved into instances of a `Group` class
+		const groups = []
 		for (const doc of docs) {
 			// If the document does not exist, skip it
 			if (!doc.exists) {
 				continue
 			}
 
-			// Convert the `lastSignedIn` field from a `Timestamp` to a `Date`
-			const data = doc.data()
-			data.lastSignedIn = data.lastSignedIn.toDate()
-
 			// Add it to the array
-			users.push(plainToInstance(User, data))
+			const data = doc.data()
+			groups.push(plainToInstance(Group, data))
 		}
 
-		return users
+		return groups
 	}
 
 	/**
-	 * Retrieves a user from the database.
+	 * Retrieves a group from the database.
 	 *
-	 * @param {string} id The ID of the user to retrieve.
+	 * @param {string} id The ID of the group to retrieve.
 	 *
-	 * @returns {User} The requested user.
+	 * @returns {Group} The requested group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async get(id: string): Promise<User> {
-		// Fetch the user from Firestore
+	async get(id: string): Promise<Group> {
+		// Fetch the group from Firestore
 		let doc
 		try {
-			doc = await getFirestore().collection('users').doc(id).get()
+			doc = await getFirestore().collection('groups').doc(id).get()
 		} catch (caughtError: unknown) {
 			const error = caughtError as FirebaseError
 			// Handle a not found error, but pass on the rest as a backend error
@@ -90,48 +87,45 @@ class UserProvider implements DataProvider<User> {
 			}
 		}
 
-		// Convert the document retrieved into an instance of a `User` class
+		// Convert the document retrieved into an instance of a `Group` class
 		const data = doc.data()
 		// If the document does not exist, skip it
 		if (!doc.exists || !data) {
 			throw new ServerError('entity-not-found')
 		}
 
-		// Convert the `lastSignedIn` field from a `Timestamp` to a `Date`
-		data.lastSignedIn = data.lastSignedIn.toDate()
-
-		// Return the object as an instance of the `User` class
-		return plainToInstance(User, data)
+		// Return the object as an instance of the `Group` class
+		return plainToInstance(Group, data)
 	}
 
 	/**
-	 * Stores a user in the database.
+	 * Stores a group in the database.
 	 *
-	 * @param {string} id The ID of the user to create.
-	 * @param {User} data The data to store in the user.
+	 * @param {string} id The ID of the group to create.
+	 * @param {Group} data The data to store in the group.
 	 *
-	 * @returns {User} The created user.
+	 * @returns {Group} The created group.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: User): Promise<User> {
-		// Convert the `User` instance to a firebase document and save it
+	async create(id: string, data: Group): Promise<Group> {
+		// Convert the `Group` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const userDocument = await getFirestore()
-				.collection('users')
+			const groupDocument = await getFirestore()
+				.collection('groups')
 				.doc(id)
 				.get()
 
 			// If it does, then return an 'already-exists' error
-			if (userDocument.exists) {
+			if (groupDocument.exists) {
 				throw new ServerError('entity-already-exists')
 			}
 
 			// Else insert away!
-			const serializedUser = instanceToPlain(data)
-			await getFirestore().collection('users').doc(id).set(serializedUser)
+			const serializedGroup = instanceToPlain(data)
+			await getFirestore().collection('groups').doc(id).set(serializedGroup)
 
-			// If the transaction was successful, return the created user
+			// If the transaction was successful, return the created group
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
@@ -141,37 +135,37 @@ class UserProvider implements DataProvider<User> {
 	}
 
 	/**
-	 * Updates a user in the database.
+	 * Updates a group in the database.
 	 *
-	 * @param {string} id The ID of the user to update.
+	 * @param {string} id The ID of the group to update.
 	 * @param {string} data A list of properties to update and the value to set.
 	 *
-	 * @returns {User} The updated user.
+	 * @returns {Group} The updated group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<User>): Promise<User> {
-		// Update given fields for the user in Firestore
+	async update(id: string, data: Partial<Group>): Promise<Group> {
+		// Update given fields for the group in Firestore
 		try {
-			// First retrieve the user
-			const userDocument = await getFirestore()
-				.collection('users')
+			// First retrieve the group
+			const groupDocument = await getFirestore()
+				.collection('groups')
 				.doc(id)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
-			if (!userDocument.exists) {
+			if (groupDocument.exists) {
 				throw new ServerError('entity-not-found')
 			}
 
 			// Else update away!
 			await getFirestore()
-				.collection('users')
+				.collection('groups')
 				.doc(id)
 				.set(instanceToPlain(data), { merge: true })
 
-			// If the transaction was successfull, return the updated user
-			return plainToInstance(User, {
-				...userDocument.data(),
+			// If the transaction was successfull, return the updated group
+			return plainToInstance(Group, {
+				...groupDocument.data(),
 				...data,
 			})
 		} catch (error: unknown) {
@@ -182,9 +176,9 @@ class UserProvider implements DataProvider<User> {
 	}
 
 	/**
-	 * Deletes a user in the database.
+	 * Deletes a group in the database.
 	 *
-	 * @param {string} id The ID of the user to delete.
+	 * @param {string} id The ID of the group to delete.
 	 *
 	 * @returns {void}
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
@@ -192,7 +186,7 @@ class UserProvider implements DataProvider<User> {
 	async delete(id: string): Promise<void> {
 		// Delete the document
 		try {
-			await getFirestore().collection('users').doc(id).delete()
+			await getFirestore().collection('groups').doc(id).delete()
 		} catch (caughtError: unknown) {
 			const error = caughtError as FirebaseError
 			// Handle a not found error, but pass on the rest as a backend error
@@ -206,4 +200,4 @@ class UserProvider implements DataProvider<User> {
 	}
 }
 
-export default new UserProvider()
+export default new GroupProvider()

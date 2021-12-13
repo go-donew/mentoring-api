@@ -76,7 +76,9 @@ const load = async (app: Application): Promise<void> => {
 			},
 			// Use the IP address of the client as the key
 			keyGenerator: (request: Request): string =>
-				request.ip ?? request.ips[0] ?? request.socket.remoteAddress,
+				request.user
+					? request.user.token
+					: request.ip ?? request.ips[0] ?? request.socket.remoteAddress,
 		})
 	)
 }

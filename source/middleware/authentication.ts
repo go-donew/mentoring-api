@@ -1,5 +1,5 @@
-// @/utils/auth
-// Authentication and authorization related stuff
+// @/middleware/authentication.ts
+// Middleware that authenticates users making requests
 
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 
@@ -20,7 +20,8 @@ import ServerError from '../utils/errors.js'
  * - If the access token is invalid, return an `InvalidAccessTokenError` (401).
  * - Lastly, retrieve the user from the ID specified in the access token.
  *
- * @returns {RequestHandler}
+ * @returns {RequestHandler} - The authentication middleware.
+ * @throws {ServerError} - 'invalid-token'
  */
 const authenticateUsers =
 	(): RequestHandler =>
@@ -57,6 +58,7 @@ const authenticateUsers =
 			request.user = {
 				...user,
 				isGroot: claims.groot,
+				token,
 			}
 		} catch (error: unknown) {
 			next(error)

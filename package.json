@@ -24,6 +24,7 @@
 		"watch": "tsc -w",
 		"compile": "run-s clean build",
 		"start": "firebase emulators:start",
+		"dev": "run-p watch start",
 		"lint": "xo --fix",
 		"test": "run-s compile && xo && firebase emulators:exec --export-on-exit test-export \"pnpx cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand\"",
 		"prepare": "run-s compile && husky install config/husky"
