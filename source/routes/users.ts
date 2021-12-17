@@ -37,14 +37,14 @@ const endpoint = createRouter()
 /**
  * GET /users
  *
- * @summary List/find users. You must be `groot` to perform this query.
+ * @summary List/find users
  * @tags users
  *
  * @security bearer
  *
  * @param {ListOrFindUsersPayload} request.body - The query to run and find users.
  *
- * @returns {ListOrFindUsersResponse} 200 - The users returned from the query.
+ * @returns {ListOrFindUsersResponse} 200 - The users returned from the query. You must be `groot` to perform this query.
  * @returns {ImproperPayloadError} 400 - The name, email, phone or timestamps passed were invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.

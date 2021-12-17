@@ -1,4 +1,4 @@
-// @/types.d.ts
+// @/types.ts
 // Types for the server!
 
 import User from './models/user.js'
@@ -36,7 +36,7 @@ declare global {
 /**
  * GET /ping
  *
- * @summary Checks if server is alive and kicking
+ * @summary Check if server is ready to accept connections
  *
  * @returns {string} 200 - A message
  *
@@ -59,7 +59,7 @@ declare global {
  * List of participants in a group.
  *
  * @typedef {object} ParticipantList
- * @property {string} userId.required - The participating user's ID. - enum:mentee,mentor,supermentor
+ * @property {string} userId.required - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
  */
 export declare type ParticipantList = Record<
 	string,
@@ -70,7 +70,7 @@ export declare type ParticipantList = Record<
  * List of conversations the group's participants are allowed to take part in.
  *
  * @typedef {object} ConversationsList
- * @property {string} conversationId.required - The conversation ID. - enum:mentee,mentor,supermentor
+ * @property {string} conversationId.required - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
  */
 export declare type ConversationsList = Record<
 	string,
@@ -81,7 +81,7 @@ export declare type ConversationsList = Record<
  * List of reports the group's participants can view.
  *
  * @typedef {object} ReportsList
- * @property {string} reportId.required - The report ID. - enum:mentee,mentor,supermentor
+ * @property {string} reportId.required - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
  */
 export declare type ReportsList = Record<
 	string,
