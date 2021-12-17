@@ -43,7 +43,7 @@ class GroupProvider implements DataProvider<Group> {
 		try {
 			;({ docs } = await groupsQuery.get())
 		} catch (error: unknown) {
-			console.trace(error)
+			console.trace(JSON.stringify(error))
 			throw new ServerError('backend-error')
 		}
 

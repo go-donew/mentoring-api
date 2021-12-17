@@ -4,6 +4,7 @@
 import { Application, Request, Response, NextFunction } from 'express'
 
 import authEndpoint from '../../routes/auth.js'
+import usersEndpoint from '../../routes/users.js'
 import ServerError from '../../utils/errors.js'
 
 /**
@@ -13,8 +14,17 @@ import ServerError from '../../utils/errors.js'
  */
 const load = async (app: Application): Promise<void> => {
 	// Register the API endpoints
-	app.all('/ping', (_: Request, response: Response) => response.send('Pong!'))
+	// `/ping` and `/pong` are test routes
+	app.all(/p[i|o]ng/, (_: Request, response: Response) =>
+		response
+			.status(200)
+			.send(
+				'Thanks for using the DoNew Today API! Check out the docs by going to /docs in your browser.'
+			)
+	)
+
 	app.use('/auth', authEndpoint)
+	app.use('/users', usersEndpoint)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.

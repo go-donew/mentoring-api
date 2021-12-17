@@ -32,6 +32,29 @@ declare global {
 	}
 }
 
+// Route definitions for `/ping` and `/pong`
+/**
+ * GET /ping
+ *
+ * @summary Checks if server is alive and kicking
+ *
+ * @returns {string} 200 - A message
+ *
+ * @endpoint
+ */
+/**
+ * GET /pong
+ *
+ * @summary Check if your authentication token is valid
+ *
+ * @security bearer
+ *
+ * @returns {string} 200 - A message
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ *
+ * @endpoint
+ */
+
 /**
  * List of participants in a group.
  *
@@ -75,8 +98,8 @@ export declare type ReportsList = Record<
  */
 export declare type Tokens = {
 	/**
-	 * The user's bearer token. Must be passed in the `Authorization` header, or
-	 * in the `token` query parameter in all requests.
+	 * The user's bearer token. Must be passed in the `Authorization` header in
+	 * all requests.
 	 *
 	 * @type {string}
 	 */

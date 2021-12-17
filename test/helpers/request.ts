@@ -28,9 +28,12 @@ export const fetch = async (
 	// Parse the response
 	const body = rawBody.toString('utf-8')
 	if (body) {
-		const parsedBody = JSON.parse(body)
-
-		return { body: parsedBody, status: statusCode }
+		try {
+			return { body: JSON.parse(body), status: statusCode }
+		} catch {
+			// The body is not JSON (for the `/ping` and `/pong` endpoints)
+			return { body: rawBody, status: statusCode }
+		}
 	}
 
 	return { body: {}, status: statusCode }
@@ -59,7 +62,7 @@ export const fetchError = async (
 		const serverError = body.error as Record<string, any> | undefined
 
 		// If yes, convert the JSON object to an instance of a `ServerError`
-		if (serverError)
+		if (serverError?.code && serverError?.message && serverError?.status)
 			return new ServerError(
 				serverError.code,
 				serverError.message,

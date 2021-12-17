@@ -29,7 +29,7 @@ const errors = {
 	 * @property {number} status.required - The HTTP error code. - enum:401
 	 */
 	'invalid-token': {
-		message: `Could not find a valid access token in either the 'Authorization' header or 'token' query parameter. Please retrieve an access token by authenticating via the /api/auth/signin endpoint, and place it in the 'Authorization' header.`,
+		message: `Could not find a valid access token in the 'Authorization' headerr. Please retrieve an access token by authenticating via the /api/auth/signin endpoint, and place it in the 'Authorization' header.`,
 		status: 401,
 	},
 
@@ -174,8 +174,6 @@ class ServerError extends Error {
 		this.code = code
 		this.status = status
 		this.message = message
-
-		console.log(this.stack)
 	}
 }
 

@@ -41,7 +41,7 @@ const endpoint = createRouter()
  * @returns {SignUpResponse} 201 - The created user and the tokens for that user.
  * @returns {ImproperPayloadError} 400 - The name, email or password passed were invalid.
  * @returns {EntityAlreadyExistsError} 409 - A user with the same email address already exists.
- * @returns {TooManyRequestsError} 429 - The client has been rate-limited.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
  * @returns {BackendError} 500 - An error occurred while interacting with the backend.
  * @returns {ServerCrashError} 500 - The server crashed.
  *
@@ -105,7 +105,7 @@ endpoint.post(
  * @returns {ImproperPayloadError} 400 - The email or password passed were invalid.
  * @returns {IncorrectCredentialsError} 401 - The password for that account was incorrect.
  * @returns {EntityNotFoundError} 404 - A user with the email address passed in the request does not exists.
- * @returns {TooManyRequestsError} 429 - The client has been rate-limited.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
  * @returns {BackendError} 500 - An error occurred while interacting with the backend.
  * @returns {ServerCrashError} 500 - The server crashed.
  *
@@ -159,7 +159,7 @@ endpoint.post(
  * @returns {TokenRefreshResponse} 200 - The new set of tokens the user can use.
  * @returns {ImproperPayloadError} 400 - The refresh token passed was invalid.
  * @returns {IncorrectCredentialsError} 401 - The refresh token had expired.
- * @returns {TooManyRequestsError} 429 - The client has been rate-limited.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
  * @returns {BackendError} 500 - An error occurred while interacting with the backend.
  * @returns {ServerCrashError} 500 - The server crashed.
  *

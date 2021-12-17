@@ -30,14 +30,19 @@ const authenticateUsers =
 		_response: Response,
 		next: NextFunction
 	): Promise<void> => {
-		// Don't do anything for docs and auth related routes
-		if (request.url.startsWith('/auth') || request.url.startsWith('/docs')) {
+		// Don't do anything for docs and auth related routes. Also disable auth
+		// for the `/ping` route, but not `/pong` - useful for tests!
+		if (
+			request.url.startsWith('/ping') ||
+			request.url.startsWith('/auth') ||
+			request.url.startsWith('/docs')
+		) {
 			next()
 			return
 		}
 
-		// Check for a Bearer token in the `Authorization` header or `token` query parameter
-		let token = request.headers.authorization ?? request.query.token
+		// Check for a Bearer token in the `Authorization` header
+		let token = request.headers.authorization
 		// If there is nothing in either header, throw an error
 		if (typeof token !== 'string') {
 			next(new ServerError('invalid-token'))
@@ -46,7 +51,7 @@ const authenticateUsers =
 
 		// Remove the `bearer` prefix (if it exists) and extra whitespaces from the
 		// access token
-		token = token.replace('bearer', '').replace('Bearer', '').trim()
+		token = token.replace(/bearer/i, '').trim()
 
 		// Fetch the user's details from the database and store the user in the
 		// request object, so the request handlers know who is making the request
@@ -57,7 +62,7 @@ const authenticateUsers =
 
 			request.user = {
 				...user,
-				isGroot: claims.groot,
+				isGroot: claims?.groot ?? false,
 				token,
 			}
 		} catch (error: unknown) {

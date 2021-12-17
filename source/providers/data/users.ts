@@ -43,7 +43,7 @@ class UserProvider implements DataProvider<User> {
 		try {
 			;({ docs } = await usersQuery.get())
 		} catch (error: unknown) {
-			console.trace(error)
+			console.trace(JSON.stringify(error))
 			throw new ServerError('backend-error')
 		}
 

@@ -61,6 +61,7 @@ const load = async (app: Application): Promise<void> => {
 	app.use(
 		'/docs',
 		serve(getAbsolutePath(__dirname, '../../../assets/docs.html'), {
+			// FIXME: Is this dangerous?
 			setHeaders: (response: Response) =>
 				response.setHeader('content-security-policy', ''),
 		})
@@ -70,6 +71,8 @@ const load = async (app: Application): Promise<void> => {
 	app.use(
 		validate({
 			apiSpec: spec as any,
+			// Let us take care of authorization
+			validateSecurity: false,
 		})
 	)
 }
