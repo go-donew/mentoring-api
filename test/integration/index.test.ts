@@ -1,20 +1,11 @@
 // @/integration-tests/index.test.ts
 // Tests all APIs
 
+// eslint-disable-next-line import/no-unassigned-import
+import '../setup.js'
+
 import { fetch, fetchError } from '../helpers/request.js'
 import { testData } from '../helpers/test-data.js'
-
-// Typpeesssscccrriipppppttttttt
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		interface Matchers<R, T> {
-			toMatchShapeOf(expected: any): R
-			toMatchOneOf(expected: any[]): R
-		}
-	}
-}
 
 /**
  * Data to persist throughout the test
