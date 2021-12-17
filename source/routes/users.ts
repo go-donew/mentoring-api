@@ -100,5 +100,52 @@ endpoint.get(
 	}
 )
 
+/**
+ * The response from the retrieve user endpoint.
+ *
+ * @typedef {object} RetrieveUserResponse
+ * @property {User} user.required - The requested user.
+ */
+
+/**
+ * GET /users/{userId}
+ *
+ * @summary Retrieve a requested user
+ * @tags users
+ *
+ * @security bearer
+ *
+ * @param {string} userId.path.required - The ID of the user to return.
+ *
+ * @returns {RetrieveUserResponse} 200 - The requested user. You must be the user themself, or their mentor/supermentor.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.get(
+	'/:userId',
+	permit({
+		subject: 'user',
+		roles: ['self', 'mentor', 'supermentor'],
+	}),
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			response
+				.status(200)
+				.send({ user: await Users.get(request.params.userId) })
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
 // Export the router
 export default endpoint

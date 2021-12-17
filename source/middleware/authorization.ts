@@ -20,16 +20,16 @@ const permit =
 		context:
 			| {
 					subject: 'user'
-					roles: Array<'self' | 'mentor' | 'mentee' | 'supermentor'>
+					roles: Array<'self' | 'mentor' | 'supermentor'>
 			  }
 			| {
 					subject: 'group'
-					roles: Array<'participant' | 'mentor' | 'mentee' | 'supermentor'>
+					roles: Array<'participant' | 'mentee' | 'mentor' | 'supermentor'>
 			  }
 			| {
 					subject: 'message'
 					roles: Array<
-						'participant' | 'sender' | 'mentor' | 'mentee' | 'supermentor'
+						'participant' | 'sender' | 'mentee' | 'mentor' | 'supermentor'
 					>
 			  }
 			| {

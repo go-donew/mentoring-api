@@ -44,7 +44,7 @@ export const fetch = async (
  *
  * @param {Options} options - The options to pass to the `got` instance.
  *
- * @returns {ServerError?} - The error returned in the response.
+ * @returns {ServerError | undefined} - The error returned in the response.
  */
 export const fetchError = async (
 	options: Options
