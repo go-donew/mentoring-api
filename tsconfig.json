@@ -6,6 +6,7 @@
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "esnext",
+		"declaration": true,
 		"sourceMap": false,
 		"outDir": "build/",
 		"strict": true,
