@@ -20,6 +20,10 @@ const tokens: { bofh: any; pfy: any; groot: any } = {
 	pfy: {},
 	groot: {},
 }
+const groups: { bastards: any; interns: any } = {
+	bastards: {},
+	interns: {},
+}
 
 /**
  * Test the authentication endpoints and middleware.
@@ -360,6 +364,283 @@ describe('auth', () => {
 })
 
 /**
+ * Test the group endpoints.
+ */
+describe('groups', () => {
+	describe('post /groups', () => {
+		it('should return a `improper-payload` error when an invalid name is passed', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: { ...data, name: { is: 'invalid' } },
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		// FIXME: None of the below validations work
+		/*
+		it('should return a `improper-payload` error when an invalid participant list is passed', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: { ...data, participants: { 'The BOFH': ['mentee'] } },
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return a `improper-payload` error when an invalid conversations list is passed', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: { ...data, conversations: {},
+				reports: {},					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return a `improper-payload` error when an invalid reports list is passed', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: { ...data, reports: { 'quiz-score': 'mentee' } },
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+		*/
+
+		it('should return a `improper-payload` error when an invalid code is passed', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: { ...data, code: ['the-bastards', 'sys-admin'] },
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const data = await testData('groups/create/bastards')
+			const error = await fetchError({
+				method: 'post',
+				url: 'groups',
+				json: data,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should return the created group upon a valid request (bastards)', async () => {
+			const data = await testData('groups/create/bastards', {
+				bofh: users.bofh.id,
+			})
+			const { body, status } = await fetch({
+				method: 'post',
+				url: 'groups',
+				json: data,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(201)
+			expect(body.group).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				participants: {
+					[users.bofh.id]: 'supermentor',
+				},
+				conversations: {},
+				reports: {},
+				code: 'string',
+			})
+
+			groups.bastards = body.group
+		})
+
+		it('should return the created group upon a valid request (interns)', async () => {
+			const data = await testData('groups/create/interns', {
+				bofh: users.bofh.id,
+				pfy: users.pfy.id,
+			})
+			const { body, status } = await fetch({
+				method: 'post',
+				url: 'groups',
+				json: data,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(201)
+			expect(body.group).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				participants: {
+					[users.bofh.id]: 'supermentor',
+					[users.pfy.id]: 'mentee',
+				},
+				conversations: {},
+				reports: {},
+				code: 'string',
+			})
+
+			groups.interns = body.group
+		})
+	})
+
+	describe('get /groups', () => {
+		it('should return all groups if the requesting user is groot', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: 'groups',
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.groups.length).toEqual(2)
+			expect(body.groups).toMatchShapeOf([
+				{
+					id: 'string',
+					name: 'string',
+					participants: {},
+					conversations: {},
+					reports: {},
+					code: 'string',
+				},
+			])
+		})
+
+		it('should only list groups the requesting user is a part of upon a valid request', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: 'groups',
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.groups.length).toEqual(1)
+			expect(body.groups).toMatchShapeOf([
+				{
+					id: 'string',
+					name: 'string',
+					participants: {},
+					conversations: {},
+					reports: {},
+					code: 'string',
+				},
+			])
+		})
+	})
+
+	describe('get /groups/{groupId}', () => {
+		it('should return a `entity-not-found` error when the requested group is not found', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: 'groups/weird',
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not a part of the requested group', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `groups/${groups.bastards.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should return the requested group when requesting user is a part of the group', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `groups/${groups.interns.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.group).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				participants: {
+					[users.pfy.id]: 'mentee',
+				},
+				conversations: {},
+				reports: {},
+				code: 'string',
+			})
+		})
+
+		it('should return the requested group when requesting user is groot', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `groups/${groups.interns.id}`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.group).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				participants: {
+					[users.pfy.id]: 'mentee',
+				},
+				conversations: {},
+				reports: {},
+				code: 'string',
+			})
+		})
+	})
+})
+
+/**
  * Test the user profile endpoints.
  */
 describe('users', () => {
@@ -401,7 +682,7 @@ describe('users', () => {
 	})
 
 	describe('get /users/{userId}', () => {
-		it('should return a `not-allowed` error when the requested user is not found', async () => {
+		it('should return a `not-allowed` error when the requested user is not found but the requesting user is not groot', async () => {
 			const error = await fetchError({
 				method: 'get',
 				url: 'users/weird',
@@ -427,7 +708,20 @@ describe('users', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it('should return a the requested user when requesting user is groot', async () => {
+		it('should return a `entity-not-found` error when the requested user is not found but the requesting user is groot', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: 'users/weird',
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return the requested user when requesting user is groot', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
 				url: `users/${users.bofh.id}`,

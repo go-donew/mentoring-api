@@ -23,7 +23,8 @@ class GroupProvider implements DataProvider<Group> {
 	 */
 	async find(queries: Array<Query<Group>>): Promise<Group[]> {
 		// Build the query
-		const groupsQuery = getFirestore().collection('groups')
+		const groupsRef = getFirestore().collection('groups')
+		let foundGroups = groupsRef.orderBy('name')
 		for (const query of queries) {
 			let field = query.field as string
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
@@ -35,13 +36,13 @@ class GroupProvider implements DataProvider<Group> {
 				value = true
 			}
 
-			groupsQuery.where(field, operator, value)
+			foundGroups = foundGroups.where(field, operator, value)
 		}
 
 		// Execute the query
 		let docs
 		try {
-			;({ docs } = await groupsQuery.get())
+			;({ docs } = await foundGroups.get())
 		} catch (error: unknown) {
 			console.trace(JSON.stringify(error))
 			throw new ServerError('backend-error')
@@ -57,7 +58,7 @@ class GroupProvider implements DataProvider<Group> {
 
 			// Add it to the array
 			const data = doc.data()
-			groups.push(plainToInstance(Group, data))
+			groups.push(plainToInstance(Group, data, { excludePrefixes: ['__'] }))
 		}
 
 		return groups
@@ -95,7 +96,7 @@ class GroupProvider implements DataProvider<Group> {
 		}
 
 		// Return the object as an instance of the `Group` class
-		return plainToInstance(Group, data)
+		return plainToInstance(Group, data, { excludePrefixes: ['__'] })
 	}
 
 	/**
@@ -123,6 +124,17 @@ class GroupProvider implements DataProvider<Group> {
 
 			// Else insert away!
 			const serializedGroup = instanceToPlain(data)
+			// Add some extra fields for easy querying
+			serializedGroup.__participants = {}
+			serializedGroup.__conversations = {}
+			serializedGroup.__reports = {}
+			for (const participant of Object.keys(serializedGroup.participants))
+				serializedGroup.__participants[participant] = true
+			for (const conversation of Object.keys(serializedGroup.conversations))
+				serializedGroup.__conversations[conversation] = true
+			for (const report of Object.keys(serializedGroup.reports))
+				serializedGroup.__reports[report] = true
+			// Add the data into the database
 			await getFirestore().collection('groups').doc(id).set(serializedGroup)
 
 			// If the transaction was successful, return the created group
@@ -163,11 +175,15 @@ class GroupProvider implements DataProvider<Group> {
 				.doc(id)
 				.set(instanceToPlain(data), { merge: true })
 
-			// If the transaction was successfull, return the updated group
-			return plainToInstance(Group, {
-				...groupDocument.data(),
-				...data,
-			})
+			// If the transaction was successful, return the updated group
+			return plainToInstance(
+				Group,
+				{
+					...groupDocument.data(),
+					...data,
+				},
+				{ excludePrefixes: ['__'] }
+			)
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
 			console.trace(JSON.stringify(error))

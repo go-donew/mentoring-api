@@ -59,7 +59,7 @@ declare global {
  * List of participants in a group.
  *
  * @typedef {object} ParticipantList
- * @property {string} userId.required - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
+ * @property {string} userId - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
  */
 export declare type ParticipantList = Record<
 	string,
@@ -69,24 +69,54 @@ export declare type ParticipantList = Record<
 /**
  * List of conversations the group's participants are allowed to take part in.
  *
- * @typedef {object} ConversationsList
- * @property {string} conversationId.required - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
+ * @typedef {object} ConversationList
+ * @property {array<string>} conversationId - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
  */
-export declare type ConversationsList = Record<
+export declare type ConversationList = Record<
 	string,
-	'mentee' | 'mentor' | 'supermentor'
+	Array<'mentee' | 'mentor' | 'supermentor'>
 >
 
 /**
  * List of reports the group's participants can view.
  *
- * @typedef {object} ReportsList
- * @property {string} reportId.required - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
+ * @typedef {object} ReportList
+ * @property {array<string>} reportId - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
  */
-export declare type ReportsList = Record<
+export declare type ReportList = Record<
 	string,
-	'mentee' | 'mentor' | 'supermentor'
+	Array<'mentee' | 'mentor' | 'supermentor'>
 >
+
+/**
+ * The context in which a request is to be allowed to pass. The `subject` indicates
+ * the type of data being accessed, while the roles indicate which type of users
+ * are allowed to access the data.
+ */
+export declare type AuthorizationContext =
+	| {
+			subject: 'user'
+			roles: Array<'self' | 'mentor' | 'supermentor'>
+	  }
+	| {
+			subject: 'group'
+			roles: Array<'participant' | 'mentee' | 'mentor' | 'supermentor'>
+	  }
+	| {
+			subject: 'message'
+			roles: Array<
+				'participant' | 'sender' | 'mentee' | 'mentor' | 'supermentor'
+			>
+	  }
+	| {
+			subject: 'report'
+			roles: 'dynamic'
+	  }
+	| {
+			subject: 'conversation'
+			roles: 'dynamic'
+	  }
+	| 'groot'
 
 /**
  * The bearer token and refresh token set returned when a user signs in/up or

@@ -2,7 +2,7 @@
 # A list of files and folders that should not be tracked by Git
 
 node_modules/
-build/
+dist/
 coverage/
 test-export/
 

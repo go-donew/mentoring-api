@@ -2,7 +2,7 @@
 // A class representing a group
 
 import Groups from '../providers/data/groups.js'
-import { ParticipantList, ConversationsList, ReportsList } from '../types.js'
+import { ParticipantList, ConversationList, ReportList } from '../types.js'
 
 /**
  * A class representing a group.
@@ -11,8 +11,8 @@ import { ParticipantList, ConversationsList, ReportsList } from '../types.js'
  * @property {string} id.required - The group ID.
  * @property {string} name.required - The group's name.
  * @property {ParticipantList} participants - The group's participants.
- * @property {ConversationsList} conversations - The conversations the group's participants are allowed to take part in.
- * @property {ReportsList} reports - The reports the group's participants can view.
+ * @property {ConversationList} conversations - The conversations the group's participants are allowed to take part in.
+ * @property {ReportList} reports - The reports the group's participants can view.
  * @property {string} code.required - The code a user can use to join the group.
  */
 class Group {
@@ -21,16 +21,16 @@ class Group {
 	id: string
 	name: string
 	participants: ParticipantList
-	conversations: ConversationsList
-	reports: ReportsList
+	conversations: ConversationList
+	reports: ReportList
 	code: string
 
 	constructor(
 		id: string,
 		name: string,
 		participants: ParticipantList,
-		conversations: ConversationsList,
-		reports: ReportsList,
+		conversations: ConversationList,
+		reports: ReportList,
 		code: string
 	) {
 		this.id = id

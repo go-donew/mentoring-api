@@ -62,15 +62,13 @@ endpoint.post(
 		next: NextFunction
 	): Promise<void> => {
 		try {
-			response
-				.status(201)
-				.send(
-					await Auth.signUp(
-						request.body.name,
-						request.body.email,
-						request.body.password
-					)
-				)
+			const userAndTokens = await Auth.signUp(
+				request.body.name,
+				request.body.email,
+				request.body.password
+			)
+
+			response.status(201).send(userAndTokens)
 		} catch (error: unknown) {
 			next(error)
 		}
@@ -125,9 +123,11 @@ endpoint.post(
 		next: NextFunction
 	): Promise<void> => {
 		try {
-			response
-				.status(200)
-				.send(await Auth.signIn(request.body.email, request.body.password))
+			const userAndTokens = await Auth.signIn(
+				request.body.email,
+				request.body.password
+			)
+			response.status(200).send(userAndTokens)
 		} catch (error: unknown) {
 			next(error)
 		}
@@ -178,9 +178,9 @@ endpoint.post(
 		next: NextFunction
 	): Promise<void> => {
 		try {
-			response.status(200).send({
-				tokens: await Auth.refreshTokens(request.body.refreshToken),
-			})
+			const tokens = await Auth.refreshTokens(request.body.refreshToken)
+
+			response.status(200).send({ tokens })
 		} catch (error: unknown) {
 			next(error)
 		}

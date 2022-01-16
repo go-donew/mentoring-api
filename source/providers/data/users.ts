@@ -27,10 +27,10 @@ class UserProvider implements DataProvider<User> {
 		for (const query of queries) {
 			let field = query.field as string
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
-			let value = query.value as any
+			let value = query.value as unknown
 
 			if (query.operator === 'includes') {
-				field = `__${query.field}.${query.value}`
+				field = `__${query.field as string}.${query.value as string}`
 				operator = '=='
 				value = true
 			}

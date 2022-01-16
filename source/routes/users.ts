@@ -1,5 +1,5 @@
 // @/routes/users.ts
-// Sign up/in and token refresh API endpoint handler
+// List and retrieve users API endpoint handlers
 
 import {
 	Router as createRouter,
@@ -92,8 +92,9 @@ endpoint.get(
 			}
 
 			query = query as Array<Query<User>>
+			const users = await Users.find(query)
 
-			response.status(200).send({ users: await Users.find(query) })
+			response.status(200).send({ users })
 		} catch (error: unknown) {
 			next(error)
 		}
@@ -138,9 +139,9 @@ endpoint.get(
 		next: NextFunction
 	): Promise<void> => {
 		try {
-			response
-				.status(200)
-				.send({ user: await Users.get(request.params.userId) })
+			const user = await Users.get(request.params.userId)
+
+			response.status(200).send({ user })
 		} catch (error: unknown) {
 			next(error)
 		}

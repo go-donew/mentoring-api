@@ -5,6 +5,7 @@ import { Application, Request, Response, NextFunction } from 'express'
 
 import authEndpoint from '../../routes/auth.js'
 import usersEndpoint from '../../routes/users.js'
+import groupsEndpoint from '../../routes/groups.js'
 import ServerError from '../../utils/errors.js'
 
 /**
@@ -25,6 +26,7 @@ const load = async (app: Application): Promise<void> => {
 
 	app.use('/auth', authEndpoint)
 	app.use('/users', usersEndpoint)
+	app.use('/groups', groupsEndpoint)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.
@@ -40,8 +42,11 @@ const load = async (app: Application): Promise<void> => {
 			_next: NextFunction
 		) => {
 			if (caughtError instanceof ServerError) {
+				// We threw this error, so pass it on
 				response.sendError(caughtError)
 			} else if ((caughtError as any).status === 400) {
+				// The request validator threw an error, return it as an `improper-payload`
+				// error
 				response.sendError(
 					new ServerError(
 						'improper-payload',
@@ -50,10 +55,14 @@ const load = async (app: Application): Promise<void> => {
 				)
 			} else if (
 				(caughtError as any).status === 404 &&
-				(caughtError as any).path
+				(caughtError as any).path &&
+				!(caughtError instanceof ServerError)
 			) {
+				// The request validator threw an error for an unknown route, so return it
+				// as a `route-not-found` error
 				response.sendError(new ServerError('route-not-found'))
 			} else {
+				// We crashed :/
 				console.trace('Unexpected error:', caughtError)
 				response.sendError('server-crash')
 			}
