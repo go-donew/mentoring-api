@@ -107,12 +107,12 @@ endpoint.get(
 /**
  * The payload needed to create a group.
  *
- * @typedef {object} ListOrFindGroupsPayload
- * @property {string} name - The group should have this name.
- * @property {ParticipantList} participants - The group should have the given participants.
- * @property {ConversationList} conversations - The group should be allowed to take part in the given conversations.
- * @property {ReportList} reports - The group should be allowed to view the given reports.
- * @property {string} code - The group should have this code.
+ * @typedef {Group} CreateGroupPayload
+ * @property {string} name.required - The group should have this name.
+ * @property {ParticipantList} participants.required - The group should have the given participants.
+ * @property {ConversationList} conversations.required - The group should be allowed to take part in the given conversations.
+ * @property {ReportList} reports.required - The group should be allowed to view the given reports.
+ * @property {string} code.required - The group should have this code.
  */
 
 /**
@@ -130,7 +130,7 @@ endpoint.get(
  *
  * @security bearer
  *
- * @param {ListOrFindGroupsPayload} request.body - The necessary details to create a group.
+ * @param {CreateGroupPayload} request.body - The necessary details to create a group.
  *
  * @returns {CreateGroupResponse} 201 - The created group.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -218,6 +218,66 @@ endpoint.get(
 	): Promise<void> => {
 		try {
 			const group = await Groups.get(request.params.groupId)
+
+			response.status(200).send({ group })
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
+/**
+ * The payload needed to update a group.
+ *
+ * @typedef {Group} UpdateGroupPayload
+ * @property {string} name.required - The group should have this name.
+ * @property {ParticipantList} participants.required - The group should have the given participants.
+ * @property {ConversationList} conversations.required - The group should be allowed to take part in the given conversations.
+ * @property {ReportList} reports.required - The group should be allowed to view the given reports.
+ * @property {string} code.required - The group should have this code.
+ */
+
+/**
+ * The response from the update group endpoint.
+ *
+ * @typedef {object} UpdateGroupResponse
+ * @property {Group} group.required - The updated group.
+ */
+
+/**
+ * PUT /groups/{groupId}
+ *
+ * @summary Update a certain group
+ * @tags groups
+ *
+ * @security bearer
+ *
+ * @param {string} groupId.path.required - The ID of the group to update.
+ * @param {UpdateGroupPayload} request.body.required - The new group.
+ *
+ * @returns {UpdateGroupResponse} 200 - The updated group. You must be a supermentor of the group to update its details.
+ * @returns {ImproperPayloadError} 400 - The payload was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.put(
+	'/:groupId',
+	permit({
+		subject: 'group',
+		roles: ['supermentor'],
+	}),
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const group = await Groups.update(request.params.groupId, request.body)
 
 			response.status(200).send({ group })
 		} catch (error: unknown) {

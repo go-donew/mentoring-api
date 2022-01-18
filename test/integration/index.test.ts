@@ -30,183 +30,101 @@ const groups: { bastards: any; interns: any } = {
  */
 describe('auth', () => {
 	describe('post /auth/signup', () => {
-		it('should return a `improper-payload` error when an invalid name is passed', async () => {
-			const data = await testData('auth/signup/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signup',
-				json: { ...data, name: 42 },
-			})
+		it.each([
+			['an invalid username is passed', { name: { invalid: 'value' } }],
+			['an invalid email is passed', { email: 'weird!addr' }],
+			['an invalid password is passed', { password: { invalid: 'value' } }],
+			['a weak password (< 6 letters) is passed', { password: '1234' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('auth/signup/bofh')
+				const error = await fetchError({
+					method: 'post',
+					url: 'auth/signup',
+					json: { ...data, ...additionalTestData },
+				})
 
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when an invalid email is passed', async () => {
-			const data = await testData('auth/signup/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signup',
-				json: { ...data, email: 'weird!addr' },
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when an invalid password is passed', async () => {
-			const data = await testData('auth/signup/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signup',
-				json: { ...data, password: { invalid: 'value' } },
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when a weak password (< 6 letters) is passed', async () => {
-			const data = await testData('auth/signup/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signup',
-				json: { ...data, password: 'abcde' },
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return the user and tokens upon a valid request (bofh)', async () => {
-			const data = await testData('auth/signup/bofh')
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'auth/signup',
-				json: data,
-			})
-
-			expect(status).toEqual(201)
-			expect(body).toMatchShapeOf({
-				user: {
-					id: 'string',
-					name: 'string',
-					email: 'string',
-					phone: undefined,
-					lastSignedIn: 'string',
-				},
-				tokens: {
-					bearer: 'string',
-					refresh: 'string',
-				},
-			})
-
-			users.bofh = body.user
-			tokens.bofh = body.tokens
-		})
-
-		it('should return the user and tokens upon a valid request (pfy)', async () => {
-			const data = await testData('auth/signup/pfy')
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'auth/signup',
-				json: data,
-			})
-
-			expect(status).toEqual(201)
-			expect(body).toMatchShapeOf({
-				user: {
-					id: 'string',
-					name: 'string',
-					email: 'string',
-					phone: undefined,
-					lastSignedIn: 'string',
-				},
-				tokens: {
-					bearer: 'string',
-					refresh: 'string',
-				},
-			})
-
-			users.pfy = body.user
-			tokens.pfy = body.tokens
-		})
-
-		it('should return the user and tokens upon a valid request (groot)', async () => {
-			const data = await testData('auth/signup/groot')
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'auth/signup',
-				json: data,
-			})
-
-			expect(status).toEqual(201)
-			expect(body).toMatchShapeOf({
-				user: {
-					id: 'string',
-					name: 'string',
-					email: 'string',
-					phone: undefined,
-					lastSignedIn: 'string',
-				},
-				tokens: {
-					bearer: 'string',
-					refresh: 'string',
-				},
-			})
-
-			users.groot = body.user
-			tokens.groot = body.tokens
-
-			const {
-				body: { idToken, refreshToken },
-			} = await fetch({
-				method: 'post',
-				prefixUrl: 'http://localhost:9099/identitytoolkit.googleapis.com/v1',
-				url: `accounts:update`,
-				headers: {
-					authorization: 'Bearer owner',
-				},
-				json: {
-					localId: users.groot.id,
-					displayName: data.name,
-					email: data.email,
-					password: data.password,
-					customAttributes: '{"groot": true}',
-				},
-			})
-
-			tokens.groot = {
-				bearer: idToken,
-				refresh: refreshToken,
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
 			}
-		})
+		)
+
+		it.each(['bofh', 'pfy', 'groot'])(
+			'should return the user and tokens upon a valid request (%s)',
+			async (username: string) => {
+				const data = await testData(`auth/signup/${username}`)
+				const { body, status } = await fetch({
+					method: 'post',
+					url: 'auth/signup',
+					json: data,
+				})
+
+				expect(status).toEqual(201)
+				expect(body).toMatchShapeOf({
+					user: {
+						id: 'string',
+						name: 'string',
+						email: 'string',
+						phone: undefined,
+						lastSignedIn: 'string',
+					},
+					tokens: {
+						bearer: 'string',
+						refresh: 'string',
+					},
+				})
+
+				users[username as 'bofh' | 'pfy' | 'groot'] = body.user
+				tokens[username as 'bofh' | 'pfy' | 'groot'] = body.tokens
+
+				if (username === 'groot') {
+					const {
+						body: { idToken, refreshToken },
+					} = await fetch({
+						method: 'post',
+						prefixUrl:
+							'http://localhost:9099/identitytoolkit.googleapis.com/v1',
+						url: `accounts:update`,
+						headers: {
+							authorization: 'Bearer owner',
+						},
+						json: {
+							localId: users.groot.id,
+							displayName: data.name,
+							email: data.email,
+							password: data.password,
+							customAttributes: '{"groot": true}',
+						},
+					})
+
+					tokens.groot = {
+						bearer: idToken,
+						refresh: refreshToken,
+					}
+				}
+			}
+		)
 	})
 
 	describe('post /auth/signin', () => {
-		it('should return a `improper-payload` error when an invalid email is passed', async () => {
-			const data = await testData('auth/signin/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signin',
-				json: { ...data, email: 'weird!addr' },
-			})
+		it.each([
+			['an invalid email is passed', { email: 'weird!addr' }],
+			['an invalid password is passed', { password: { invalid: 'value' } }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('auth/signin/bofh')
+				const error = await fetchError({
+					method: 'post',
+					url: 'auth/signin',
+					json: { ...data, ...additionalTestData },
+				})
 
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when an invalid password is passed', async () => {
-			const data = await testData('auth/signin/bofh')
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/signin',
-				json: { ...data, password: { invalid: 'value' } },
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
 
 		it('should return a `incorrect-credentials` error when an incorrect password is passed', async () => {
 			const data = await testData('auth/signin/bofh')
@@ -232,57 +150,46 @@ describe('auth', () => {
 			expect(error?.code).toEqual('entity-not-found')
 		})
 
-		it('should return the user and tokens upon a valid request', async () => {
-			const data = await testData('auth/signin/bofh')
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'auth/signin',
-				json: data,
-			})
+		it.each(['bofh', 'pfy', 'groot'])(
+			'should return the user and tokens upon a valid request (%s)',
+			async (username: string) => {
+				const data = await testData(`auth/signin/${username}`)
+				const { body, status } = await fetch({
+					method: 'post',
+					url: 'auth/signin',
+					json: data,
+				})
 
-			expect(status).toEqual(200)
-			expect(body).toMatchShapeOf({
-				user: {
-					id: 'string',
-					name: 'string',
-					email: 'string',
-					phone: undefined,
-					lastSignedIn: 'string',
-				},
-				tokens: {
-					bearer: 'string',
-					refresh: 'string',
-				},
-			})
+				expect(status).toEqual(200)
+				expect(body).toMatchShapeOf({
+					user: {
+						id: 'string',
+						name: 'string',
+						email: 'string',
+						phone: undefined,
+						lastSignedIn: 'string',
+					},
+					tokens: {
+						bearer: 'string',
+						refresh: 'string',
+					},
+				})
 
-			users.bofh = body.user
-			tokens.bofh = body.tokens
-		})
+				users[username as 'bofh' | 'pfy' | 'groot'] = body.user
+				tokens[username as 'bofh' | 'pfy' | 'groot'] = body.tokens
+			}
+		)
 	})
 
 	describe('post /auth/refresh-token', () => {
 		it('should return a `improper-payload` error when an invalid refresh token is passed', async () => {
 			const data = await testData('auth/refresh-token/bofh', {
-				refreshToken: tokens.bofh.refresh,
+				refreshToken: 'weird!token',
 			})
 			const error = await fetchError({
 				method: 'post',
 				url: 'auth/refresh-token',
-				json: { ...data, refreshToken: 'weird!stuff' },
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when a bearer token is passed instead of a refresh token', async () => {
-			const data = await testData('auth/refresh-token/bofh', {
-				refreshToken: tokens.bofh.refresh,
-			})
-			const error = await fetchError({
-				method: 'post',
-				url: 'auth/refresh-token',
-				json: { ...data, refreshToken: tokens.bofh.bearer },
+				json: data,
 			})
 
 			expect(error?.status).toEqual(400)
@@ -312,28 +219,24 @@ describe('auth', () => {
 	})
 
 	describe('test authn middleware', () => {
-		it('should return a `invalid-token` error when a token is not passed', async () => {
-			const error = await fetchError({
-				method: 'get',
-				url: 'pong',
-			})
+		it.each([
+			['a token is not passed', ''],
+			['an invalid token is passed', 'weird!token'],
+		])(
+			'should return a `invalid-token` error when %s',
+			async (_situation: string, bearerToken: string) => {
+				const error = await fetchError({
+					method: 'get',
+					url: 'pong',
+					headers: {
+						authorization: bearerToken,
+					},
+				})
 
-			expect(error?.status).toEqual(401)
-			expect(error?.code).toEqual('invalid-token')
-		})
-
-		it('should return a `invalid-token` error when an invalid token is passed', async () => {
-			const error = await fetchError({
-				method: 'get',
-				url: 'pong',
-				headers: {
-					authorization: 'weird!weird!weird',
-				},
-			})
-
-			expect(error?.status).toEqual(401)
-			expect(error?.code).toEqual('invalid-token')
-		})
+				expect(error?.status).toEqual(401)
+				expect(error?.code).toEqual('invalid-token')
+			}
+		)
 
 		it('should parse bearer tokens in the `authorization` header with the `Bearer` prefix', async () => {
 			const { body, status } = await fetch({
@@ -368,82 +271,32 @@ describe('auth', () => {
  */
 describe('groups', () => {
 	describe('post /groups', () => {
-		it('should return a `improper-payload` error when an invalid name is passed', async () => {
-			const data = await testData('groups/create/bastards')
-			const error = await fetchError({
-				method: 'post',
-				url: 'groups',
-				json: { ...data, name: { is: 'invalid' } },
-				headers: {
-					authorization: tokens.groot.bearer,
-				},
-			})
+		it.each([
+			['an invalid name is passed', { name: { invalid: 'value' } }],
+			// FIXME: These tests don't work?!
+			/*
+			[ 'an invalid participants list is passed', { participants: { 'The BOFH': ['mentee'] } } ],
+			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
+			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
+			*/
+			['an invalid code is passed', { code: ['the-bastards', 'sys-admin'] }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('groups/create/bastards')
+				const error = await fetchError({
+					method: 'post',
+					url: 'groups',
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
 
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		// FIXME: None of the below validations work
-		/*
-		it('should return a `improper-payload` error when an invalid participant list is passed', async () => {
-			const data = await testData('groups/create/bastards')
-			const error = await fetchError({
-				method: 'post',
-				url: 'groups',
-				json: { ...data, participants: { 'The BOFH': ['mentee'] } },
-				headers: {
-					authorization: tokens.groot.bearer,
-				},
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when an invalid conversations list is passed', async () => {
-			const data = await testData('groups/create/bastards')
-			const error = await fetchError({
-				method: 'post',
-				url: 'groups',
-				json: { ...data, conversations: {},
-				reports: {},					authorization: tokens.groot.bearer,
-				},
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-
-		it('should return a `improper-payload` error when an invalid reports list is passed', async () => {
-			const data = await testData('groups/create/bastards')
-			const error = await fetchError({
-				method: 'post',
-				url: 'groups',
-				json: { ...data, reports: { 'quiz-score': 'mentee' } },
-				headers: {
-					authorization: tokens.groot.bearer,
-				},
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
-		*/
-
-		it('should return a `improper-payload` error when an invalid code is passed', async () => {
-			const data = await testData('groups/create/bastards')
-			const error = await fetchError({
-				method: 'post',
-				url: 'groups',
-				json: { ...data, code: ['the-bastards', 'sys-admin'] },
-				headers: {
-					authorization: tokens.groot.bearer,
-				},
-			})
-
-			expect(error?.status).toEqual(400)
-			expect(error?.code).toEqual('improper-payload')
-		})
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
 
 		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
 			const data = await testData('groups/create/bastards')
@@ -460,63 +313,126 @@ describe('groups', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it('should return the created group upon a valid request (bastards)', async () => {
-			const data = await testData('groups/create/bastards', {
-				bofh: users.bofh.id,
-			})
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'groups',
-				json: data,
+		it.each(['bastards', 'interns'])(
+			'should return the created group upon a valid request (%s)',
+			async (groupName: string) => {
+				const data = await testData(`groups/create/${groupName}`, {
+					bofh: users.bofh.id,
+					pfy: users.pfy.id,
+				})
+				const { body, status } = await fetch({
+					method: 'post',
+					url: 'groups',
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(201)
+				expect(body.group).toMatchShapeOf({
+					id: 'string',
+					name: 'string',
+					participants: {},
+					conversations: {},
+					reports: {},
+					code: 'string',
+				})
+
+				groups[groupName as 'bastards' | 'interns'] = body.group
+			}
+		)
+	})
+
+	describe('put /groups', () => {
+		it.each([
+			['an invalid name is passed', { name: { invalid: 'value' } }],
+			// FIXME: These tests don't work?!
+			/*
+			[ 'an invalid participants list is passed', { participants: { 'The BOFH': ['mentee'] } } ],
+			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
+			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
+			*/
+			['an invalid code is passed', { code: ['the-bastards', 'sys-admin'] }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('groups/update/bastards')
+				const error = await fetchError({
+					method: 'put',
+					url: `groups/${groups.bastards.id}`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `improper-payload` error when the payload is incomplete', async () => {
+			const error = await fetchError({
+				method: 'put',
+				url: `groups/${groups.bastards.id}`,
+				json: { name: 'Weird Name' },
 				headers: {
 					authorization: tokens.groot.bearer,
 				},
 			})
 
-			expect(status).toEqual(201)
-			expect(body.group).toMatchShapeOf({
-				id: 'string',
-				name: 'string',
-				participants: {
-					[users.bofh.id]: 'supermentor',
-				},
-				conversations: {},
-				reports: {},
-				code: 'string',
-			})
-
-			groups.bastards = body.group
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
 		})
 
-		it('should return the created group upon a valid request (interns)', async () => {
-			const data = await testData('groups/create/interns', {
-				bofh: users.bofh.id,
-				pfy: users.pfy.id,
-			})
-			const { body, status } = await fetch({
-				method: 'post',
-				url: 'groups',
+		it('should return a `not-allowed` error when the requesting user is not groot and not a supermentor in the group', async () => {
+			const data = await testData('groups/update/bastards')
+			const error = await fetchError({
+				method: 'put',
+				url: `groups/${groups.bastards.id}`,
 				json: data,
 				headers: {
-					authorization: tokens.groot.bearer,
+					authorization: tokens.pfy.bearer,
 				},
 			})
 
-			expect(status).toEqual(201)
-			expect(body.group).toMatchShapeOf({
-				id: 'string',
-				name: 'string',
-				participants: {
-					[users.bofh.id]: 'supermentor',
-					[users.pfy.id]: 'mentee',
-				},
-				conversations: {},
-				reports: {},
-				code: 'string',
-			})
-
-			groups.interns = body.group
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
 		})
+
+		it.each([
+			['bastards', 'a supermentor in the group', 'bofh'],
+			['interns', 'groot', 'groot'],
+		])(
+			'should update the group (%s) upon a valid request by %s',
+			async (groupName: string, _situation: string, username: string) => {
+				const data = await testData(`groups/update/${groupName}`, {
+					bofh: users.bofh.id,
+					pfy: users.pfy.id,
+				})
+				const { body, status } = await fetch({
+					method: 'put',
+					url: `groups/${groups[groupName as 'bastards' | 'interns'].id}`,
+					json: data,
+					headers: {
+						authorization: tokens[username as 'bofh' | 'groot'].bearer,
+					},
+				})
+
+				expect(status).toEqual(200)
+				expect(body.group).toMatchShapeOf({
+					id: 'string',
+					name: 'string',
+					participants: {},
+					conversations: {},
+					reports: {},
+					code: 'string',
+				})
+
+				groups[groupName as 'bastards' | 'interns'] = body.group
+			}
+		)
 	})
 
 	describe('get /groups', () => {

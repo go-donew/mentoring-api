@@ -150,7 +150,7 @@ class GroupProvider implements DataProvider<Group> {
 	 * Updates a group in the database.
 	 *
 	 * @param {string} id The ID of the group to update.
-	 * @param {string} data A list of properties to update and the value to set.
+	 * @param {Partial<Group>} data A list of properties to update and the value to set.
 	 *
 	 * @returns {Group} The updated group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
@@ -159,27 +159,39 @@ class GroupProvider implements DataProvider<Group> {
 		// Update given fields for the group in Firestore
 		try {
 			// First retrieve the group
-			const groupDocument = await getFirestore()
+			const existingGroupDoc = await getFirestore()
 				.collection('groups')
 				.doc(id)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
-			if (groupDocument.exists) {
+			if (!existingGroupDoc.exists) {
 				throw new ServerError('entity-not-found')
 			}
 
 			// Else update away!
+			const serializedGroup = instanceToPlain(data)
+			// Add some extra fields for easy querying
+			serializedGroup.__participants = {}
+			serializedGroup.__conversations = {}
+			serializedGroup.__reports = {}
+			for (const participant of Object.keys(serializedGroup.participants))
+				serializedGroup.__participants[participant] = true
+			for (const conversation of Object.keys(serializedGroup.conversations))
+				serializedGroup.__conversations[conversation] = true
+			for (const report of Object.keys(serializedGroup.reports))
+				serializedGroup.__reports[report] = true
+			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('groups')
 				.doc(id)
-				.set(instanceToPlain(data), { merge: true })
+				.set(serializedGroup, { merge: true })
 
 			// If the transaction was successful, return the updated group
 			return plainToInstance(
 				Group,
 				{
-					...groupDocument.data(),
+					...existingGroupDoc.data(),
 					...data,
 				},
 				{ excludePrefixes: ['__'] }
