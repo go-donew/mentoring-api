@@ -57,8 +57,8 @@ const load = async (app: Application): Promise<void> => {
 			windowMs: 60 * 60 * 1000,
 			// Use the `RateLimit-*` headers to send rate limit information instead
 			// of the `X-RateLimit-*` headers.
-			useStandardizedHeaders: true,
-			headers: false,
+			standardHeaders: true,
+			legacyHeaders: false,
 			// Authenticated users can make 2k requests per hour, while
 			// unauthenticated users can make only 50 per hour. Groot can make 10k
 			// requests in an hour. Users viewing documentation can make 500 per hour

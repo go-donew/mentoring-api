@@ -20,13 +20,14 @@
 	],
 	"scripts": {
 		"clean": "del-cli dist/ coverage/ test-export/ *.log",
-		"build": "tsup --splitting --format esm --target esnext source/index.ts",
+		"build": "tsup --format esm --target esnext source/index.ts",
 		"compile": "run-s clean build",
 		"start": "firebase emulators:start",
 		"format": "xo --fix",
 		"lint": "xo",
-		"test:lib": "firebase emulators:exec --export-on-exit test-export \"pnpx cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand\"",
-		"test": "run-s lint test:*",
+		"test:typ": "tsc --noEmit",
+		"test:lib": "firebase emulators:exec --export-on-exit test-export \"pnpm cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand\"",
+		"test": "run-s compile lint test:*",
 		"prepare": "run-s compile && husky install config/husky"
 	},
 	"engines": {
