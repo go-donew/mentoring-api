@@ -20,9 +20,10 @@ const tokens: { bofh: any; pfy: any; groot: any } = {
 	pfy: {},
 	groot: {},
 }
-const groups: { bastards: any; interns: any } = {
+const groups: { bastards: any; interns: any; groots: any } = {
 	bastards: {},
 	interns: {},
+	groots: {},
 }
 
 /**
@@ -313,12 +314,13 @@ describe('groups', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['bastards', 'interns'])(
+		it.each(['bastards', 'interns', 'groots'])(
 			'should return the created group upon a valid request (%s)',
 			async (groupName: string) => {
 				const data = await testData(`groups/create/${groupName}`, {
 					bofh: users.bofh.id,
 					pfy: users.pfy.id,
+					groot: users.groot.id,
 				})
 				const { body, status } = await fetch({
 					method: 'post',
@@ -339,7 +341,7 @@ describe('groups', () => {
 					code: 'string',
 				})
 
-				groups[groupName as 'bastards' | 'interns'] = body.group
+				groups[groupName as 'bastards' | 'interns' | 'groots'] = body.group
 			}
 		)
 	})
@@ -446,7 +448,7 @@ describe('groups', () => {
 			})
 
 			expect(status).toEqual(200)
-			expect(body.groups.length).toEqual(2)
+			expect(body.groups.length).toEqual(3)
 			expect(body.groups).toMatchShapeOf([
 				{
 					id: 'string',
@@ -552,6 +554,47 @@ describe('groups', () => {
 				reports: {},
 				code: 'string',
 			})
+		})
+	})
+
+	describe('delete /groups/{groupId}', () => {
+		// FIXME: Known issue: even if the document does not exist, Firebase just returns a successful response
+		it.skip('should return a `entity-not-found` error when the requested group is not found', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: 'groups/weird',
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not a part of the requested group', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `groups/${groups.groots.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should delete the specified group when requesting user is groot', async () => {
+			const { status } = await fetch({
+				method: 'delete',
+				url: `groups/${groups.groots.id}`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(204)
 		})
 	})
 })

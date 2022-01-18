@@ -286,5 +286,42 @@ endpoint.put(
 	}
 )
 
+/**
+ * DELETE /groups/{groupId}
+ *
+ * @summary Delete a certain group
+ * @tags groups
+ *
+ * @security bearer
+ *
+ * @param {string} groupId.path.required - The ID of the group to delete.
+ *
+ * @returns {object} 204 - You must be Groot to delete a group.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.delete(
+	'/:groupId',
+	permit('groot'),
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			await Groups.delete(request.params.groupId)
+
+			response.sendStatus(204)
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
 // Export the router
 export default endpoint
