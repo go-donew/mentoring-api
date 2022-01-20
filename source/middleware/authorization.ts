@@ -26,8 +26,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 		): Promise<void> => {
 			// Make sure the user exists
 			if (!request.user) {
-				console.trace(`'request.user' is undefined!`)
-				throw new ServerError('server-crash')
+				throw new ServerError('invalid-token')
 			}
 
 			// Retrieve the user's custom claims and check if groot is present and
