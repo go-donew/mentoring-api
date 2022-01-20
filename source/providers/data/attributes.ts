@@ -184,7 +184,6 @@ class AttributeProvider implements DataProvider<Attribute> {
 			// If the transaction was successful, return the created attribute
 			return data
 		} catch (error: unknown) {
-			console.log(error)
 			// Pass on any error as a backend error
 			console.trace(JSON.stringify(error))
 			throw new ServerError('backend-error')

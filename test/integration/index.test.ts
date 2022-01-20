@@ -42,7 +42,7 @@ describe('auth', () => {
 				const data = await testData('auth/signup/bofh')
 				const error = await fetchError({
 					method: 'post',
-					url: 'auth/signup',
+					url: `auth/signup`,
 					json: { ...data, ...additionalTestData },
 				})
 
@@ -57,7 +57,7 @@ describe('auth', () => {
 				const data = await testData(`auth/signup/${username}`)
 				const { body, status } = await fetch({
 					method: 'post',
-					url: 'auth/signup',
+					url: `auth/signup`,
 					json: data,
 				})
 
@@ -118,7 +118,7 @@ describe('auth', () => {
 				const data = await testData('auth/signin/bofh')
 				const error = await fetchError({
 					method: 'post',
-					url: 'auth/signin',
+					url: `auth/signin`,
 					json: { ...data, ...additionalTestData },
 				})
 
@@ -131,7 +131,7 @@ describe('auth', () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
-				url: 'auth/signin',
+				url: `auth/signin`,
 				json: { ...data, password: 'wrong-password' },
 			})
 
@@ -143,7 +143,7 @@ describe('auth', () => {
 			const data = await testData('auth/signin/bofh')
 			const error = await fetchError({
 				method: 'post',
-				url: 'auth/signin',
+				url: `auth/signin`,
 				json: { ...data, email: 'no-one@wreck.all' },
 			})
 
@@ -157,7 +157,7 @@ describe('auth', () => {
 				const data = await testData(`auth/signin/${username}`)
 				const { body, status } = await fetch({
 					method: 'post',
-					url: 'auth/signin',
+					url: `auth/signin`,
 					json: data,
 				})
 
@@ -189,7 +189,7 @@ describe('auth', () => {
 			})
 			const error = await fetchError({
 				method: 'post',
-				url: 'auth/refresh-token',
+				url: `auth/refresh-token`,
 				json: data,
 			})
 
@@ -203,7 +203,7 @@ describe('auth', () => {
 			})
 			const { body, status } = await fetch({
 				method: 'post',
-				url: 'auth/refresh-token',
+				url: `auth/refresh-token`,
 				json: data,
 			})
 
@@ -228,7 +228,7 @@ describe('auth', () => {
 			async (_situation: string, bearerToken: string) => {
 				const error = await fetchError({
 					method: 'get',
-					url: 'pong',
+					url: `pong`,
 					headers: {
 						authorization: bearerToken,
 					},
@@ -242,7 +242,7 @@ describe('auth', () => {
 		it('should parse bearer tokens in the `authorization` header with the `Bearer` prefix', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: 'pong',
+				url: `pong`,
 				headers: {
 					authorization: `Bearer ${tokens.bofh.bearer}`,
 				},
@@ -255,7 +255,7 @@ describe('auth', () => {
 		it('should parse bearer tokens in the `authorization` header without the `Bearer` prefix', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: 'pong',
+				url: `pong`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -287,7 +287,7 @@ describe('groups', () => {
 				const data = await testData('groups/create/bastards')
 				const error = await fetchError({
 					method: 'post',
-					url: 'groups',
+					url: `groups`,
 					json: { ...data, ...additionalTestData },
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -303,7 +303,7 @@ describe('groups', () => {
 			const data = await testData('groups/create/bastards')
 			const error = await fetchError({
 				method: 'post',
-				url: 'groups',
+				url: `groups`,
 				json: data,
 				headers: {
 					authorization: tokens.bofh.bearer,
@@ -324,7 +324,7 @@ describe('groups', () => {
 				})
 				const { body, status } = await fetch({
 					method: 'post',
-					url: 'groups',
+					url: `groups`,
 					json: data,
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -437,11 +437,64 @@ describe('groups', () => {
 		)
 	})
 
+	describe('put /groups/join', () => {
+		it('should return a `improper-payload` error when an invalid code is passed', async () => {
+			const error = await fetchError({
+				method: 'put',
+				url: `groups/join`,
+				json: { code: ['weird!code'] },
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(400)
+			expect(error?.code).toEqual('improper-payload')
+		})
+
+		it('should return an `entity-not-found` error when a code not associated with a group is passed', async () => {
+			const error = await fetchError({
+				method: 'put',
+				url: `groups/join`,
+				json: { code: 'weird!code' },
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should add the requesting user to the group upon a valid request', async () => {
+			const { body, status } = await fetch({
+				method: 'put',
+				url: `groups/join`,
+				json: { code: groups.bastards.code },
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.group).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				participants: {},
+				conversations: {},
+				reports: {},
+				code: 'string',
+			})
+
+			groups.bastards = body.group
+		})
+	})
+
 	describe('get /groups', () => {
 		it('should return all groups if the requesting user is groot', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: 'groups',
+				url: `groups`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},
@@ -464,14 +517,14 @@ describe('groups', () => {
 		it('should only list groups the requesting user is a part of upon a valid request', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: 'groups',
+				url: `groups`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
 			})
 
 			expect(status).toEqual(200)
-			expect(body.groups.length).toEqual(1)
+			expect(body.groups.length).toEqual(2)
 			expect(body.groups).toMatchShapeOf([
 				{
 					id: 'string',
@@ -489,7 +542,7 @@ describe('groups', () => {
 		it('should return a `entity-not-found` error when the requested group is not found', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: 'groups/weird',
+				url: `groups/weird`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -502,7 +555,7 @@ describe('groups', () => {
 		it('should return a `not-allowed` error when the requesting user is not a part of the requested group', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: `groups/${groups.bastards.id}`,
+				url: `groups/${groups.groots.id}`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -562,7 +615,7 @@ describe('groups', () => {
 		it.skip('should return a `entity-not-found` error when the requested group is not found', async () => {
 			const error = await fetchError({
 				method: 'delete',
-				url: 'groups/weird',
+				url: `groups/weird`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},
@@ -607,7 +660,7 @@ describe('users', () => {
 		it('should return a `not-allowed` error when the client is not groot', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: 'users',
+				url: `users`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -620,7 +673,7 @@ describe('users', () => {
 		it('should return a list of users upon a valid request', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: 'users',
+				url: `users`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},
@@ -644,7 +697,7 @@ describe('users', () => {
 		it('should return a `not-allowed` error when the requested user is not found but the requesting user is not groot', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: 'users/weird',
+				url: `users/weird`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -670,7 +723,7 @@ describe('users', () => {
 		it('should return a `entity-not-found` error when the requested user is not found but the requesting user is groot', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: 'users/weird',
+				url: `users/weird`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},

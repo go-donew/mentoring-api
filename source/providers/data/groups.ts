@@ -52,12 +52,12 @@ class GroupProvider implements DataProvider<Group> {
 		const groups = []
 		for (const doc of docs) {
 			// If the document does not exist, skip it
-			if (!doc.exists) {
+			const data = doc.data()
+			if (!doc.exists || !data) {
 				continue
 			}
 
 			// Add it to the array
-			const data = doc.data()
 			groups.push(plainToInstance(Group, data, { excludePrefixes: ['__'] }))
 		}
 

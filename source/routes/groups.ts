@@ -11,6 +11,7 @@ import {
 import permit from '../middleware/authorization.js'
 import Group from '../models/group.js'
 import Groups from '../providers/data/groups.js'
+import ServerError from '../utils/errors.js'
 import { generateId } from '../utils/index.js'
 import { Query } from '../types.js'
 
@@ -173,6 +174,77 @@ endpoint.post(
 			})
 
 			response.status(201).send({ group })
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
+/**
+ * The payload needed to join a group.
+ *
+ * @typedef {object} JoinGroupPayload
+ * @property {string} code.required - The code to be used to join the group.
+ */
+
+/**
+ * The response from the join group endpoint.
+ *
+ * @typedef {object} JoinGroupResponse
+ * @property {Group} group.required - The group the user was added to.
+ */
+
+/**
+ * PUT /groups/join
+ *
+ * @summary Join a certain group
+ * @tags groups
+ *
+ * @security bearer
+ *
+ * @param {JoinGroupPayload} request.body.required - The details required for joining a group.
+ *
+ * @returns {JoinGroupResponse} 200 - The group the user was added to.
+ * @returns {ImproperPayloadError} 400 - The payload was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {EntityNotFoundError} 404 - There was no group that can be joined using the passed code.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.put(
+	'/join',
+	// => permit('anyone'),
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			// Get the group with that code
+			const groups = await Groups.find([
+				{
+					field: 'code',
+					operator: '==',
+					value: request.body.code,
+				},
+			])
+			if (groups.length === 0) {
+				throw new ServerError(
+					'entity-not-found',
+					'Could not find any group to join using that code.'
+				)
+			}
+
+			// Once we find the group, update the participants list and add the user as
+			// a mentee
+			let group = groups[0]
+			group.participants[request.user!.id] = 'mentee'
+			group = await Groups.update(group.id, group)
+
+			response.status(200).send({ group })
 		} catch (error: unknown) {
 			next(error)
 		}

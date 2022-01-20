@@ -165,15 +165,12 @@ class ServerError extends Error {
 	message: string
 
 	constructor(code: ErrorCode, message?: string, status?: number) {
-		message ??= errors[code].message
-		status ??= errors[code].status
-
-		super(message)
+		super(message ?? errors[code].message)
 		Error.captureStackTrace(this)
 
 		this.code = code
-		this.status = status
-		this.message = message
+		this.status = status ?? errors[code].status
+		this.message = message ?? errors[code].message
 	}
 }
 
