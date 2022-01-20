@@ -346,7 +346,7 @@ describe('groups', () => {
 		)
 	})
 
-	describe('put /groups', () => {
+	describe('put /groups/{groupId}', () => {
 		it.each([
 			['an invalid name is passed', { name: { invalid: 'value' } }],
 			// FIXME: These tests don't work?!
@@ -700,5 +700,324 @@ describe('users', () => {
 		})
 
 		// TODO: Add test for when one user is mentor/supermentor of another
+	})
+})
+
+/**
+ * Test the attribute endpoints.
+ */
+describe('attributes', () => {
+	describe('post /users/{userId}/attributes', () => {
+		it.each([
+			['an invalid ID is passed', { id: { invalid: 'value' } }],
+			['an invalid value is passed', { value: { some: 'thing' } }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('attributes/create/smartness')
+				const error = await fetchError({
+					method: 'post',
+					url: `users/${users.pfy.id}/attributes`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when creating an attribute for another user and you are not their mentor/supermentor', async () => {
+			const data = await testData('attributes/create/smartness')
+			const error = await fetchError({
+				method: 'post',
+				url: `users/${users.bofh.id}/attributes`,
+				json: data,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['smartness', 'niceness'])(
+			'should return the created attribute upon a valid request (%s)',
+			async (attributeId: string) => {
+				const data = await testData(`attributes/create/${attributeId}`)
+				const { body, status } = await fetch({
+					method: 'post',
+					url: `users/${users.pfy.id}/attributes`,
+					json: data,
+					headers: {
+						authorization: tokens.bofh.bearer,
+					},
+				})
+
+				expect(status).toEqual(201)
+				expect(body.attribute).toMatchShapeOf({
+					id: 'string',
+					value: 0,
+					history: [
+						{
+							value: 0,
+							observer: 'string',
+							timestamp: 'string',
+						},
+					],
+				})
+			}
+		)
+	})
+
+	describe('put /users/{userId}/attributes/{attributeId}', () => {
+		it.each([
+			['an invalid value is passed', { value: { some: 'thing' } }],
+			['an invalid message is passed', { message: 'weird!message!id' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('attributes/update/smartness')
+				const error = await fetchError({
+					method: 'put',
+					url: `users/${users.pfy.id}/attributes/smartness`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when updating an attribute for another user and you are not their mentor/supermentor', async () => {
+			const data = await testData('attributes/update/smartness')
+			const error = await fetchError({
+				method: 'put',
+				url: `users/${users.bofh.id}/attributes/smartness`,
+				json: data,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['smartness', 'niceness'])(
+			'should return the updated attribute upon a valid request (%s)',
+			async (attributeId: string) => {
+				const data = await testData(`attributes/update/${attributeId}`)
+				const { body, status } = await fetch({
+					method: 'put',
+					url: `users/${users.pfy.id}/attributes/${attributeId}`,
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(200)
+				expect(body.attribute).toMatchShapeOf({
+					id: 'string',
+					value: 0,
+					history: [
+						{
+							value: 0,
+							observer: 'string',
+							timestamp: 'string',
+						},
+					],
+				})
+			}
+		)
+	})
+
+	describe('get /users/{userId}/attributes', () => {
+		it('should return a `not-allowed` error when the requesting user is not the user themselves or their mentor/supermentor', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `users/${users.bofh.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should return the attributes of a user when requesting user is the user themselves', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}/attributes`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attributes.length).toEqual(2)
+			expect(body.attributes).toMatchShapeOf([
+				{
+					id: 'string',
+					value: 0,
+					history: [
+						{
+							value: 0,
+							observer: 'string',
+							timestamp: 'string',
+						},
+					],
+				},
+			])
+		})
+
+		it('should return the attributes of a user when requesting user is a mentor/supermentor of the user', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}/attributes`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attributes.length).toEqual(2)
+			expect(body.attributes).toMatchShapeOf([
+				{
+					id: 'string',
+					value: 0,
+					history: [
+						{
+							value: 0,
+							observer: 'string',
+							timestamp: 'string',
+						},
+					],
+				},
+			])
+		})
+	})
+
+	describe('get /users/{userId}/attributes/{attributeId}', () => {
+		it('should return a `entity-not-found` error when the requested attribute is not found', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `users/${users.pfy.id}/attributes/weird`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not the user themselves or their mentor/supermentor', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `users/${users.bofh.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should return the requested attribute when requesting user is the user themselves', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attribute).toMatchShapeOf({
+				id: 'string',
+				value: 0,
+				history: [
+					{
+						value: 0,
+						observer: 'string',
+						timestamp: 'string',
+					},
+				],
+			})
+		})
+
+		it('should return the requested attribute when requesting user is a mentor/supermentor of the user', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attribute).toMatchShapeOf({
+				id: 'string',
+				value: 0,
+				history: [
+					{
+						value: 0,
+						observer: 'string',
+						timestamp: 'string',
+					},
+				],
+			})
+		})
+	})
+
+	describe('delete /users/{userId}/attributes/{attributeId}', () => {
+		// FIXME: Known issue: even if the document does not exist, Firebase just returns a successful response
+		it.skip('should return a `entity-not-found` error when the requested attribute is not found', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `users/${users.pfy.id}/attributes/weird`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is the user themselves', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `users/${users.pfy.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should delete the specified attribute when requesting user is a supermentor of the user', async () => {
+			const { status } = await fetch({
+				method: 'delete',
+				url: `users/${users.pfy.id}/attributes/niceness`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(204)
+		})
 	})
 })

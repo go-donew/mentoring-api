@@ -107,7 +107,7 @@ endpoint.get(
 /**
  * The payload needed to create a group.
  *
- * @typedef {Group} CreateGroupPayload
+ * @typedef {object} CreateGroupPayload
  * @property {string} name.required - The group should have this name.
  * @property {ParticipantList} participants.required - The group should have the given participants.
  * @property {ConversationList} conversations.required - The group should be allowed to take part in the given conversations.
@@ -229,7 +229,7 @@ endpoint.get(
 /**
  * The payload needed to update a group.
  *
- * @typedef {Group} UpdateGroupPayload
+ * @typedef {object} UpdateGroupPayload
  * @property {string} name.required - The group should have this name.
  * @property {ParticipantList} participants.required - The group should have the given participants.
  * @property {ConversationList} conversations.required - The group should be allowed to take part in the given conversations.

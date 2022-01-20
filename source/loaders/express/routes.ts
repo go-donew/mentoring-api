@@ -5,6 +5,7 @@ import { Application, Request, Response, NextFunction } from 'express'
 
 import authEndpoint from '../../routes/auth.js'
 import usersEndpoint from '../../routes/users.js'
+import attributesEndpoint from '../../routes/attributes.js'
 import groupsEndpoint from '../../routes/groups.js'
 import ServerError from '../../utils/errors.js'
 
@@ -26,6 +27,7 @@ const load = async (app: Application): Promise<void> => {
 
 	app.use('/auth', authEndpoint)
 	app.use('/users', usersEndpoint)
+	app.use('/users', attributesEndpoint)
 	app.use('/groups', groupsEndpoint)
 
 	// If a client calls a random route that has no registered request handler,

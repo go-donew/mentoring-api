@@ -284,13 +284,14 @@ export declare interface DataProvider<T> {
 	 * Lists/searches through all entities.
 	 *
 	 * @param {Array<Query query>} - A list of queries to filter the entities.
+	 * @param {unknown}
 	 *
 	 * @returns {T[]} - Array of entities matchin the query.
 	 * @throws {ServerError} - 'backend-error'
 	 *
 	 * @async
 	 */
-	find(queries: Array<Query<T>>): Promise<T[]>
+	find(queries: Array<Query<T>>, options: unknown): Promise<T[]>
 
 	/**
 	 * Retrieves an entity from the database.

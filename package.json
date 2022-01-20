@@ -25,7 +25,7 @@
 		"start": "firebase emulators:start",
 		"format": "xo --fix",
 		"lint": "xo",
-		"test:typ": "tsc --noEmit",
+		"test:tsc": "tsc --noEmit",
 		"test:lib": "firebase emulators:exec --export-on-exit test-export \"pnpm cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand\"",
 		"test": "run-s compile lint test:*",
 		"prepare": "run-s compile && husky install config/husky"
