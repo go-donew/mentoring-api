@@ -3,7 +3,9 @@
 	"participants": {
 		"{bofh}": "supermentor"
 	},
-	"conversations": {},
+	"conversations": {
+		"{updates}": ["supermentor"]
+	},
 	"reports": {},
 	"code": "the-bastards"
 }

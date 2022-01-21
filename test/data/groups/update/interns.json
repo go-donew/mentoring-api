@@ -4,7 +4,10 @@
 		"{bofh}": "supermentor",
 		"{pfy}": "mentee"
 	},
-	"conversations": {},
+	"conversations": {
+		"{updates}": ["mentee", "supermentor"],
+		"{quiz}": ["mentor"]
+	},
 	"reports": {},
 	"code": "the-interns"
 }

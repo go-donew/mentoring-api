@@ -133,7 +133,7 @@ endpoint.get(
  *
  * @param {CreateGroupPayload} request.body - The necessary details to create a group.
  *
- * @returns {CreateGroupResponse} 201 - The created group.
+ * @returns {CreateGroupResponse} 201 - The created group. You must be Groot to create a group.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
@@ -143,7 +143,7 @@ endpoint.get(
  *
  * @example request - An example query that creates a group
  * {
- * 	"name": "A Group"
+ * 	"name": "A Group",
  * 	"participants": {
  * 		"LZfXLFzPPR4NNrgjlWDxn"	: "mentee"
  * 	},
