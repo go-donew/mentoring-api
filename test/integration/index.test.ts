@@ -20,8 +20,8 @@ const tokens: { bofh: any; pfy: any; groot: any } = {
 	pfy: {},
 	groot: {},
 }
-const groups: { bastards: any; interns: any; groots: any } = {
-	bastards: {},
+const groups: { bosses: any; interns: any; groots: any } = {
+	bosses: {},
 	interns: {},
 	groots: {},
 }
@@ -288,11 +288,11 @@ describe('groups', () => {
 			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
 			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
 			*/
-			['an invalid code is passed', { code: ['the-bastards', 'sys-admin'] }],
+			['an invalid code is passed', { code: ['the-bosses', 'sys-admin'] }],
 		])(
 			'should return a `improper-payload` error when %s',
 			async (_situation: string, additionalTestData: any) => {
-				const data = await testData('groups/create/bastards')
+				const data = await testData('groups/create/bosses')
 				const error = await fetchError({
 					method: 'post',
 					url: `groups`,
@@ -308,7 +308,7 @@ describe('groups', () => {
 		)
 
 		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
-			const data = await testData('groups/create/bastards')
+			const data = await testData('groups/create/bosses')
 			const error = await fetchError({
 				method: 'post',
 				url: `groups`,
@@ -322,7 +322,7 @@ describe('groups', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['bastards', 'interns', 'groots'])(
+		it.each(['bosses', 'interns', 'groots'])(
 			'should return the created group upon a valid request (%s)',
 			async (groupName: string) => {
 				const data = await testData(`groups/create/${groupName}`, {
@@ -349,7 +349,7 @@ describe('groups', () => {
 					code: 'string',
 				})
 
-				groups[groupName as 'bastards' | 'interns' | 'groots'] = body.group
+				groups[groupName as 'bosses' | 'interns' | 'groots'] = body.group
 			}
 		)
 	})
@@ -363,14 +363,14 @@ describe('groups', () => {
 			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
 			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
 			*/
-			['an invalid code is passed', { code: ['the-bastards', 'sys-admin'] }],
+			['an invalid code is passed', { code: ['the-bosses', 'sys-admin'] }],
 		])(
 			'should return a `improper-payload` error when %s',
 			async (_situation: string, additionalTestData: any) => {
-				const data = await testData('groups/update/bastards')
+				const data = await testData('groups/update/bosses')
 				const error = await fetchError({
 					method: 'put',
-					url: `groups/${groups.bastards.id}`,
+					url: `groups/${groups.bosses.id}`,
 					json: { ...data, ...additionalTestData },
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -385,7 +385,7 @@ describe('groups', () => {
 		it('should return a `improper-payload` error when the payload is incomplete', async () => {
 			const error = await fetchError({
 				method: 'put',
-				url: `groups/${groups.bastards.id}`,
+				url: `groups/${groups.bosses.id}`,
 				json: { name: 'Weird Name' },
 				headers: {
 					authorization: tokens.groot.bearer,
@@ -397,10 +397,10 @@ describe('groups', () => {
 		})
 
 		it('should return a `not-allowed` error when the requesting user is not groot and not a supermentor in the group', async () => {
-			const data = await testData('groups/update/bastards')
+			const data = await testData('groups/update/bosses')
 			const error = await fetchError({
 				method: 'put',
-				url: `groups/${groups.bastards.id}`,
+				url: `groups/${groups.bosses.id}`,
 				json: data,
 				headers: {
 					authorization: tokens.pfy.bearer,
@@ -412,7 +412,7 @@ describe('groups', () => {
 		})
 
 		it.each([
-			['bastards', 'a supermentor in the group', 'bofh'],
+			['bosses', 'a supermentor in the group', 'bofh'],
 			['interns', 'groot', 'groot'],
 		])(
 			'should update the group (%s) upon a valid request by %s',
@@ -424,7 +424,7 @@ describe('groups', () => {
 				})
 				const { body, status } = await fetch({
 					method: 'put',
-					url: `groups/${groups[groupName as 'bastards' | 'interns'].id}`,
+					url: `groups/${groups[groupName as 'bosses' | 'interns'].id}`,
 					json: data,
 					headers: {
 						authorization: tokens[username as 'bofh' | 'groot'].bearer,
@@ -441,7 +441,7 @@ describe('groups', () => {
 					code: 'string',
 				})
 
-				groups[groupName as 'bastards' | 'interns'] = body.group
+				groups[groupName as 'bosses' | 'interns'] = body.group
 			}
 		)
 	})
@@ -479,7 +479,7 @@ describe('groups', () => {
 			const { body, status } = await fetch({
 				method: 'put',
 				url: `groups/join`,
-				json: { code: groups.bastards.code },
+				json: { code: groups.bosses.code },
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -495,7 +495,7 @@ describe('groups', () => {
 				code: 'string',
 			})
 
-			groups.bastards = body.group
+			groups.bosses = body.group
 		})
 	})
 
@@ -1154,7 +1154,7 @@ describe('conversations', () => {
 			}
 		)
 
-		it.each(['bastards', 'interns'])(
+		it.each(['bosses', 'interns'])(
 			'should update the group (%s) conversation list',
 			async (groupName: string) => {
 				const data = await testData(`groups/update/${groupName}`, {
@@ -1166,7 +1166,7 @@ describe('conversations', () => {
 				})
 				const { body, status } = await fetch({
 					method: 'put',
-					url: `groups/${groups[groupName as 'bastards' | 'interns'].id}`,
+					url: `groups/${groups[groupName as 'bosses' | 'interns'].id}`,
 					json: data,
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -1183,7 +1183,7 @@ describe('conversations', () => {
 					code: 'string',
 				})
 
-				groups[groupName as 'bastards' | 'interns'] = body.group
+				groups[groupName as 'bosses' | 'interns'] = body.group
 			}
 		)
 	})
