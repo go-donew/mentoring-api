@@ -4,7 +4,7 @@
 		"{bofh}": "supermentor"
 	},
 	"conversations": {
-		"{updates}": ["supermentor"]
+		"{quiz}": ["supermentor"]
 	},
 	"reports": {},
 	"code": "the-bastards"

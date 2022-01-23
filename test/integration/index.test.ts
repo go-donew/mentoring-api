@@ -29,6 +29,10 @@ const conversations: { quiz: any; updates: any } = {
 	quiz: {},
 	updates: {},
 }
+const questions: { capital: any; cleanest: any } = {
+	capital: {},
+	cleanest: {},
+}
 
 /**
  * Test the authentication endpoints and middleware.
@@ -1193,7 +1197,7 @@ describe('conversations', () => {
 		])(
 			'should return a `improper-payload` error when %s',
 			async (_situation: string, additionalTestData: any) => {
-				const data = await testData('conversations/create/quiz')
+				const data = await testData('conversations/update/quiz')
 				const error = await fetchError({
 					method: 'put',
 					url: `conversations/${conversations.updates.id}`,
@@ -1209,7 +1213,7 @@ describe('conversations', () => {
 		)
 
 		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
-			const data = await testData('conversations/create/quiz')
+			const data = await testData('conversations/update/quiz')
 			const error = await fetchError({
 				method: 'put',
 				url: `conversations/${conversations.updates.id}`,
@@ -1224,9 +1228,9 @@ describe('conversations', () => {
 		})
 
 		it.each(['quiz', 'updates'])(
-			'should return the created conversation upon a valid request (%s)',
+			'should return the updated conversation upon a valid request (%s)',
 			async (conversationName: string) => {
-				const data = await testData(`conversations/create/${conversationName}`)
+				const data = await testData(`conversations/update/${conversationName}`)
 				const { body, status } = await fetch({
 					method: 'put',
 					url: `conversations/${
@@ -1307,7 +1311,7 @@ describe('conversations', () => {
 		it('should return a `not-allowed` error when the requesting user is not a part of the requested conversation', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: `conversations/${conversations.quiz.id}`,
+				url: `conversations/${conversations.updates.id}`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -1320,7 +1324,7 @@ describe('conversations', () => {
 		it('should return the requested conversation when requesting user is allowed to take the conversation', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: `conversations/${conversations.updates.id}`,
+				url: `conversations/${conversations.quiz.id}`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -1339,7 +1343,7 @@ describe('conversations', () => {
 		it('should return the requested conversation when requesting user is groot', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: `conversations/${conversations.quiz.id}`,
+				url: `conversations/${conversations.updates.id}`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},
@@ -1388,6 +1392,376 @@ describe('conversations', () => {
 			const { status } = await fetch({
 				method: 'delete',
 				url: `conversations/${conversations.updates.id}`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(204)
+		})
+	})
+})
+
+/**
+ * Test the question endpoints.
+ */
+describe('questions', () => {
+	describe('post /conversations/{conversationId}/questions', () => {
+		it.each([
+			['an invalid text is passed', { text: { invalid: 'value' } }],
+			['an invalid options list is passed', { options: { text: 'something' } }],
+			['an invalid first is passed', { first: 'yes' }],
+			['an invalid last is passed', { last: 'no' }],
+			[
+				'an invalid randomizeOptionOrder is passed',
+				{ randomizeOptionOrder: 'yes' },
+			],
+			['an invalid tags list is passed', { tags: 'quiz' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('questions/create/capital')
+				const error = await fetchError({
+					method: 'post',
+					url: `conversations/${conversations.quiz.id}/questions`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const data = await testData('questions/create/capital')
+			const error = await fetchError({
+				method: 'post',
+				url: `conversations/${conversations.quiz.id}/questions`,
+				json: data,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['capital', 'cleanest'])(
+			'should return the created question upon a valid request (%s)',
+			async (questionName: string) => {
+				const data = await testData(`questions/create/${questionName}`)
+				const { body, status } = await fetch({
+					method: 'post',
+					url: `conversations/${conversations.quiz.id}/questions`,
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(201)
+				expect(body.question).toMatchShapeOf({
+					id: 'string',
+					text: 'string',
+					options: [
+						{
+							position: 1,
+							type: 'string',
+							text: 'string',
+							attribute: {
+								id: 'string',
+								value: 1,
+							},
+						},
+					],
+					first: true,
+					last: false,
+					randomizeOptionOrder: true,
+					tags: ['string'],
+				})
+
+				questions[questionName as 'capital' | 'cleanest'] = body.question
+			}
+		)
+	})
+
+	describe('put /conversations/{conversationId}/questions/{questionId}', () => {
+		it.each([
+			['an invalid text is passed', { text: { invalid: 'value' } }],
+			['an invalid options list is passed', { options: { text: 'something' } }],
+			['an invalid first is passed', { first: 'yes' }],
+			['an invalid last is passed', { last: 'no' }],
+			[
+				'an invalid randomizeOptionOrder is passed',
+				{ randomizeOptionOrder: 'yes' },
+			],
+			['an invalid tags list is passed', { tags: 'quiz' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('questions/update/capital')
+				const error = await fetchError({
+					method: 'put',
+					url: `conversations/${conversations.quiz.id}/questions/${questions.cleanest.id}`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const data = await testData('questions/update/capital')
+			const error = await fetchError({
+				method: 'put',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.cleanest.id}`,
+				json: data,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['capital', 'cleanest'])(
+			'should return the updated question upon a valid request (%s)',
+			async (questionName: string) => {
+				const data = await testData(`questions/update/${questionName}`)
+				const { body, status } = await fetch({
+					method: 'put',
+					url: `conversations/${conversations.quiz.id}/questions/${
+						questions[questionName as 'capital' | 'cleanest'].id
+					}`,
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(200)
+				expect(body.question).toMatchShapeOf({
+					id: 'string',
+					text: 'string',
+					options: [
+						{
+							position: 1,
+							type: 'string',
+							text: 'string',
+							attribute: {
+								id: 'string',
+								value: 1,
+							},
+						},
+					],
+					first: true,
+					last: false,
+					randomizeOptionOrder: true,
+					tags: ['string'],
+				})
+
+				questions[questionName as 'capital' | 'cleanest'] = body.question
+			}
+		)
+	})
+
+	describe('get /conversations/{conversationId}/questions', () => {
+		it('should return all questions if the requesting user is groot', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `conversations/${conversations.quiz.id}/questions`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.questions.length).toEqual(2)
+			expect(body.questions).toMatchShapeOf({
+				id: 'string',
+				text: 'string',
+				options: [
+					{
+						position: 1,
+						type: 'string',
+						text: 'string',
+						attribute: {
+							id: 'string',
+							value: 1,
+						},
+					},
+				],
+				first: true,
+				last: false,
+				randomizeOptionOrder: true,
+				tags: ['string'],
+			})
+		})
+
+		it('should return all questions if the requesting user is allowed to take the conversation', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `conversations/${conversations.quiz.id}/questions`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.questions.length).toEqual(2)
+			expect(body.questions).toMatchShapeOf({
+				id: 'string',
+				text: 'string',
+				options: [
+					{
+						position: 1,
+						type: 'string',
+						text: 'string',
+						attribute: {
+							id: 'string',
+							value: 1,
+						},
+					},
+				],
+				first: true,
+				last: false,
+				randomizeOptionOrder: true,
+				tags: ['string'],
+			})
+		})
+
+		it('should return a `not-allowed` error if the requesting user is not allowed to take the conversation', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `conversations/${conversations.updates.id}/questions`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+	})
+
+	describe('get /conversations/{conversationId}/questions/{questionId}', () => {
+		it('should return a `entity-not-found` error when the requested question is not found', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `conversations/${conversations.quiz.id}/questions/weird`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return the requested question when requesting user is allowed to take the conversation', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.cleanest.id}`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.question).toMatchShapeOf({
+				id: 'string',
+				text: 'string',
+				options: [
+					{
+						position: 1,
+						type: 'string',
+						text: 'string',
+						attribute: {
+							id: 'string',
+							value: 1,
+						},
+					},
+				],
+				first: true,
+				last: false,
+				randomizeOptionOrder: true,
+				tags: ['string'],
+			})
+		})
+
+		it('should return the requested question when requesting user is groot', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.capital.id}`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.question).toMatchShapeOf({
+				id: 'string',
+				text: 'string',
+				options: [
+					{
+						position: 1,
+						type: 'string',
+						text: 'string',
+						attribute: {
+							id: 'string',
+							value: 1,
+						},
+					},
+				],
+				first: true,
+				last: false,
+				randomizeOptionOrder: true,
+				tags: ['string'],
+			})
+		})
+	})
+
+	describe('delete /conversations/{conversationId}/questions/{questionId}', () => {
+		// FIXME: Known issue: even if the document does not exist, Firebase just returns a successful response
+		it.skip('should return a `entity-not-found` error when the requested question is not found', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `conversations/${conversations.quiz.id}/questions/weird`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.cleanest.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should delete the specified question when requesting user is groot', async () => {
+			const { status } = await fetch({
+				method: 'delete',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.cleanest.id}`,
 				headers: {
 					authorization: tokens.groot.bearer,
 				},

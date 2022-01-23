@@ -1,0 +1,49 @@
+{
+	"text": "What is the capital of India?",
+	"options": [
+		{
+			"position": 1,
+			"type": "select",
+			"text": "Delhi",
+			"attribute": {
+				"id": "knows-india-capital",
+				"value": 1
+			},
+			"nextQuestion": "{india-cleanest-city}"
+		},
+		{
+			"position": 2,
+			"type": "select",
+			"text": "Kolkata",
+			"attribute": {
+				"id": "knows-india-capital",
+				"value": 0
+			},
+			"nextQuestion": "{india-cleanest-city}"
+		},
+		{
+			"position": 3,
+			"type": "select",
+			"text": "Mumbai",
+			"attribute": {
+				"id": "knows-india-capital",
+				"value": 0
+			},
+			"nextQuestion": "{india-cleanest-city}"
+		},
+		{
+			"position": 4,
+			"type": "select",
+			"text": "Bangalore",
+			"attribute": {
+				"id": "knows-india-capital",
+				"value": 0
+			},
+			"nextQuestion": "{india-cleanest-city}"
+		}
+	],
+	"first": true,
+	"last": false,
+	"randomizeOptionOrder": true,
+	"tags": ["quiz", "india"]
+}

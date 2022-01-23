@@ -5,8 +5,8 @@
 		"{pfy}": "mentee"
 	},
 	"conversations": {
-		"{updates}": ["mentee", "supermentor"],
-		"{quiz}": ["mentor"]
+		"{quiz}": ["mentee", "supermentor"],
+		"{updates}": ["mentor"]
 	},
 	"reports": {},
 	"code": "the-interns"

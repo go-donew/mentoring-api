@@ -8,6 +8,7 @@ import usersEndpoint from '../../routes/users.js'
 import attributesEndpoint from '../../routes/attributes.js'
 import groupsEndpoint from '../../routes/groups.js'
 import conversationsEndpoint from '../../routes/conversations.js'
+import questionsEndpoint from '../../routes/questions.js'
 import ServerError from '../../utils/errors.js'
 
 /**
@@ -31,6 +32,7 @@ const load = async (app: Application): Promise<void> => {
 	app.use('/users', attributesEndpoint)
 	app.use('/groups', groupsEndpoint)
 	app.use('/conversations', conversationsEndpoint)
+	app.use('/conversations', questionsEndpoint)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.

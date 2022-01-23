@@ -15,6 +15,32 @@ export const generateId = customAlphabet(
 )
 
 /**
+ * Shuffles an array. Taken from the 'knuth-shuffle-seed' package as it had no
+ * type definitions.
+ *
+ * @param {array<T>} array - The array of objects to shuffle.
+ *
+ * @returns {array<T>} - The shuffled array.
+ */
+export const shuffle = <T>(array: T[]): T[] => {
+	let currentIndex
+	let temporaryValue
+	let randomIndex
+
+	currentIndex = array.length
+
+	while (currentIndex !== 0) {
+		randomIndex = Math.floor(Math.random() * currentIndex--)
+
+		temporaryValue = array[currentIndex]
+		array[currentIndex] = array[randomIndex]
+		array[randomIndex] = temporaryValue
+	}
+
+	return array
+}
+
+/**
  * Catches asynchronous errors thrown in middleware, and forwards them using
  * the `next` function
  *
