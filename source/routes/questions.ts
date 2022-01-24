@@ -41,7 +41,7 @@ const endpoint = createRouter()
  * GET /conversations/{conversationId}/questions
  *
  * @summary List/find questions
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *
@@ -128,7 +128,7 @@ endpoint.get(
  * POST /conversations/{conversationId}/questions
  *
  * @summary Create a question
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *
@@ -200,7 +200,7 @@ endpoint.post(
  * GET /conversations/{conversationId}/questions/{questionId}
  *
  * @summary Retrieve a requested question
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *
@@ -262,7 +262,7 @@ endpoint.get(
  * PUT /conversations/{conversationId}/questions/{questionId}
  *
  * @summary Update a certain question
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *
@@ -307,7 +307,7 @@ endpoint.put(
  * DELETE /conversations/{conversationId}/questions/{questionId}
  *
  * @summary Delete a certain question
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *
@@ -362,7 +362,7 @@ endpoint.delete(
  * PUT /conversations/{conversationId}/questions/{questionId}/answer
  *
  * @summary Answer a question
- * @tags questions
+ * @tags questions - Question related endpoints
  *
  * @security bearer
  *

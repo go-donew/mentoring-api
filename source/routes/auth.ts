@@ -34,7 +34,7 @@ const endpoint = createRouter()
  * POST /auth/signup
  *
  * @summary Create a DoNew Today account
- * @tags auth
+ * @tags auth - Authentication related endpoints
  *
  * @param {SignUpPayload} request.body.required - The name, email address and password of the user to create.
  *
@@ -95,7 +95,7 @@ endpoint.post(
  * POST /auth/signin
  *
  * @summary Sign into your DoNew Today account
- * @tags auth
+ * @tags auth - Authentication related endpoints
  *
  * @param {SignInPayload} request.body.required - The email address and password of the user to sign in.
  *
@@ -152,7 +152,7 @@ endpoint.post(
  * POST /auth/refresh-token
  *
  * @summary Refresh access token
- * @tags auth
+ * @tags auth - Authentication related endpoints
  *
  * @param {TokenRefreshPayload} request.body.required - The refresh token the user is given while signing up/in.
  *

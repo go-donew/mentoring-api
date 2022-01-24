@@ -35,7 +35,7 @@ const endpoint = createRouter()
  * GET /users/{userId}/attributes
  *
  * @summary List/find attributes
- * @tags attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
@@ -111,7 +111,7 @@ endpoint.get(
  * POST /users/{userId}/attributes
  *
  * @summary Create a attribute
- * @tags attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
@@ -182,7 +182,7 @@ endpoint.post(
  * GET /users/{userId}/attributes/{attributeId}
  *
  * @summary Retrieve a requested attribute
- * @tags attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
@@ -240,7 +240,7 @@ endpoint.get(
  * PUT /users/{userId}/attributes/{attributeId}
  *
  * @summary Update a certain attribute
- * @tags attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
@@ -297,7 +297,7 @@ endpoint.put(
  * DELETE /users/{userId}/attributes/{attributeId}
  *
  * @summary Delete a certain attribute
- * @tags attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *

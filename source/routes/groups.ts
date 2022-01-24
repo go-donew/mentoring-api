@@ -41,7 +41,7 @@ const endpoint = createRouter()
  * GET /groups
  *
  * @summary List/find groups
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *
@@ -131,7 +131,7 @@ endpoint.get(
  * POST /groups
  *
  * @summary Create a group
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *
@@ -202,7 +202,7 @@ endpoint.post(
  * PUT /groups/join
  *
  * @summary Join a certain group
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *
@@ -266,7 +266,7 @@ endpoint.put(
  * GET /groups/{groupId}
  *
  * @summary Retrieve a requested group
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *
@@ -324,7 +324,7 @@ endpoint.get(
  * PUT /groups/{groupId}
  *
  * @summary Update a certain group
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *
@@ -366,7 +366,7 @@ endpoint.put(
  * DELETE /groups/{groupId}
  *
  * @summary Delete a certain group
- * @tags groups
+ * @tags groups - Group related endpoints
  *
  * @security bearer
  *

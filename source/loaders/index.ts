@@ -5,7 +5,7 @@ import { Application } from 'express'
 
 import loadFirebase from './firebase/index.js'
 import loadMiddleware from './express/middleware.js'
-import loadDocumentation from './express/documentation.js'
+import loadDocumentation from './express/docs.js'
 import loadRoutes from './express/routes.js'
 
 /**

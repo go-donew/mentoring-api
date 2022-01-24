@@ -38,7 +38,7 @@ const endpoint = createRouter()
  * GET /users
  *
  * @summary List/find users
- * @tags users
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -112,7 +112,7 @@ endpoint.get(
  * GET /users/{userId}
  *
  * @summary Retrieve a requested user
- * @tags users
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
