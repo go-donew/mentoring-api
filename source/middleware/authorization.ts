@@ -7,7 +7,36 @@ import Group from '../models/group.js'
 import Groups from '../providers/data/groups.js'
 import ServerError from '../utils/errors.js'
 import { handleAsyncErrors } from '../utils/index.js'
-import { AuthorizationContext } from '../types.js'
+
+/**
+ * The context in which a request is to be allowed to pass. The `subject` indicates
+ * the type of data being accessed, while the roles indicate which type of users
+ * are allowed to access the data.
+ */
+export declare type AuthorizationContext =
+	| {
+			subject: 'user'
+			roles: Array<'self' | 'mentor' | 'supermentor'>
+	  }
+	| {
+			subject: 'group'
+			roles: Array<'participant' | 'mentee' | 'mentor' | 'supermentor'>
+	  }
+	| {
+			subject: 'message'
+			roles: Array<
+				'participant' | 'sender' | 'mentee' | 'mentor' | 'supermentor'
+			>
+	  }
+	| {
+			subject: 'report'
+			roles: 'dynamic'
+	  }
+	| {
+			subject: 'conversation'
+			roles: 'dynamic'
+	  }
+	| 'groot'
 
 /**
  * Ensure that a user making a request is authorized to do so.

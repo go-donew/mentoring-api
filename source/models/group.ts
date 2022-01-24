@@ -2,7 +2,39 @@
 // A class representing a group
 
 import Groups from '../providers/data/groups.js'
-import { ParticipantList, ConversationList, ReportList } from '../types.js'
+
+/**
+ * List of participants in a group.
+ *
+ * @typedef {object} ParticipantList
+ * @property {string} userId - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
+ */
+export declare type ParticipantList = Record<
+	string,
+	'mentee' | 'mentor' | 'supermentor'
+>
+
+/**
+ * List of conversations the group's participants are allowed to take part in.
+ *
+ * @typedef {object} ConversationList
+ * @property {array<string>} conversationId - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
+ */
+export declare type ConversationList = Record<
+	string,
+	Array<'mentee' | 'mentor' | 'supermentor'>
+>
+
+/**
+ * List of reports the group's participants can view.
+ *
+ * @typedef {object} ReportList
+ * @property {array<string>} reportId - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
+ */
+export declare type ReportList = Record<
+	string,
+	Array<'mentee' | 'mentor' | 'supermentor'>
+>
 
 /**
  * A class representing a group.
