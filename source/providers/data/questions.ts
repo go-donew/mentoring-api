@@ -40,7 +40,7 @@ class QuestionProvider implements DataProvider<Question> {
 	async find(queries: Array<Query<Question>>): Promise<Question[]> {
 		if (!this.conversationId)
 			throw new Error(
-				'Finding an attribute can only be done for a certain conversation.'
+				'Finding a question can only be done for a certain conversation.'
 			)
 
 		// Build the query
@@ -87,6 +87,8 @@ class QuestionProvider implements DataProvider<Question> {
 			)
 		}
 
+		if (this.clearContextImmediately) this.conversationId = undefined
+
 		return questions
 	}
 
@@ -101,7 +103,7 @@ class QuestionProvider implements DataProvider<Question> {
 	async get(id: string): Promise<Question> {
 		if (!this.conversationId)
 			throw new Error(
-				'Retrieving an attribute can only be done for a certain conversation.'
+				'Retrieving a question can only be done for a certain conversation.'
 			)
 
 		// Fetch the question from Firestore
@@ -131,6 +133,8 @@ class QuestionProvider implements DataProvider<Question> {
 			throw new ServerError('entity-not-found')
 		}
 
+		if (this.clearContextImmediately) this.conversationId = undefined
+
 		// Return the object as an instance of the `Question` class
 		return plainToInstance(Question, data, { excludePrefixes: ['__'] })
 	}
@@ -147,7 +151,7 @@ class QuestionProvider implements DataProvider<Question> {
 	async create(id: string, data: Question): Promise<Question> {
 		if (!this.conversationId)
 			throw new Error(
-				'Creating an attribute can only be done for a certain conversation.'
+				'Creating a question can only be done for a certain conversation.'
 			)
 
 		// Convert the `Question` instance to a firebase document and save it
@@ -179,6 +183,8 @@ class QuestionProvider implements DataProvider<Question> {
 				.doc(id)
 				.set(serializedQuestion)
 
+			if (this.clearContextImmediately) this.conversationId = undefined
+
 			// If the transaction was successful, return the created question
 			return data
 		} catch (error: unknown) {
@@ -200,7 +206,7 @@ class QuestionProvider implements DataProvider<Question> {
 	async update(id: string, data: Partial<Question>): Promise<Question> {
 		if (!this.conversationId)
 			throw new Error(
-				'Updating an attribute can only be done for a certain conversation.'
+				'Updating a question can only be done for a certain conversation.'
 			)
 
 		// Update given fields for the question in Firestore
@@ -232,6 +238,8 @@ class QuestionProvider implements DataProvider<Question> {
 				.doc(id)
 				.set(serializedQuestion, { merge: true })
 
+			if (this.clearContextImmediately) this.conversationId = undefined
+
 			// If the transaction was successful, return the updated question
 			return plainToInstance(
 				Question,
@@ -259,7 +267,7 @@ class QuestionProvider implements DataProvider<Question> {
 	async delete(id: string): Promise<void> {
 		if (!this.conversationId)
 			throw new Error(
-				'Deleting an attribute can only be done for a certain conversation.'
+				'Deleting a question can only be done for a certain conversation.'
 			)
 
 		// Delete the document
@@ -270,6 +278,8 @@ class QuestionProvider implements DataProvider<Question> {
 				.collection('questions')
 				.doc(id)
 				.delete()
+
+			if (this.clearContextImmediately) this.conversationId = undefined
 		} catch (caughtError: unknown) {
 			const error = caughtError as FirebaseError
 			// Handle a not found error, but pass on the rest as a backend error

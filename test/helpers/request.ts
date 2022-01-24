@@ -23,7 +23,22 @@ export const fetch = async (
 	options: unknown
 ): Promise<{ body: any; status: number }> => {
 	// Make the request
-	const { rawBody, statusCode } = (await _fetch(options as any)) as Response
+	let rawBody
+	let statusCode
+	try {
+		;({ rawBody, statusCode } = (await _fetch(options as any)) as Response)
+	} catch (caughtError: unknown) {
+		const error = caughtError as RequestError
+
+		// Parse the response body
+		const body = JSON.parse(
+			(error.response?.body as string | undefined) ?? '{}'
+		)
+		// Log the error
+		console.error('Expected successful response, got error:', body)
+
+		throw caughtError
+	}
 
 	// Parse the response
 	const body = rawBody.toString('utf-8')
@@ -51,7 +66,10 @@ export const fetchError = async (
 ): Promise<ServerError | undefined> => {
 	try {
 		// Make the request
-		await fetch(options as any)
+		const response = await _fetch(options as any)
+
+		// Log the body if an error is not returned
+		console.error('Expected error, got response instead:', response.body)
 	} catch (caughtError: unknown) {
 		const error = caughtError as RequestError
 

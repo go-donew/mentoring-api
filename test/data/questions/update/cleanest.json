@@ -6,7 +6,7 @@
 			"type": "select",
 			"text": "Indore",
 			"attribute": {
-				"id": "knows-india-cleanest-city",
+				"id": "knows-cleanest",
 				"value": 1
 			}
 		},
@@ -15,7 +15,7 @@
 			"type": "select",
 			"text": "Bhopal",
 			"attribute": {
-				"id": "knows-india-cleanest-city",
+				"id": "knows-cleanest",
 				"value": 0
 			}
 		},
@@ -24,7 +24,7 @@
 			"type": "select",
 			"text": "Pune",
 			"attribute": {
-				"id": "knows-india-cleanest-city",
+				"id": "knows-cleanest",
 				"value": 0
 			}
 		},
@@ -33,7 +33,7 @@
 			"type": "select",
 			"text": "Mawsynram",
 			"attribute": {
-				"id": "knows-india-cleanest-city",
+				"id": "knows-cleanest",
 				"value": 0
 			}
 		}

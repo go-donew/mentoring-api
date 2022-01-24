@@ -9,7 +9,7 @@
 				"id": "knows-india-capital",
 				"value": 1
 			},
-			"nextQuestion": "{india-cleanest-city}"
+			"nextQuestion": "{cleanest}"
 		},
 		{
 			"position": 2,
@@ -19,7 +19,7 @@
 				"id": "knows-india-capital",
 				"value": 0
 			},
-			"nextQuestion": "{india-cleanest-city}"
+			"nextQuestion": "{cleanest}"
 		},
 		{
 			"position": 3,
@@ -29,7 +29,7 @@
 				"id": "knows-india-capital",
 				"value": 0
 			},
-			"nextQuestion": "{india-cleanest-city}"
+			"nextQuestion": "{cleanest}"
 		}
 	],
 	"first": true,

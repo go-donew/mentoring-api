@@ -755,7 +755,24 @@ describe('users', () => {
 			})
 		})
 
-		// TODO: Add test for when one user is mentor/supermentor of another
+		it('should return the requested user when requesting user is their mentor/supermentor', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.user).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				email: 'string',
+				phone: undefined,
+				lastSignedIn: 'string',
+			})
+		})
 	})
 })
 
@@ -1444,10 +1461,12 @@ describe('questions', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['capital', 'cleanest'])(
+		it.each(['cleanest', 'capital'])(
 			'should return the created question upon a valid request (%s)',
 			async (questionName: string) => {
-				const data = await testData(`questions/create/${questionName}`)
+				const data = await testData(`questions/create/${questionName}`, {
+					cleanest: questions.cleanest.id,
+				})
 				const { body, status } = await fetch({
 					method: 'post',
 					url: `conversations/${conversations.quiz.id}/questions`,
@@ -1527,10 +1546,12 @@ describe('questions', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['capital', 'cleanest'])(
+		it.each(['cleanest', 'capital'])(
 			'should return the updated question upon a valid request (%s)',
 			async (questionName: string) => {
-				const data = await testData(`questions/update/${questionName}`)
+				const data = await testData(`questions/update/${questionName}`, {
+					cleanest: questions.cleanest.id,
+				})
 				const { body, status } = await fetch({
 					method: 'put',
 					url: `conversations/${conversations.quiz.id}/questions/${
@@ -1720,6 +1741,78 @@ describe('questions', () => {
 				last: false,
 				randomizeOptionOrder: true,
 				tags: ['string'],
+			})
+		})
+	})
+
+	describe('put /conversations/{conversationId}/questions/{questionId}/answer', () => {
+		it('should return a `entity-not-found` error when the requested question is not found', async () => {
+			const error = await fetchError({
+				method: 'put',
+				url: `conversations/${conversations.quiz.id}/questions/weird/answer`,
+				json: { position: 1 },
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should set the specified attribute and return the next question when requesting user is allowed to take the conversation', async () => {
+			let { body, status } = await fetch({
+				method: 'put',
+				url: `conversations/${conversations.quiz.id}/questions/${questions.capital.id}/answer`,
+				json: { position: 1 },
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.nextQuestion).toMatchShapeOf({
+				id: 'string',
+				text: 'string',
+				options: [
+					{
+						position: 1,
+						type: 'string',
+						text: 'string',
+						attribute: {
+							id: 'string',
+							value: 1,
+						},
+					},
+				],
+				first: true,
+				last: false,
+				randomizeOptionOrder: true,
+				tags: ['string'],
+			})
+			;({ body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.bofh.id}/attributes/${questions.capital.options[0].attribute.id}`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			}))
+
+			expect(status).toEqual(200)
+			expect(body.attribute).toMatchShapeOf({
+				id: 'string',
+				value: 1,
+				history: [
+					{
+						value: 1,
+						observer: 'string',
+						timestamp: 'string',
+						message: {
+							in: 'string',
+							id: 'string',
+						},
+					},
+				],
 			})
 		})
 	})

@@ -10,7 +10,10 @@ import {
 
 import permit from '../middleware/authorization.js'
 import Question from '../models/question.js'
+import Attribute from '../models/attribute.js'
 import Questions from '../providers/data/questions.js'
+import Attributes from '../providers/data/attributes.js'
+import ServerError from '../utils/errors.js'
 import { generateId } from '../utils/index.js'
 import { Query } from '../types.js'
 
@@ -334,6 +337,142 @@ endpoint.delete(
 			await Questions.delete(request.params.questionId)
 
 			response.sendStatus(204)
+		} catch (error: unknown) {
+			next(error)
+		}
+	}
+)
+
+/**
+ * The payload needed to answer a question.
+ *
+ * @typedef {object} AnswerQuestionPayload
+ * @property {number} position.required - The position of the answer selected by the user.
+ * @property {string} input - The input provided by the user if the option was of type `input`.
+ */
+
+/**
+ * The response from the answer question endpoint.
+ *
+ * @typedef {object} AnswerQuestionResponse
+ * @property {Question} nextQuestion - The next question the user should answer.
+ */
+
+/**
+ * PUT /conversations/{conversationId}/questions/{questionId}/answer
+ *
+ * @summary Answer a question
+ * @tags questions
+ *
+ * @security bearer
+ *
+ * @param {AnswerQuestionPayload} request.body.required - The details required for joining a group.
+ *
+ * @returns {AnswerQuestionResponse} 200 - The next question the user should answer.
+ * @returns {ImproperPayloadError} 400 - The payload was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {EntityNotFoundError} 404 - There was no group that can be joined using the passed code.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.put(
+	'/:conversationId/questions/:questionId/answer',
+	permit({
+		subject: 'conversation',
+		roles: 'dynamic',
+	}),
+	async (
+		request: Request,
+		response: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			Questions.context({
+				conversationId: request.params.conversationId,
+				clearContextImmediately: false,
+			})
+			Attributes.context({
+				userId: request.user!.id,
+				clearContextImmediately: false,
+			})
+
+			// Get the question
+			const question = await Questions.get(request.params.questionId)
+
+			// Then figure out which option the user picked
+			const pickedOption = question.options.find(
+				(option) => option.position === request.body.position
+			)
+			if (!pickedOption) {
+				throw new ServerError('entity-not-found', 'Could not find that option.')
+			}
+
+			// Get the user's answer
+			const answer =
+				pickedOption.type === 'select'
+					? pickedOption.attribute.value
+					: pickedOption.type === 'input'
+					? request.body.input ?? '!noinput'
+					: '!noinput'
+
+			// Check if the attribute already exists
+			let attribute
+			try {
+				attribute = await Attributes.get(pickedOption.attribute.id)
+
+				// If it does, just update the value
+				attribute.value = answer
+				// Also update the attribute history
+				attribute.history.push({
+					observer: 'qa-bot',
+					timestamp: new Date(),
+					message: {
+						in: 'question',
+						id: request.params.questionId,
+					},
+					value: answer,
+				})
+
+				// Update the attribute in the database
+				await Attributes.update(attribute.id, attribute)
+			} catch {
+				// Else create a new attribute
+				attribute = new Attribute(
+					pickedOption.attribute.id,
+					answer,
+					[],
+					request.user!.id
+				)
+
+				// Also update the attribute history
+				attribute.history.push({
+					observer: 'qa-bot',
+					timestamp: new Date(),
+					message: {
+						in: 'question',
+						id: request.params.questionId,
+					},
+					value: answer,
+				})
+
+				// Save the attribute in the database
+				await Attributes.create(attribute.id, attribute)
+			}
+
+			// If there is a next question, return it
+			if (pickedOption.nextQuestion) {
+				response.status(200).send({
+					nextQuestion: await Questions.get(pickedOption.nextQuestion),
+				})
+			} else {
+				response.status(200).send({})
+			}
+
+			Questions.conversationId = undefined
+			Attributes.userId = undefined
 		} catch (error: unknown) {
 			next(error)
 		}
