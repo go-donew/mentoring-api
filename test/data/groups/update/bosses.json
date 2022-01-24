@@ -7,5 +7,6 @@
 		"{quiz}": ["supermentor"]
 	},
 	"reports": {},
-	"code": "the-bosses"
+	"code": "the-bosses",
+	"tags": ["boss"]
 }

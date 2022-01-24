@@ -82,7 +82,7 @@ endpoint.get(
 						query.push({
 							field,
 							operator: 'includes',
-							tag,
+							value: tag,
 						})
 				else
 					query.push({

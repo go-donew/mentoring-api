@@ -23,10 +23,11 @@ const endpoint = createRouter()
  *
  * @typedef {object} ListOrFindGroupsPayload
  * @property {string} name - The group should have this name.
- * @property {string} participants - The group should have the given participants.
- * @property {string} conversations - The group should be allowed to take part in the given conversations.
- * @property {string} reports - The group should be allowed to view the given reports.
+ * @property {array<string>} participants - The group should have the given participants.
+ * @property {array<string>} conversations - The group should be allowed to take part in the given conversations.
+ * @property {array<string>} reports - The group should be allowed to view the given reports.
  * @property {string} code - The group should have this code.
+ * @property {array<string>} tags - The group should have the given tags.
  */
 
 /**
@@ -56,7 +57,7 @@ const endpoint = createRouter()
  *
  * @example request - An example query that returns all groups that have the user ID `LZfXLFzPPR4NNrgjlWDxn`
  * {
- * 	"participants": "LZfXLFzPPR4NNrgjlWDxn"
+ * 	"participants": ["LZfXLFzPPR4NNrgjlWDxn"]
  * }
  *
  * @endpoint
@@ -73,12 +74,15 @@ endpoint.get(
 			// Build a valid query, and then return the result
 			let query = []
 			for (const [field, value] of Object.entries(request.body)) {
-				if (['participants', 'conversations', 'reports'].includes(field))
-					query.push({
-						field,
-						operator: 'includes',
-						value,
-					})
+				if (
+					['participants', 'conversations', 'reports', 'tags'].includes(field)
+				)
+					for (const element of value as string[])
+						query.push({
+							field,
+							operator: 'includes',
+							value: element,
+						})
 				else
 					query.push({
 						field,

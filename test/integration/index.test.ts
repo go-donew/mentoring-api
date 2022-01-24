@@ -282,12 +282,9 @@ describe('groups', () => {
 	describe('post /groups', () => {
 		it.each([
 			['an invalid name is passed', { name: { invalid: 'value' } }],
-			// FIXME: These tests don't work?!
-			/*
-			[ 'an invalid participants list is passed', { participants: { 'The BOFH': ['mentee'] } } ],
-			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
-			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
-			*/
+			['an invalid participants list is passed', { participants: 'bofh' }],
+			['an invalid conversation list is passed', { conversations: 'quiz' }],
+			['an invalid report list is passed', { reports: 'quiz-score' }],
 			['an invalid code is passed', { code: ['the-bosses', 'sys-admin'] }],
 		])(
 			'should return a `improper-payload` error when %s',
@@ -357,12 +354,9 @@ describe('groups', () => {
 	describe('put /groups/{groupId}', () => {
 		it.each([
 			['an invalid name is passed', { name: { invalid: 'value' } }],
-			// FIXME: These tests don't work?!
-			/*
-			[ 'an invalid participants list is passed', { participants: { 'The BOFH': ['mentee'] } } ],
-			[ 'an invalid conversation list is passed', { conversations: { quiz: 'mentee' } } ],
-			[ 'an invalid report list is passed', { reports: { 'quiz-score': 'mentee' } } ],
-			*/
+			['an invalid participants list is passed', { participants: 'bofh' }],
+			['an invalid conversation list is passed', { conversations: 'quiz' }],
+			['an invalid report list is passed', { reports: 'quiz-score' }],
 			['an invalid code is passed', { code: ['the-bosses', 'sys-admin'] }],
 		])(
 			'should return a `improper-payload` error when %s',

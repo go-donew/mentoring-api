@@ -128,12 +128,15 @@ class GroupProvider implements DataProvider<Group> {
 			serializedGroup.__participants = {}
 			serializedGroup.__conversations = {}
 			serializedGroup.__reports = {}
+			serializedGroup.__tags = {}
 			for (const participant of Object.keys(serializedGroup.participants))
 				serializedGroup.__participants[participant] = true
 			for (const conversation of Object.keys(serializedGroup.conversations))
 				serializedGroup.__conversations[conversation] = true
 			for (const report of Object.keys(serializedGroup.reports))
 				serializedGroup.__reports[report] = true
+			for (const tag of Object.keys(serializedGroup.tags))
+				serializedGroup.__tags[tag] = true
 			// Add the data into the database
 			await getFirestore().collection('groups').doc(id).set(serializedGroup)
 
@@ -175,12 +178,15 @@ class GroupProvider implements DataProvider<Group> {
 			serializedGroup.__participants = {}
 			serializedGroup.__conversations = {}
 			serializedGroup.__reports = {}
+			serializedGroup.__tags = {}
 			for (const participant of Object.keys(serializedGroup.participants))
 				serializedGroup.__participants[participant] = true
 			for (const conversation of Object.keys(serializedGroup.conversations))
 				serializedGroup.__conversations[conversation] = true
 			for (const report of Object.keys(serializedGroup.reports))
 				serializedGroup.__reports[report] = true
+			for (const tag of Object.keys(serializedGroup.tags))
+				serializedGroup.__tags[tag] = true
 			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('groups')

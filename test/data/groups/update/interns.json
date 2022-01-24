@@ -9,5 +9,6 @@
 		"{updates}": ["mentor"]
 	},
 	"reports": {},
-	"code": "the-interns"
+	"code": "the-interns",
+	"tags": ["intern"]
 }

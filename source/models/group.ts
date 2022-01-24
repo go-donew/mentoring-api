@@ -9,7 +9,7 @@ import Groups from '../providers/data/groups.js'
  * @typedef {object} ParticipantList
  * @property {string} userId - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
  */
-export declare type ParticipantList = Record<
+export type ParticipantList = Record<
 	string,
 	'mentee' | 'mentor' | 'supermentor'
 >
@@ -20,7 +20,7 @@ export declare type ParticipantList = Record<
  * @typedef {object} ConversationList
  * @property {array<string>} conversationId - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
  */
-export declare type ConversationList = Record<
+export type ConversationList = Record<
 	string,
 	Array<'mentee' | 'mentor' | 'supermentor'>
 >
@@ -31,7 +31,7 @@ export declare type ConversationList = Record<
  * @typedef {object} ReportList
  * @property {array<string>} reportId - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
  */
-export declare type ReportList = Record<
+export type ReportList = Record<
 	string,
 	Array<'mentee' | 'mentor' | 'supermentor'>
 >
@@ -46,6 +46,7 @@ export declare type ReportList = Record<
  * @property {ConversationList} conversations - The conversations the group's participants are allowed to take part in.
  * @property {ReportList} reports - The reports the group's participants can view.
  * @property {string} code.required - The code a user can use to join the group.
+ * @property {array<string>} tags.required - Tags to enhance the searchability of the group.
  */
 class Group {
 	static fromGroupId = async (id: string): Promise<Group> => Groups.get(id)
@@ -56,6 +57,7 @@ class Group {
 	conversations: ConversationList
 	reports: ReportList
 	code: string
+	tags: string[]
 
 	constructor(
 		id: string,
@@ -63,7 +65,8 @@ class Group {
 		participants: ParticipantList,
 		conversations: ConversationList,
 		reports: ReportList,
-		code: string
+		code: string,
+		tags: string[]
 	) {
 		this.id = id
 		this.name = name
@@ -71,6 +74,7 @@ class Group {
 		this.conversations = conversations
 		this.reports = reports
 		this.code = code
+		this.tags = tags
 	}
 }
 
