@@ -18,10 +18,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const config = {
 	// Basic information about the API to include in the spec
 	info: {
-		title: 'The DoNew Today API',
+		title: 'The DoNew Mentoring API',
 		version: '0.1.0',
 		description:
-			'This is the documentation for the DoNew Today API. Pick an endpoint from the sidebar on the left to know more about it.',
+			'This is the documentation for the DoNew Mentoring API. Pick an endpoint from the sidebar on the left to know more about it.',
 	},
 	servers: [
 		{

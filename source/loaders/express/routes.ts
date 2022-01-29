@@ -21,7 +21,7 @@ export const load = async (app: Application): Promise<void> => {
 		response
 			.status(200)
 			.send(
-				'Thanks for using the DoNew Today API! Check out the docs by going to /docs in your browser.'
+				'Thanks for using the DoNew Mentoring API! Check out the docs by going to /docs in your browser.'
 			)
 	)
 

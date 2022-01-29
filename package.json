@@ -1,7 +1,7 @@
 {
-	"name": "@donew/today-api",
+	"name": "@donew/mentoring-api",
 	"version": "0.0.0",
-	"description": "The source code for the DoNew Today API server",
+	"description": "The source code for the DoNew Mentoring API server",
 	"author": {
 		"name": "Vedant K",
 		"url": "https://github.com/gamemaker1"

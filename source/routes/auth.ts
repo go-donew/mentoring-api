@@ -12,7 +12,7 @@ const endpoint = createRouter()
 /**
  * POST /auth/signup
  *
- * @summary Create a DoNew Today account
+ * @summary Create an account
  * @tags auth - Authentication related endpoints
  *
  * @param {SignUpPayload} request.body.required - The name, email address and password of the user to create.
@@ -43,7 +43,7 @@ endpoint.post('/signup', async (request: Request, response: Response): Promise<v
 /**
  * POST /auth/signin
  *
- * @summary Sign into your DoNew Today account
+ * @summary Sign into your account
  * @tags auth - Authentication related endpoints
  *
  * @param {SignInPayload} request.body.required - The email address and password of the user to sign in.
