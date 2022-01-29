@@ -3,7 +3,7 @@
 
 import got, { RequestError, Response } from 'got'
 
-import ServerError from '../../source/utils/errors.js'
+import { ServerError } from '../../source/errors'
 
 /**
  * A `got` instance with the prefixUrl set to the Firebase Hosting Emulator URL.
@@ -19,9 +19,7 @@ const _fetch = got.extend({
  *
  * @returns {Object<body: any, status: number>} - The response body and status code.
  */
-export const fetch = async (
-	options: unknown
-): Promise<{ body: any; status: number }> => {
+export const fetch = async (options: unknown): Promise<{ body: any; status: number }> => {
 	// Make the request
 	let rawBody
 	let statusCode
@@ -31,9 +29,7 @@ export const fetch = async (
 		const error = caughtError as RequestError
 
 		// Parse the response body
-		const body = JSON.parse(
-			(error.response?.body as string | undefined) ?? '{}'
-		)
+		const body = JSON.parse((error.response?.body as string | undefined) ?? '{}')
 		// Log the error
 		console.error('Expected successful response, got error:', body)
 
@@ -61,9 +57,7 @@ export const fetch = async (
  *
  * @returns {ServerError | undefined} - The error returned in the response.
  */
-export const fetchError = async (
-	options: unknown
-): Promise<ServerError | undefined> => {
+export const fetchError = async (options: unknown): Promise<ServerError | undefined> => {
 	try {
 		// Make the request
 		const response = await _fetch(options as any)
@@ -74,17 +68,11 @@ export const fetchError = async (
 		const error = caughtError as RequestError
 
 		// Parse the response body and check if it is a `ServerError`
-		const body = JSON.parse(
-			(error.response?.body as string | undefined) ?? '{}'
-		)
+		const body = JSON.parse((error.response?.body as string | undefined) ?? '{}')
 		const serverError = body.error as Record<string, any> | undefined
 
 		// If yes, convert the JSON object to an instance of a `ServerError`
 		if (serverError?.code && serverError?.message && serverError?.status)
-			return new ServerError(
-				serverError.code,
-				serverError.message,
-				serverError.status
-			)
+			return new ServerError(serverError.code, serverError.message, serverError.status)
 	}
 }

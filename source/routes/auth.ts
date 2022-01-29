@@ -1,34 +1,13 @@
 // @/routes/auth.ts
-// Sign up/in and token refresh API endpoint handler
+// Request handlers for auth related endpoints.
 
-import {
-	Router as createRouter,
-	Request,
-	Response,
-	NextFunction,
-} from 'express'
+import { Router as createRouter } from 'express'
+import type { Request, Response } from 'express'
 
-import Auth from '../providers/auth.js'
+import { service as auth } from '@/services/auth'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
-
-/**
- * The payload needed to make a request to sign up a user.
- *
- * @typedef {object} SignUpPayload
- * @property {string} name.required - The user's name.
- * @property {string} email.required - The user's email address. - email
- * @property {string} password.required - The user's password. - password
- */
-
-/**
- * The response from the sign up endpoint.
- *
- * @typedef {object} SignUpResponse
- * @property {User} user.required - The created user.
- * @property {Tokens} tokens.required - The tokens the user can use to access other endpoints.
- */
 
 /**
  * POST /auth/signup
@@ -54,42 +33,12 @@ const endpoint = createRouter()
  *
  * @endpoint
  */
-endpoint.post(
-	'/signup',
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const userAndTokens = await Auth.signUp(
-				request.body.name,
-				request.body.email,
-				request.body.password
-			)
+endpoint.post('/signup', async (request: Request, response: Response): Promise<void> => {
+	const result = await auth.signUp(request)
 
-			response.status(201).send(userAndTokens)
-		} catch (error: unknown) {
-			next(error)
-		}
-	}
-)
-
-/**
- * The payload needed to make a request to sign in a user.
- *
- * @typedef {object} SignInPayload
- * @property {string} email.required - The user's email address. - email
- * @property {string} password.required - The user's password. - password
- */
-
-/**
- * The response from the sign in endpoint.
- *
- * @typedef {object} SignInResponse
- * @property {User} user.required - The signed in user.
- * @property {Tokens} tokens.required - The tokens the user can use to access other endpoints.
- */
+	if (result.error) response.sendError(result.error)
+	else response.status(result.status ?? 200).send(result.data)
+})
 
 /**
  * POST /auth/signin
@@ -115,38 +64,12 @@ endpoint.post(
  *
  * @endpoint
  */
-endpoint.post(
-	'/signin',
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const userAndTokens = await Auth.signIn(
-				request.body.email,
-				request.body.password
-			)
-			response.status(200).send(userAndTokens)
-		} catch (error: unknown) {
-			next(error)
-		}
-	}
-)
+endpoint.post('/signin', async (request: Request, response: Response): Promise<void> => {
+	const result = await auth.signIn(request)
 
-/**
- * The payload needed to make a request to refresh a user's tokens.
- *
- * @typedef {object} TokenRefreshPayload
- * @property {string} refreshToken.required - The user's refresh token.
- */
-
-/**
- * The response from the token refresh endpoint.
- *
- * @typedef {object} TokenRefreshResponse
- * @property {Tokens} tokens.required - The tokens the user can use to access other endpoints.
- */
+	if (result.error) response.sendError(result.error)
+	else response.status(result.status ?? 200).send(result.data)
+})
 
 /**
  * POST /auth/refresh-token
@@ -172,20 +95,13 @@ endpoint.post(
  */
 endpoint.post(
 	'/refresh-token',
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const tokens = await Auth.refreshTokens(request.body.refreshToken)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await auth.refreshToken(request)
 
-			response.status(200).send({ tokens })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
 // Export the router
-export default endpoint
+export { endpoint }

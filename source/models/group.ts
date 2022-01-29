@@ -1,7 +1,5 @@
 // @/models/group.ts
-// A class representing a group
-
-import Groups from '../providers/data/groups.js'
+// Class that represents a group.
 
 /**
  * List of participants in a group.
@@ -9,10 +7,7 @@ import Groups from '../providers/data/groups.js'
  * @typedef {object} ParticipantList
  * @property {string} userId - The participating user's ID and their role in the group. - enum:mentee,mentor,supermentor
  */
-export type ParticipantList = Record<
-	string,
-	'mentee' | 'mentor' | 'supermentor'
->
+export type ParticipantList = Record<string, 'mentee' | 'mentor' | 'supermentor'>
 
 /**
  * List of conversations the group's participants are allowed to take part in.
@@ -20,10 +15,7 @@ export type ParticipantList = Record<
  * @typedef {object} ConversationList
  * @property {array<string>} conversationId - The conversation ID and which roles in the group are allowed to take part in it. - enum:mentee,mentor,supermentor
  */
-export type ConversationList = Record<
-	string,
-	Array<'mentee' | 'mentor' | 'supermentor'>
->
+export type ConversationList = Record<string, Array<'mentee' | 'mentor' | 'supermentor'>>
 
 /**
  * List of reports the group's participants can view.
@@ -31,10 +23,7 @@ export type ConversationList = Record<
  * @typedef {object} ReportList
  * @property {array<string>} reportId - The report ID and which roles in the group are allowed to view it. - enum:mentee,mentor,supermentor
  */
-export type ReportList = Record<
-	string,
-	Array<'mentee' | 'mentor' | 'supermentor'>
->
+export type ReportList = Record<string, Array<'mentee' | 'mentor' | 'supermentor'>>
 
 /**
  * A class representing a group.
@@ -48,9 +37,7 @@ export type ReportList = Record<
  * @property {string} code.required - The code a user can use to join the group.
  * @property {array<string>} tags.required - Tags to enhance the searchability of the group.
  */
-class Group {
-	static fromGroupId = async (id: string): Promise<Group> => Groups.get(id)
-
+export class Group {
 	id: string
 	name: string
 	participants: ParticipantList
@@ -77,5 +64,3 @@ class Group {
 		this.tags = tags
 	}
 }
-
-export default Group

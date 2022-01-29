@@ -1,7 +1,5 @@
 // @/models/conversation.ts
-// A class representing a conversation
-
-import Conversations from '../providers/data/conversations.js'
+// Class that represents a conversation.
 
 /**
  * A class representing a conversation.
@@ -13,10 +11,7 @@ import Conversations from '../providers/data/conversations.js'
  * @property {boolean} once.required - Whether a user can go through the conversation again.
  * @property {array<string>} tags.required - Tags to enhance searchability of the conversation.
  */
-class Conversation {
-	static fromConversationId = async (id: string): Promise<Conversation> =>
-		Conversations.get(id)
-
+export class Conversation {
 	id: string
 	name: string
 	description: string
@@ -37,5 +32,3 @@ class Conversation {
 		this.tags = tags
 	}
 }
-
-export default Conversation

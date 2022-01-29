@@ -1,12 +1,12 @@
 // @/loaders/index.ts
-// Load all the components of the server
+// Runs all loaders in the `@/loaders` folder.
 
-import { Application } from 'express'
+import type { Application } from 'express'
 
-import loadFirebase from './firebase/index.js'
-import loadMiddleware from './express/middleware.js'
-import loadDocumentation from './express/docs.js'
-import loadRoutes from './express/routes.js'
+import { load as loadFirebase } from '@/loaders/firebase'
+import { load as loadMiddleware } from '@/loaders/express/middleware'
+import { load as loadDocumentation } from '@/loaders/express/docs'
+import { load as loadRoutes } from '@/loaders/express/routes'
 
 /**
  * Calls all the loaders in this directory one by one, and passes the epxress
@@ -14,15 +14,13 @@ import loadRoutes from './express/routes.js'
  *
  * @param {Application} app - The Express application instance.
  */
-const load = async (app: Application): Promise<void> => {
+export const load = async (app: Application): Promise<void> => {
 	// Initialize the Firebase Admin SDK
 	await loadFirebase(app)
-	// Register middleware
+	// Register Express middleware
 	await loadMiddleware(app)
 	// Generate the documentation
 	await loadDocumentation(app)
 	// Register API endpoints
 	await loadRoutes(app)
 }
-
-export default load

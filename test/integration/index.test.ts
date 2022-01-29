@@ -92,8 +92,7 @@ describe('auth', () => {
 						body: { idToken, refreshToken },
 					} = await fetch({
 						method: 'post',
-						prefixUrl:
-							'http://localhost:9099/identitytoolkit.googleapis.com/v1',
+						prefixUrl: 'http://localhost:9099/identitytoolkit.googleapis.com/v1',
 						url: `accounts:update`,
 						headers: {
 							authorization: 'Bearer owner',
@@ -1160,8 +1159,7 @@ describe('conversations', () => {
 					tags: ['string'],
 				})
 
-				conversations[conversationName as 'quiz' | 'updates'] =
-					body.conversation
+				conversations[conversationName as 'quiz' | 'updates'] = body.conversation
 			}
 		)
 
@@ -1262,8 +1260,7 @@ describe('conversations', () => {
 					tags: ['string'],
 				})
 
-				conversations[conversationName as 'quiz' | 'updates'] =
-					body.conversation
+				conversations[conversationName as 'quiz' | 'updates'] = body.conversation
 			}
 		)
 	})
@@ -1423,10 +1420,7 @@ describe('questions', () => {
 			['an invalid options list is passed', { options: { text: 'something' } }],
 			['an invalid first is passed', { first: 'yes' }],
 			['an invalid last is passed', { last: 'no' }],
-			[
-				'an invalid randomizeOptionOrder is passed',
-				{ randomizeOptionOrder: 'yes' },
-			],
+			['an invalid randomizeOptionOrder is passed', { randomizeOptionOrder: 'yes' }],
 			['an invalid tags list is passed', { tags: 'quiz' }],
 		])(
 			'should return a `improper-payload` error when %s',
@@ -1508,10 +1502,7 @@ describe('questions', () => {
 			['an invalid options list is passed', { options: { text: 'something' } }],
 			['an invalid first is passed', { first: 'yes' }],
 			['an invalid last is passed', { last: 'no' }],
-			[
-				'an invalid randomizeOptionOrder is passed',
-				{ randomizeOptionOrder: 'yes' },
-			],
+			['an invalid randomizeOptionOrder is passed', { randomizeOptionOrder: 'yes' }],
 			['an invalid tags list is passed', { tags: 'quiz' }],
 		])(
 			'should return a `improper-payload` error when %s',

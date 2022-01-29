@@ -1,7 +1,5 @@
 // @/models/user.ts
-// A class representing a user
-
-import Users from '../providers/data/users.js'
+// Class that represents a user.
 
 /**
  * A class representing a user.
@@ -13,9 +11,7 @@ import Users from '../providers/data/users.js'
  * @property {string} phone - The user's phone number.
  * @property {string} lastSignedIn.required - The time the user last signed in to their account. - date
  */
-class User {
-	static fromUserId = async (id: string): Promise<User> => Users.get(id)
-
+export class User {
 	id: string
 	name: string
 	email?: string
@@ -36,5 +32,3 @@ class User {
 		this.lastSignedIn = lastSignedIn
 	}
 }
-
-export default User

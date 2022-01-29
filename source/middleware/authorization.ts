@@ -1,19 +1,18 @@
 // @/middleware/authorization.ts
-// Middleware that checks if a user is authorized to make a request
+// Middleware that checks if a user is authorized to make a request.
 
-import { Request, RequestHandler, Response, NextFunction } from 'express'
+import type { Request, RequestHandler, Response, NextFunction } from 'express'
 
-import Group from '../models/group.js'
-import Groups from '../providers/data/groups.js'
-import ServerError from '../utils/errors.js'
-import { handleAsyncErrors } from '../utils/index.js'
+import { ServerError } from '@/errors'
+import { provider as groups } from '@/providers/data/groups'
+import { handleAsyncErrors } from '@/utils'
 
 /**
  * The context in which a request is to be allowed to pass. The `subject` indicates
  * the type of data being accessed, while the roles indicate which type of users
  * are allowed to access the data.
  */
-export declare type AuthorizationContext =
+export type AuthorizationContext =
 	| {
 			subject: 'user'
 			roles: Array<'self' | 'mentor' | 'supermentor'>
@@ -24,9 +23,7 @@ export declare type AuthorizationContext =
 	  }
 	| {
 			subject: 'message'
-			roles: Array<
-				'participant' | 'sender' | 'mentee' | 'mentor' | 'supermentor'
-			>
+			roles: Array<'participant' | 'sender' | 'mentee' | 'mentor' | 'supermentor'>
 	  }
 	| {
 			subject: 'report'
@@ -46,13 +43,9 @@ export declare type AuthorizationContext =
  * @returns {RequestHandler} - The authorization middleware.
  * @throws {ServerError} - 'not-allowed'
  */
-const permit = (context: AuthorizationContext): RequestHandler =>
+export const permit = (context: AuthorizationContext): RequestHandler =>
 	handleAsyncErrors(
-		async (
-			request: Request,
-			response: Response,
-			next: NextFunction
-		): Promise<void> => {
+		async (request: Request, response: Response, next: NextFunction): Promise<void> => {
 			// Make sure the user exists
 			if (!request.user) {
 				throw new ServerError('invalid-token')
@@ -92,7 +85,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 					// Query the database and check if:
 					// - the client is part of a group with the user
 					// - in that group, the client is a mentor/supermentor of the user
-					const groups = await Groups.find([
+					const foundGroups = await groups.find([
 						{
 							field: `participants`,
 							operator: 'includes',
@@ -107,9 +100,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 
 					// If any such group exists, then let them through
 					if (
-						groups.some(
-							(group) => group.participants[request.user!.id] === role
-						)
+						foundGroups.some((group) => group.participants[request.user!.id] === role)
 					) {
 						next()
 						return
@@ -131,7 +122,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 					// - the client is part of the group and is a participant, mentor or supermentor
 
 					// First fetch the group
-					const group = await Group.fromGroupId(request.params.groupId)
+					const group = await groups.get(request.params.groupId)
 
 					// Check the client's role in the group
 					if (
@@ -158,7 +149,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 			if (context.subject === 'conversation') {
 				// Query the database and check if the client is part of a group and that
 				// the group members are allowed to take part in the conversation
-				const groups = await Groups.find([
+				const foundGroups = await groups.find([
 					{
 						field: 'participants',
 						operator: 'includes',
@@ -175,7 +166,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 				// in a conversation to certain roles. Check if the user has the correct
 				// role to take part in the conversation
 				if (
-					groups.some((group) =>
+					foundGroups.some((group) =>
 						group.conversations[request.params.conversationId].includes(
 							group.participants[request.user!.id]
 						)
@@ -194,7 +185,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 			if (context.subject === 'report') {
 				// Query the database and check if the client is part of a group and that
 				// the group members are allowed to view the report
-				const groups = await Groups.find([
+				const foundGroups = await groups.find([
 					{
 						field: `participants`,
 						operator: 'includes',
@@ -216,7 +207,7 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 				// report to certain roles. Check if the user has the correct role to
 				// view the report
 				if (
-					groups.some((group) =>
+					foundGroups.some((group) =>
 						group.reports[request.params.reportType].includes(
 							group.participants[request.user!.id]
 						)
@@ -236,5 +227,3 @@ const permit = (context: AuthorizationContext): RequestHandler =>
 			response.sendError('not-allowed')
 		}
 	)
-
-export default permit

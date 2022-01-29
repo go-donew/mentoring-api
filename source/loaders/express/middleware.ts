@@ -1,37 +1,32 @@
 // @/loaders/express/middleware.ts
-// Registers middleware with the express application
+// Registers middleware with the express application.
 
-import {
-	Application,
-	Request,
-	Response,
-	NextFunction,
-	json as parseJsonBodies,
-} from 'express'
+import type { Application, Request, Response, NextFunction } from 'express'
+
+import { json as parseJson } from 'express'
 import secureResponses from 'helmet'
 import enableCors from 'cors'
 import addRequestId from 'express-request-id'
 import rateLimitRequests from 'express-rate-limit'
 
-import authenticateUsers from '../../middleware/authentication.js'
-import ServerError, { ErrorCode } from '../../utils/errors.js'
+import { authenticateRequests } from '@/middleware/authentication'
+import { ServerError, ErrorCode } from '@/errors'
 
 /**
  * Registers middleware with the express application instance passed.
  *
  * @param {Application} app - The Express application instance.
  */
-const load = async (app: Application): Promise<void> => {
+export const load = async (app: Application): Promise<void> => {
 	// Tweak server settings
 	// This one allows us to get the client's IP address
 	app.set('trust proxy', 1)
 	app.set('x-powered-by', 'people doing something new')
 
 	// Add a custom method to the request object
-	app.use((_request: Request, response: Response, next: NextFunction) => {
+	app.use((_request: Request, response: Response, next: NextFunction): void => {
 		response.sendError = (error: ErrorCode | ServerError) => {
-			const serverError =
-				typeof error === 'string' ? new ServerError(error) : error
+			const serverError = typeof error === 'string' ? new ServerError(error) : error
 			response.status(serverError.status).send({
 				error: serverError,
 			})
@@ -41,7 +36,7 @@ const load = async (app: Application): Promise<void> => {
 	})
 
 	// Register body-parsing middleware
-	app.use(parseJsonBodies())
+	app.use(parseJson())
 	// Make our responses secure using the `helmet` library
 	app.use(secureResponses())
 	// Allow cross-origin requests
@@ -49,7 +44,7 @@ const load = async (app: Application): Promise<void> => {
 	// Add a request ID to every request
 	app.use(addRequestId())
 	// Authenticate the user making the request
-	app.use(authenticateUsers())
+	app.use(authenticateRequests())
 	// Rate limit the user making the request
 	app.use(
 		rateLimitRequests({
@@ -82,5 +77,3 @@ const load = async (app: Application): Promise<void> => {
 		})
 	)
 }
-
-export default load

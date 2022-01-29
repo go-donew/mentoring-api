@@ -1,13 +1,13 @@
 // @/providers/data/conversation.ts
 // Retrieves, creates, updates and deletes conversations in Firebase.
 
-import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
+import type { FirebaseError } from 'firebase-admin'
 
-import ServerError from '../../utils/errors.js'
-import Conversation from '../../models/conversation.js'
-import { Query, DataProvider } from '../../types.js'
+import { ServerError } from '@/errors'
+import { Conversation } from '@/models/conversation'
+import type { Query, DataProvider } from '@/types'
 
 /**
  * A interface that a data provider must implement.
@@ -26,7 +26,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 		const conversationsRef = getFirestore().collection('conversations')
 		let foundConversations = conversationsRef.orderBy('name')
 		for (const query of queries) {
-			let field = query.field as string
+			let { field } = query
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
 			let value = query.value as any
 
@@ -58,9 +58,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			}
 
 			// Add it to the array
-			conversations.push(
-				plainToInstance(Conversation, data, { excludePrefixes: ['__'] })
-			)
+			conversations.push(plainToInstance(Conversation, data, { excludePrefixes: ['__'] }))
 		}
 
 		return conversations
@@ -104,19 +102,18 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Stores a conversation in the database.
 	 *
-	 * @param {string} id The ID of the conversation to create.
 	 * @param {Conversation} data The data to store in the conversation.
 	 *
 	 * @returns {Conversation} The created conversation.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: Conversation): Promise<Conversation> {
+	async create(data: Conversation): Promise<Conversation> {
 		// Convert the `Conversation` instance to a firebase document and save it
 		try {
 			// Check if the document exists
 			const conversationDocument = await getFirestore()
 				.collection('conversations')
-				.doc(id)
+				.doc(data.id)
 				.get()
 
 			// If it does, then return an 'already-exists' error
@@ -133,7 +130,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			// Add the data into the database
 			await getFirestore()
 				.collection('conversations')
-				.doc(id)
+				.doc(data.id)
 				.set(serializedConversation)
 
 			// If the transaction was successful, return the created conversation
@@ -148,19 +145,18 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Updates a conversation in the database.
 	 *
-	 * @param {string} id The ID of the conversation to update.
 	 * @param {Partial<Conversation>} data A list of properties to update and the value to set.
 	 *
 	 * @returns {Conversation} The updated conversation.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<Conversation>): Promise<Conversation> {
+	async update(data: Partial<Conversation>): Promise<Conversation> {
 		// Update given fields for the conversation in Firestore
 		try {
 			// First retrieve the conversation
 			const existingConversationDoc = await getFirestore()
 				.collection('conversations')
-				.doc(id)
+				.doc(data.id!)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
@@ -177,7 +173,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('conversations')
-				.doc(id)
+				.doc(data.id!)
 				.set(serializedConversation, { merge: true })
 
 			// If the transaction was successful, return the updated conversation
@@ -221,4 +217,4 @@ class ConversationProvider implements DataProvider<Conversation> {
 	}
 }
 
-export default new ConversationProvider()
+export const provider = new ConversationProvider()

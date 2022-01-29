@@ -1,13 +1,13 @@
 // @/providers/data/users.ts
 // Retrieves, creates, updates and deletes users in Firebase.
 
-import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
+import type { FirebaseError } from 'firebase-admin'
 
-import ServerError from '../../utils/errors.js'
-import User from '../../models/user.js'
-import { Query, DataProvider } from '../../types.js'
+import { ServerError } from '@/errors'
+import { User } from '@/models/user'
+import type { Query, DataProvider } from '@/types'
 
 /**
  * A interface that a data provider must implement.
@@ -25,12 +25,12 @@ class UserProvider implements DataProvider<User> {
 		// Build the query
 		const usersQuery = getFirestore().collection('users')
 		for (const query of queries) {
-			let field = query.field as string
+			let { field } = query
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
 			let value = query.value as unknown
 
 			if (query.operator === 'includes') {
-				field = `__${query.field as string}.${query.value as string}`
+				field = `__${query.field}.${query.value as string}`
 				operator = '=='
 				value = true
 			}
@@ -107,20 +107,16 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Stores a user in the database.
 	 *
-	 * @param {string} id The ID of the user to create.
 	 * @param {User} data The data to store in the user.
 	 *
 	 * @returns {User} The created user.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: User): Promise<User> {
+	async create(data: User): Promise<User> {
 		// Convert the `User` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const userDocument = await getFirestore()
-				.collection('users')
-				.doc(id)
-				.get()
+			const userDocument = await getFirestore().collection('users').doc(data.id).get()
 
 			// If it does, then return an 'already-exists' error
 			if (userDocument.exists) {
@@ -129,7 +125,7 @@ class UserProvider implements DataProvider<User> {
 
 			// Else insert away!
 			const serializedUser = instanceToPlain(data)
-			await getFirestore().collection('users').doc(id).set(serializedUser)
+			await getFirestore().collection('users').doc(data.id).set(serializedUser)
 
 			// If the transaction was successful, return the created user
 			return data
@@ -143,20 +139,16 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Updates a user in the database.
 	 *
-	 * @param {string} id The ID of the user to update.
 	 * @param {string} data A list of properties to update and the value to set.
 	 *
 	 * @returns {User} The updated user.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<User>): Promise<User> {
+	async update(data: Partial<User>): Promise<User> {
 		// Update given fields for the user in Firestore
 		try {
 			// First retrieve the user
-			const userDocument = await getFirestore()
-				.collection('users')
-				.doc(id)
-				.get()
+			const userDocument = await getFirestore().collection('users').doc(data.id!).get()
 
 			// If it does not exist, then return a 'not-found' error
 			if (!userDocument.exists) {
@@ -166,7 +158,7 @@ class UserProvider implements DataProvider<User> {
 			// Else update away!
 			await getFirestore()
 				.collection('users')
-				.doc(id)
+				.doc(data.id!)
 				.set(instanceToPlain(data), { merge: true })
 
 			// If the transaction was successfull, return the updated user
@@ -206,4 +198,4 @@ class UserProvider implements DataProvider<User> {
 	}
 }
 
-export default new UserProvider()
+export const provider = new UserProvider()

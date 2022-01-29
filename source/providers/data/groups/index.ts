@@ -1,13 +1,13 @@
 // @/providers/data/group.ts
 // Retrieves, creates, updates and deletes groups in Firebase.
 
-import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
+import type { FirebaseError } from 'firebase-admin'
 
-import ServerError from '../../utils/errors.js'
-import Group from '../../models/group.js'
-import { Query, DataProvider } from '../../types.js'
+import { Group } from '@/models/group'
+import { ServerError } from '@/errors'
+import type { Query, DataProvider } from '@/types'
 
 /**
  * A interface that a data provider must implement.
@@ -26,7 +26,7 @@ class GroupProvider implements DataProvider<Group> {
 		const groupsRef = getFirestore().collection('groups')
 		let foundGroups = groupsRef.orderBy('name')
 		for (const query of queries) {
-			let field = query.field as string
+			let { field } = query
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
 			let value = query.value as any
 
@@ -102,20 +102,16 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Stores a group in the database.
 	 *
-	 * @param {string} id The ID of the group to create.
 	 * @param {Group} data The data to store in the group.
 	 *
 	 * @returns {Group} The created group.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: Group): Promise<Group> {
+	async create(data: Group): Promise<Group> {
 		// Convert the `Group` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const groupDocument = await getFirestore()
-				.collection('groups')
-				.doc(id)
-				.get()
+			const groupDocument = await getFirestore().collection('groups').doc(data.id).get()
 
 			// If it does, then return an 'already-exists' error
 			if (groupDocument.exists) {
@@ -138,7 +134,7 @@ class GroupProvider implements DataProvider<Group> {
 			for (const tag of Object.keys(serializedGroup.tags))
 				serializedGroup.__tags[tag] = true
 			// Add the data into the database
-			await getFirestore().collection('groups').doc(id).set(serializedGroup)
+			await getFirestore().collection('groups').doc(data.id).set(serializedGroup)
 
 			// If the transaction was successful, return the created group
 			return data
@@ -152,19 +148,18 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Updates a group in the database.
 	 *
-	 * @param {string} id The ID of the group to update.
 	 * @param {Partial<Group>} data A list of properties to update and the value to set.
 	 *
 	 * @returns {Group} The updated group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<Group>): Promise<Group> {
+	async update(data: Partial<Group>): Promise<Group> {
 		// Update given fields for the group in Firestore
 		try {
 			// First retrieve the group
 			const existingGroupDoc = await getFirestore()
 				.collection('groups')
-				.doc(id)
+				.doc(data.id!)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
@@ -190,7 +185,7 @@ class GroupProvider implements DataProvider<Group> {
 			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('groups')
-				.doc(id)
+				.doc(data.id!)
 				.set(serializedGroup, { merge: true })
 
 			// If the transaction was successful, return the updated group
@@ -234,4 +229,4 @@ class GroupProvider implements DataProvider<Group> {
 	}
 }
 
-export default new GroupProvider()
+export const provider = new GroupProvider()

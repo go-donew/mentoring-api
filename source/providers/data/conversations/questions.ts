@@ -1,33 +1,23 @@
 // @/providers/data/question.ts
 // Retrieves, creates, updates and deletes questions in Firebase.
 
-import { FirebaseError } from 'firebase-admin'
+import type { FirebaseError } from 'firebase-admin'
+
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
+import type { Query, DataProvider } from '@/types'
 
-import ServerError from '../../utils/errors.js'
-import Question from '../../models/question.js'
-import { Query, DataProvider } from '../../types.js'
+import { Question } from '@/models/question'
+import { ServerError } from '@/errors'
 
 /**
  * A interface that a data provider must implement.
  */
 class QuestionProvider implements DataProvider<Question> {
-	conversationId?: string
-	clearContextImmediately?: boolean
-
 	/**
-	 * Questions are specific to a certain conversation. The `context` function
-	 * allows the caller to specify the conversations whose questions they wish
-	 * to list/create/modify/delete.
+	 * Questions are specific to a certain conversation.
 	 */
-	context(options: {
-		conversationId: string
-		clearContextImmediately?: boolean
-	}): void {
-		this.conversationId = options.conversationId
-		this.clearContextImmediately = options.clearContextImmediately ?? true
-	}
+	conversationId?: string
 
 	/**
 	 * Lists/searches through all questions.
@@ -39,9 +29,7 @@ class QuestionProvider implements DataProvider<Question> {
 	 */
 	async find(queries: Array<Query<Question>>): Promise<Question[]> {
 		if (!this.conversationId)
-			throw new Error(
-				'Finding a question can only be done for a certain conversation.'
-			)
+			throw new Error('Finding a question can only be done for a certain conversation.')
 
 		// Build the query
 		const questionsRef = getFirestore()
@@ -50,7 +38,7 @@ class QuestionProvider implements DataProvider<Question> {
 			.collection('questions')
 		let foundQuestions = questionsRef.orderBy('id')
 		for (const query of queries) {
-			let field = query.field as string
+			let { field } = query
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
 			let value = query.value as any
 
@@ -82,12 +70,8 @@ class QuestionProvider implements DataProvider<Question> {
 			}
 
 			// Add it to the array
-			questions.push(
-				plainToInstance(Question, data, { excludePrefixes: ['__'] })
-			)
+			questions.push(plainToInstance(Question, data, { excludePrefixes: ['__'] }))
 		}
-
-		if (this.clearContextImmediately) this.conversationId = undefined
 
 		return questions
 	}
@@ -133,8 +117,6 @@ class QuestionProvider implements DataProvider<Question> {
 			throw new ServerError('entity-not-found')
 		}
 
-		if (this.clearContextImmediately) this.conversationId = undefined
-
 		// Return the object as an instance of the `Question` class
 		return plainToInstance(Question, data, { excludePrefixes: ['__'] })
 	}
@@ -142,17 +124,14 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Stores a question in the database.
 	 *
-	 * @param {string} id The ID of the question to create.
 	 * @param {Question} data The data to store in the question.
 	 *
 	 * @returns {Question} The created question.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: Question): Promise<Question> {
+	async create(data: Question): Promise<Question> {
 		if (!this.conversationId)
-			throw new Error(
-				'Creating a question can only be done for a certain conversation.'
-			)
+			throw new Error('Creating a question can only be done for a certain conversation.')
 
 		// Convert the `Question` instance to a firebase document and save it
 		try {
@@ -161,7 +140,7 @@ class QuestionProvider implements DataProvider<Question> {
 				.collection('conversations')
 				.doc(this.conversationId)
 				.collection('questions')
-				.doc(id)
+				.doc(data.id)
 				.get()
 
 			// If it does, then return an 'already-exists' error
@@ -172,18 +151,16 @@ class QuestionProvider implements DataProvider<Question> {
 			// Else insert away!
 			const serializedQuestion = instanceToPlain(data)
 			// Add some extra fields for easy querying
+			serializedQuestion._conversationId = this.conversationId
 			serializedQuestion.__tags = {}
-			for (const tag of serializedQuestion.tags)
-				serializedQuestion.__tags[tag] = true
+			for (const tag of serializedQuestion.tags) serializedQuestion.__tags[tag] = true
 			// Add the data into the database
 			await getFirestore()
 				.collection('conversations')
 				.doc(this.conversationId)
 				.collection('questions')
-				.doc(id)
+				.doc(data.id)
 				.set(serializedQuestion)
-
-			if (this.clearContextImmediately) this.conversationId = undefined
 
 			// If the transaction was successful, return the created question
 			return data
@@ -197,17 +174,14 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Updates a question in the database.
 	 *
-	 * @param {string} id The ID of the question to update.
 	 * @param {Partial<Question>} data A list of properties to update and the value to set.
 	 *
 	 * @returns {Question} The updated question.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<Question>): Promise<Question> {
+	async update(data: Partial<Question>): Promise<Question> {
 		if (!this.conversationId)
-			throw new Error(
-				'Updating a question can only be done for a certain conversation.'
-			)
+			throw new Error('Updating a question can only be done for a certain conversation.')
 
 		// Update given fields for the question in Firestore
 		try {
@@ -216,7 +190,7 @@ class QuestionProvider implements DataProvider<Question> {
 				.collection('conversations')
 				.doc(this.conversationId)
 				.collection('questions')
-				.doc(id)
+				.doc(data.id!)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
@@ -227,18 +201,16 @@ class QuestionProvider implements DataProvider<Question> {
 			// Else update away!
 			const serializedQuestion = instanceToPlain(data)
 			// Add some extra fields for easy querying
+			serializedQuestion._conversationId = this.conversationId
 			serializedQuestion.__tags = {}
-			for (const tag of serializedQuestion.tags)
-				serializedQuestion.__tags[tag] = true
+			for (const tag of serializedQuestion.tags) serializedQuestion.__tags[tag] = true
 			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('conversations')
 				.doc(this.conversationId)
 				.collection('questions')
-				.doc(id)
+				.doc(data.id!)
 				.set(serializedQuestion, { merge: true })
-
-			if (this.clearContextImmediately) this.conversationId = undefined
 
 			// If the transaction was successful, return the updated question
 			return plainToInstance(
@@ -266,9 +238,7 @@ class QuestionProvider implements DataProvider<Question> {
 	 */
 	async delete(id: string): Promise<void> {
 		if (!this.conversationId)
-			throw new Error(
-				'Deleting a question can only be done for a certain conversation.'
-			)
+			throw new Error('Deleting a question can only be done for a certain conversation.')
 
 		// Delete the document
 		try {
@@ -278,8 +248,6 @@ class QuestionProvider implements DataProvider<Question> {
 				.collection('questions')
 				.doc(id)
 				.delete()
-
-			if (this.clearContextImmediately) this.conversationId = undefined
 		} catch (caughtError: unknown) {
 			const error = caughtError as FirebaseError
 			// Handle a not found error, but pass on the rest as a backend error
@@ -293,4 +261,4 @@ class QuestionProvider implements DataProvider<Question> {
 	}
 }
 
-export default new QuestionProvider()
+export const provider = new QuestionProvider()

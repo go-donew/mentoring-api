@@ -1,35 +1,28 @@
 // @/providers/auth.ts
-// Auth provider - a wrapper around Firebase Auth
-// This file can be replaced by a wrapper around another auth service
+// Firebase auth provider.
 
-import Process from 'node:process'
+import process from 'node:process'
 
 import { getAuth } from 'firebase-admin/auth'
 import fetch from 'got'
+import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
 
-import User from '../models/user.js'
-import ServerError from '../utils/errors.js'
-import { AuthProvider, CustomClaims, DecodedToken, Tokens } from '../types.js'
-
-import Users from './data/users.js'
+import { ServerError } from '@/errors'
 
 // The auth endpoint to sign in/up users
 const signInUpEndpoint =
-	Process.env.NODE_ENV === 'production'
+	process.env.NODE_ENV === 'production'
 		? 'https://identitytoolkit.googleapis.com/v1'
-		: `http://${Process.env
+		: `http://${process.env
 				.FIREBASE_AUTH_EMULATOR_HOST!}/identitytoolkit.googleapis.com/v1`
 // The endpoint to refresh the bearer token
 const tokenExchangeEndpoint =
-	Process.env.NODE_ENV === 'production'
+	process.env.NODE_ENV === 'production'
 		? 'https://securetoken.googleapis.com/v1'
-		: `http://${Process.env
-				.FIREBASE_AUTH_EMULATOR_HOST!}/securetoken.googleapis.com/v1`
+		: `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST!}/securetoken.googleapis.com/v1`
 // The API key to use while making calls to the above endpoints
 const apiKey =
-	Process.env.NODE_ENV === 'production'
-		? Process.env.FIREBASE_API_KEY!
-		: 'fake-key'
+	process.env.NODE_ENV === 'production' ? process.env.FIREBASE_API_KEY! : 'fake-key'
 
 /**
  * The response to expect from the auth endpoints.
@@ -61,7 +54,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @param {string} email - The user's email address.
 	 * @param {string} password - A password for the user's account.
 	 *
-	 * @returns {Object<user: User, tokens: Tokens>} - The user's profile and tokens.
+	 * @returns {Object<userId: string, tokens: Tokens>} - The user ID and tokens.
 	 * @throws {ServerError} - 'improper-payload' | 'entity-already-exists' | 'too-many-requests' | 'backend-error'
 	 *
 	 * @async
@@ -70,7 +63,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		name: string,
 		email: string,
 		password: string
-	): Promise<{ user: User; tokens: Tokens }> {
+	): Promise<{ userId: string; tokens: Tokens }> {
 		// Make a manual REST API call to sign up the user
 		let body: FirebaseAuthApiResponse
 		try {
@@ -132,17 +125,10 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// the API endpoints, as well as the refresh token to get a new bearer token
 		// once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
-		// We also need to return a user instance
-		const user = await Users.create(body.localId, {
-			id: body.localId,
-			name,
-			email,
-			lastSignedIn: new Date(),
-		})
 
 		// Return them all
 		return {
-			user,
+			userId: body.localId,
 			tokens: { bearer, refresh },
 		}
 	}
@@ -153,7 +139,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @param {string} email - The user's email address.
 	 * @param {string} password - A password for the user's account.
 	 *
-	 * @returns {Object<user: User, tokens: Tokens>} - The user's profile and tokens.
+	 * @returns {Object<userId: string, tokens: Tokens>} - The user ID and tokens.
 	 * @throws {ServerError} - 'improper-payload' | 'incorrect-credentials' | 'not-found' | 'backend-error'
 	 *
 	 * @async
@@ -162,7 +148,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		email: string,
 		password: string
 	): Promise<{
-		user: User
+		userId: string
 		tokens: Tokens
 	}> {
 		// Make a manual REST API call to sign the user in
@@ -204,12 +190,10 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// the API endpoints. Also return the refresh token so they can get a new
 		// bearer token once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
-		// We also need to return a user instance
-		const user = await Users.get(body.localId)
 
 		// Return them all
 		return {
-			user,
+			userId: body.localId,
 			tokens: { bearer, refresh },
 		}
 	}
@@ -312,4 +296,4 @@ export class FirebaseAuthProvider implements AuthProvider {
 }
 
 // Export a new instance of the auth provider
-export default new FirebaseAuthProvider()
+export const provider = new FirebaseAuthProvider()

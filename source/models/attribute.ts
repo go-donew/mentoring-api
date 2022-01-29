@@ -1,7 +1,5 @@
 // @/models/attribute.ts
-// A class representing a attribute
-
-import Attributes from '../providers/data/attributes.js'
+// Class that represents an attribute.
 
 /**
  * Where this change was observed or what triggered the change. Could be the ID
@@ -12,6 +10,10 @@ import Attributes from '../providers/data/attributes.js'
  * @property {string} in.required - Whether the change was observed in a message or question. - enum:question,message
  * @property {string} id.required - The ID of the message/question.
  */
+export type BlamedMessage = {
+	in: 'question' | 'message'
+	id: string
+}
 
 /**
  * A snapshot of an an attribute when a certain change was made and the metadata
@@ -27,10 +29,7 @@ export type AttributeSnapshot = {
 	value: string | number | boolean
 	observer: string | 'bot'
 	timestamp: Date
-	message?: {
-		in: 'question' | 'message'
-		id: string
-	}
+	message?: BlamedMessage
 }
 
 /**
@@ -41,16 +40,7 @@ export type AttributeSnapshot = {
  * @property {string | number | boolean} value.required - The attribute's value.
  * @property {array<AttributeSnapshot>} history - A list of changes that have been made to the attribute's value.
  */
-class Attribute {
-	static fromAttributeId = async (
-		id: string,
-		userId: string
-	): Promise<Attribute> => {
-		Attributes.context({ userId })
-
-		return Attributes.get(id)
-	}
-
+export class Attribute {
 	id: string
 	value: string | number | boolean
 	history: AttributeSnapshot[]
@@ -70,5 +60,3 @@ class Attribute {
 		this._userId = userId
 	}
 }
-
-export default Attribute

@@ -1,8 +1,9 @@
 // @/utils/index.ts
-// Misc utility functions
+// Utility functions that are used in multiple places.
+
+import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
 import { customAlphabet } from 'nanoid'
-import { Request, Response, NextFunction, RequestHandler } from 'express'
 
 /**
  * Generates a random 28 long alphanum ID that matches Firebase's IDs.

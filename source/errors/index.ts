@@ -4,7 +4,7 @@
 /**
  * A list of errors we can return.
  */
-const errors = {
+export const errors = {
 	/**
 	 * Error to return when the request body contained invalid data.
 	 *
@@ -29,7 +29,7 @@ const errors = {
 	 * @property {number} status.required - The HTTP error code. - enum:401
 	 */
 	'invalid-token': {
-		message: `Could not find a valid access token in the 'Authorization' headerr. Please retrieve an access token by authenticating via the /api/auth/signin endpoint, and place it in the 'Authorization' header.`,
+		message: `Could not find a valid access token in the 'Authorization' header. Please retrieve an access token by authenticating via the '/auth/signin' endpoint, and place it in the 'Authorization' header.`,
 		status: 401,
 	},
 
@@ -159,7 +159,7 @@ export type ErrorCode = keyof typeof errors
  * @property {number} status - The corresponding HTTP status code to return.
  * @property {string} message - A detailed error message, explaining why the error occurred and a possible fix.
  */
-class ServerError extends Error {
+export class ServerError extends Error {
 	code: ErrorCode
 	status: number
 	message: string
@@ -173,5 +173,3 @@ class ServerError extends Error {
 		this.message = message ?? errors[code].message
 	}
 }
-
-export default ServerError

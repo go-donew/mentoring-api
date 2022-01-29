@@ -1,22 +1,20 @@
 // @/loaders/express/routes.ts
-// Registers the API endpoints
+// Loader to register API endpoints with the server.
 
-import { Application, Request, Response, NextFunction } from 'express'
+import type { Application, Request, Response, NextFunction } from 'express'
 
-import authEndpoint from '../../routes/auth.js'
-import usersEndpoint from '../../routes/users.js'
-import attributesEndpoint from '../../routes/attributes.js'
-import groupsEndpoint from '../../routes/groups.js'
-import conversationsEndpoint from '../../routes/conversations.js'
-import questionsEndpoint from '../../routes/questions.js'
-import ServerError from '../../utils/errors.js'
+import { endpoint as auth } from '@/routes/auth'
+import { endpoint as users } from '@/routes/users'
+import { endpoint as groups } from '@/routes/groups'
+import { endpoint as conversations } from '@/routes/conversations'
+import { ServerError } from '@/errors'
 
 /**
  * Registers API endpoint handlers with the express application instance passed.
  *
  * @param {Application} app - The Express application instance.
  */
-const load = async (app: Application): Promise<void> => {
+export const load = async (app: Application): Promise<void> => {
 	// Register the API endpoints
 	// `/ping` and `/pong` are test routes
 	app.all(/p[i|o]ng/, (_: Request, response: Response) =>
@@ -27,12 +25,10 @@ const load = async (app: Application): Promise<void> => {
 			)
 	)
 
-	app.use('/auth', authEndpoint)
-	app.use('/users', usersEndpoint)
-	app.use('/users', attributesEndpoint)
-	app.use('/groups', groupsEndpoint)
-	app.use('/conversations', conversationsEndpoint)
-	app.use('/conversations', questionsEndpoint)
+	app.use('/auth', auth)
+	app.use('/users', users)
+	app.use('/groups', groups)
+	app.use('/conversations', conversations)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.
@@ -41,12 +37,7 @@ const load = async (app: Application): Promise<void> => {
 	})
 	// Handle any other errors that are thrown
 	app.use(
-		(
-			caughtError: Error,
-			_request: Request,
-			response: Response,
-			_next: NextFunction
-		) => {
+		(caughtError: Error, _request: Request, response: Response, _next: NextFunction) => {
 			if (caughtError instanceof ServerError) {
 				// We threw this error, so pass it on
 				response.sendError(caughtError)
@@ -75,5 +66,3 @@ const load = async (app: Application): Promise<void> => {
 		}
 	)
 }
-
-export default load

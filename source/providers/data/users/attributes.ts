@@ -1,33 +1,22 @@
 // @/providers/data/attributes.ts
 // Retrieves, creates, updates and deletes a user's attributes in Firebase.
 
-import { FirebaseError } from 'firebase-admin'
 import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
+import type { FirebaseError } from 'firebase-admin'
 
-import ServerError from '../../utils/errors.js'
-import Attribute from '../../models/attribute.js'
-import { Query, DataProvider } from '../../types.js'
+import { ServerError } from '@/errors'
+import { Attribute } from '@/models/attribute'
+import type { Query, DataProvider } from '@/types'
 
 /**
  * A interface that a data provider must implement.
  */
 class AttributeProvider implements DataProvider<Attribute> {
-	userId?: string
-	clearContextImmediately?: boolean
-
 	/**
-	 * Attributes are specific to a certain user. The `context` function allows
-	 * the caller to specify the user whose attributes they wish to list/create
-	 * /modify/delete.
+	 * Attributes are specific to a certain user.
 	 */
-	context(options: {
-		userId: string
-		clearContextImmediately?: boolean
-	}): void {
-		this.userId = options.userId
-		this.clearContextImmediately = options.clearContextImmediately ?? true
-	}
+	userId?: string
 
 	/**
 	 * Lists/searches through all attributes.
@@ -39,9 +28,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 	 */
 	async find(queries: Array<Query<Attribute>>): Promise<Attribute[]> {
 		if (!this.userId)
-			throw new Error(
-				'Finding an attribute can only be done for a certain user.'
-			)
+			throw new Error('Finding an attribute can only be done for a certain user.')
 
 		// Build the query
 		const attributesRef = getFirestore()
@@ -51,7 +38,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 		let foundAttributes = attributesRef.orderBy('id')
 		for (const query of queries) {
 			foundAttributes = foundAttributes.where(
-				query.field as string,
+				query.field,
 				query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>',
 				query.value as any
 			)
@@ -79,12 +66,8 @@ class AttributeProvider implements DataProvider<Attribute> {
 			for (const snapshot of data.history)
 				snapshot.timestamp = new Date(snapshot.timestamp._nanoseconds)
 
-			attributes.push(
-				plainToInstance(Attribute, data, { excludePrefixes: ['__'] })
-			)
+			attributes.push(plainToInstance(Attribute, data, { excludePrefixes: ['__'] }))
 		}
-
-		if (this.clearContextImmediately) this.userId = undefined
 
 		return attributes
 	}
@@ -99,9 +82,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 	 */
 	async get(id: string): Promise<Attribute> {
 		if (!this.userId)
-			throw new Error(
-				'Retrieving an attribute can only be done for a certain user.'
-			)
+			throw new Error('Retrieving an attribute can only be done for a certain user.')
 
 		// Fetch the attribute from Firestore
 		let doc
@@ -133,8 +114,6 @@ class AttributeProvider implements DataProvider<Attribute> {
 		for (const snapshot of data.history)
 			snapshot.timestamp = new Date(snapshot.timestamp._nanoseconds)
 
-		if (this.clearContextImmediately) this.userId = undefined
-
 		// Return the object as an instance of the `Attribute` class
 		return plainToInstance(Attribute, data, { excludePrefixes: ['__'] })
 	}
@@ -142,17 +121,14 @@ class AttributeProvider implements DataProvider<Attribute> {
 	/**
 	 * Stores a attribute in the database.
 	 *
-	 * @param {string} id The ID of the attribute to create.
 	 * @param {Attribute} data The data to store in the attribute.
 	 *
 	 * @returns {Attribute} The created attribute.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
-	async create(id: string, data: Attribute): Promise<Attribute> {
+	async create(data: Attribute): Promise<Attribute> {
 		if (!this.userId)
-			throw new Error(
-				'Creating an attribute can only be done for a certain user.'
-			)
+			throw new Error('Creating an attribute can only be done for a certain user.')
 
 		// Convert the `Attribute` instance to a firebase document and save it
 		try {
@@ -161,7 +137,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
-				.doc(id)
+				.doc(data.id)
 				.get()
 
 			// If it does, then return an 'already-exists' error
@@ -171,15 +147,14 @@ class AttributeProvider implements DataProvider<Attribute> {
 
 			// Else insert away!
 			const serializedAttribute = instanceToPlain(data)
+			serializedAttribute._userId = this.userId
 			// Add the data into the database
 			await getFirestore()
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
-				.doc(id)
+				.doc(data.id)
 				.set(serializedAttribute)
-
-			if (this.clearContextImmediately) this.userId = undefined
 
 			// If the transaction was successful, return the created attribute
 			return data
@@ -193,17 +168,14 @@ class AttributeProvider implements DataProvider<Attribute> {
 	/**
 	 * Updates a attribute in the database.
 	 *
-	 * @param {string} id The ID of the attribute to update.
 	 * @param {Partial<Attribute>} data A list of properties to update and the value to set.
 	 *
 	 * @returns {Attribute} The updated attribute.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
-	async update(id: string, data: Partial<Attribute>): Promise<Attribute> {
+	async update(data: Partial<Attribute>): Promise<Attribute> {
 		if (!this.userId)
-			throw new Error(
-				'Updating an attribute can only be done for a certain user.'
-			)
+			throw new Error('Updating an attribute can only be done for a certain user.')
 
 		// Update given fields for the attribute in Firestore
 		try {
@@ -212,7 +184,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
-				.doc(id)
+				.doc(data.id!)
 				.get()
 
 			// If it does not exist, then return a 'not-found' error
@@ -229,15 +201,14 @@ class AttributeProvider implements DataProvider<Attribute> {
 				...data,
 				history: [...existingData.history, ...(data.history ?? [])],
 			})
+			serializedAttribute._userId = this.userId
 			// Merge the data with the existing data in the database
 			await getFirestore()
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
-				.doc(id)
+				.doc(data.id!)
 				.set(serializedAttribute, { merge: true })
-
-			if (this.clearContextImmediately) this.userId = undefined
 
 			// If the transaction was successful, return the updated attribute
 			return plainToInstance(Attribute, serializedAttribute, {
@@ -260,9 +231,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 	 */
 	async delete(id: string): Promise<void> {
 		if (!this.userId)
-			throw new Error(
-				'Deleting an attribute can only be done for a certain user.'
-			)
+			throw new Error('Deleting an attribute can only be done for a certain user.')
 
 		// Delete the document
 		try {
@@ -272,8 +241,6 @@ class AttributeProvider implements DataProvider<Attribute> {
 				.collection('attributes')
 				.doc(id)
 				.delete()
-
-			if (this.clearContextImmediately) this.userId = undefined
 		} catch (caughtError: unknown) {
 			const error = caughtError as FirebaseError
 			// Handle a not found error, but pass on the rest as a backend error
@@ -287,4 +254,4 @@ class AttributeProvider implements DataProvider<Attribute> {
 	}
 }
 
-export default new AttributeProvider()
+export const provider = new AttributeProvider()

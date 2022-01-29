@@ -1,12 +1,12 @@
 // @/middleware/authentication.ts
-// Middleware that authenticates users making requests
+// Middleware that authenticates users making requests.
 
-import { Request, Response, NextFunction, RequestHandler } from 'express'
+import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
-import Auth from '../providers/auth.js'
-import Users from '../providers/data/users.js'
-import ServerError from '../utils/errors.js'
-import { handleAsyncErrors } from '../utils/index.js'
+import { ServerError } from '@/errors'
+import { provider as auth } from '@/providers/auth'
+import { provider as users } from '@/providers/data/users'
+import { handleAsyncErrors } from '@/utils'
 
 /**
  * Ensure that users accessing the API are authenticated, except for
@@ -24,13 +24,9 @@ import { handleAsyncErrors } from '../utils/index.js'
  * @returns {RequestHandler} - The authentication middleware.
  * @throws {ServerError} - 'invalid-token'
  */
-const authenticateUsers = (): RequestHandler =>
+export const authenticateRequests = (): RequestHandler =>
 	handleAsyncErrors(
-		async (
-			request: Request,
-			_response: Response,
-			next: NextFunction
-		): Promise<void> => {
+		async (request: Request, _response: Response, next: NextFunction): Promise<void> => {
 			// Don't do anything for docs and auth related routes. Also disable auth
 			// for the `/ping` route, but not `/pong` - useful for tests!
 			if (
@@ -57,9 +53,9 @@ const authenticateUsers = (): RequestHandler =>
 			// Fetch the user's details from the database and store the user in the
 			// request object, so the request handlers know who is making the request
 			try {
-				const tokenData = await Auth.verifyToken(token)
-				const user = await Users.get(tokenData.sub)
-				const claims = await Auth.retrieveClaims(user.id)
+				const tokenData = await auth.verifyToken(token)
+				const user = await users.get(tokenData.sub)
+				const claims = await auth.retrieveClaims(user.id)
 
 				request.user = {
 					...user,
@@ -75,5 +71,3 @@ const authenticateUsers = (): RequestHandler =>
 			next()
 		}
 	)
-
-export default authenticateUsers

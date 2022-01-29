@@ -1,17 +1,17 @@
 // @/loaders/firebase/index.ts
-// Initializes the Firebase Admin SDK
+// Loader that initializes the Firebase Admin SDK.
 
-import Process from 'node:process'
+import process from 'node:process'
+import type { Application } from 'express'
 
-import { Application } from 'express'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
 
 /**
  * Initializes the Firebase Admin SDK.
  */
-const load = async (_app: Application): Promise<void> => {
+export const load = async (_app: Application): Promise<void> => {
 	// Initialize the Firebase Admin SDK
-	if (Process.env.NODE_ENV === 'production') {
+	if (process.env.NODE_ENV === 'production') {
 		// If in production, connect to the real Firebase project
 		initializeApp({
 			credential: applicationDefault(),
@@ -21,5 +21,3 @@ const load = async (_app: Application): Promise<void> => {
 		initializeApp()
 	}
 }
-
-export default load

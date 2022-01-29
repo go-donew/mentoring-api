@@ -14,17 +14,12 @@ export const testData = async (
 ): Promise<Record<string, unknown>> => {
 	// Read the file
 	let json = JSON.parse(
-		await readFile(
-			`test/data/${/\.[json]$/.test(path) ? path : path + '.json'}`,
-			'utf-8'
-		)
+		await readFile(`test/data/${/\.[json]$/.test(path) ? path : path + '.json'}`, 'utf-8')
 	) as Record<string, unknown>
 
 	// Replace all placeholders
 	for (const [field, value] of Object.entries(data ?? {})) {
-		json = JSON.parse(
-			JSON.stringify(json).replace(new RegExp(`{${field}}`, 'gm'), value)
-		)
+		json = JSON.parse(JSON.stringify(json).replace(new RegExp(`{${field}}`, 'gm'), value))
 	}
 
 	// Return the data

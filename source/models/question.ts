@@ -1,8 +1,5 @@
 // @/models/question.ts
-// A class representing a question
-
-import Questions from '../providers/data/questions.js'
-import { shuffle } from '../utils/index.js'
+// Class that represents a question.
 
 /**
  * An object that contains the data about the attribute to set when a user
@@ -10,9 +7,12 @@ import { shuffle } from '../utils/index.js'
  *
  * @typedef {object} AttributeToSet
  * @property {string} id.required - The ID of the attribute to set.
- * @property {string | number | boolean} value.string - The value of the attribute to set.
- *
+ * @property {string | number | boolean} value.string - The value of the attribute to set. If the `type` of the question is `input` and the user input is undefined, then this value will be set.
  */
+export type AttributeToSet = {
+	id: string
+	value: string | number | boolean
+}
 
 /**
  * An option a user can select to answer a question.
@@ -28,10 +28,7 @@ export type Option = {
 	position: number
 	type: 'select' | 'input'
 	text: string
-	attribute: {
-		id: string
-		value: string | number | boolean
-	}
+	attribute: AttributeToSet
 	nextQuestion?: string
 }
 
@@ -47,23 +44,7 @@ export type Option = {
  * @property {boolean} randomizeOptionOrder.required - Whether to randomize the order of the options.
  * @property {array<string>} tags.required - Tags to enhance searchability of the conversation.
  */
-class Question {
-	static fromQuestionId = async (id: string): Promise<Question> => {
-		const question = await Questions.get(id)
-
-		if (question.randomizeOptionOrder) {
-			// Randomize the order of options if we should
-			question.options = shuffle(question.options)
-		} else {
-			// Else sort the options in ascending order
-			question.options = question.options.sort(
-				(a, b) => a.position - b.position
-			)
-		}
-
-		return question
-	}
-
+export class Question {
 	id: string
 	text: string
 	options: Option[]
@@ -95,5 +76,3 @@ class Question {
 		this._conversationId = _conversationId
 	}
 }
-
-export default Question

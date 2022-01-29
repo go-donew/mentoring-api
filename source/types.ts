@@ -1,8 +1,8 @@
 // @/types.ts
-// Types for the server!
+// Type declarations for the server.
 
-import User from './models/user.js'
-import ServerError, { ErrorCode } from './utils/errors.js'
+import { ServerError, ErrorCode } from '@/errors'
+import { User } from '@/models/user'
 
 // Extend Express' types
 declare global {
@@ -106,6 +106,49 @@ export declare type CustomClaims = {
 }
 
 /**
+ * The object sent as a request to a service.
+ */
+export declare type ServiceRequest<D, P> = {
+	/**
+	 * The user making the request.
+	 */
+	user?: User & {
+		isGroot: boolean
+		token: string
+	}
+
+	/**
+	 * The request data.
+	 */
+	body: D
+
+	/**
+	 * The request parameters.
+	 */
+	params: P | Record<string, any>
+}
+
+/**
+ * The object sent back as a response from a service.
+ */
+export declare type ServiceResponse<D> = {
+	/**
+	 * The status code to set while responding.
+	 */
+	status?: number
+
+	/**
+	 * The response data.
+	 */
+	data?: D
+
+	/**
+	 * The error that occurred, if any.
+	 */
+	error?: ServerError
+}
+
+/**
  * A query on a entity.
  */
 export declare type Query<T> = {
@@ -114,7 +157,7 @@ export declare type Query<T> = {
 	 *
 	 * @type {keyof T}
 	 */
-	field: keyof T
+	field: keyof T | string // So we don't need to type cast everytime
 
 	/**
 	 * The query operator. Can be one of the following:
@@ -149,7 +192,7 @@ export declare interface AuthProvider {
 	 * @param {string} email - The user's email address.
 	 * @param {string} password - A password for the user's account.
 	 *
-	 * @returns {Object<user: User, tokens: Tokens>} - The user's profile and tokens.
+	 * @returns {Object<userId: string, tokens: Tokens>} - The user's profile and tokens.
 	 * @throws {ServerError} - 'improper-payload' | 'already-exists' | 'too-many-requests' | 'backend-error'
 	 *
 	 * @async
@@ -158,7 +201,7 @@ export declare interface AuthProvider {
 		name: string,
 		email: string,
 		password: string
-	): Promise<{ user: User; tokens: Tokens }>
+	): Promise<{ userId: string; tokens: Tokens }>
 
 	/**
 	 * Signs a user into their account.
@@ -166,15 +209,12 @@ export declare interface AuthProvider {
 	 * @param {string} email - The user's email address.
 	 * @param {string} password - A password for the user's account.
 	 *
-	 * @returns {Object<user: User, tokens: Tokens>} - The user's profile and tokens.
+	 * @returns {Object<userId: string, tokens: Tokens>} - The user's profile and tokens.
 	 * @throws {ServerError} - 'improper-payload' | 'incorrect-credentials' | 'not-found' | 'backend-error'
 	 *
 	 * @async
 	 */
-	signIn(
-		email: string,
-		password: string
-	): Promise<{ user: User; tokens: Tokens }>
+	signIn(email: string, password: string): Promise<{ userId: string; tokens: Tokens }>
 
 	/**
 	 * Given a refresh token, returns a new set of tokens for a user.
@@ -245,7 +285,6 @@ export declare interface DataProvider<T> {
 	/**
 	 * Stores an entity in the database.
 	 *
-	 * @param {string} id - The ID of the entity to create.
 	 * @param {T} data - The data to store in the entity.
 	 *
 	 * @returns {T} - The created entity.
@@ -253,12 +292,11 @@ export declare interface DataProvider<T> {
 	 *
 	 * @async
 	 */
-	create(id: string, data: T): Promise<T>
+	create(data: T): Promise<T>
 
 	/**
 	 * Updates an entity in the database.
 	 *
-	 * @param {string} id - The ID of the entity to update.
 	 * @param {string} data - A list of properties to update and the value to set.
 	 *
 	 * @returns {T} - The updated entity.
@@ -266,7 +304,7 @@ export declare interface DataProvider<T> {
 	 *
 	 * @async
 	 */
-	update(id: string, data: Partial<T>): Promise<T>
+	update(data: Partial<T>): Promise<T>
 
 	/**
 	 * Deletes an entity in the database.

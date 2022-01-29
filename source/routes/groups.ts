@@ -1,41 +1,14 @@
 // @/routes/groups.ts
-// List, retrieve, create, update and delete API endpoint handler
+// Request handlers for group related endpoints.
 
-import {
-	Router as createRouter,
-	Request,
-	Response,
-	NextFunction,
-} from 'express'
+import { Router as createRouter } from 'express'
+import type { Request, Response } from 'express'
 
-import permit from '../middleware/authorization.js'
-import Group from '../models/group.js'
-import Groups from '../providers/data/groups.js'
-import ServerError from '../utils/errors.js'
-import { generateId } from '../utils/index.js'
-import { Query } from '../types.js'
+import { permit } from '@/middleware/authorization'
+import { service as groups } from '@/services/groups'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
-
-/**
- * The payload needed to make a request to list/find for groups.
- *
- * @typedef {object} ListOrFindGroupsPayload
- * @property {string} name - The group should have this name.
- * @property {array<string>} participants - The group should have the given participants.
- * @property {array<string>} conversations - The group should be allowed to take part in the given conversations.
- * @property {array<string>} reports - The group should be allowed to view the given reports.
- * @property {string} code - The group should have this code.
- * @property {array<string>} tags - The group should have the given tags.
- */
-
-/**
- * The response from the list/find groups endpoint.
- *
- * @typedef {object} ListOrFindGroupsResponse
- * @property {array<Group>} groups.required - The groups returned from the query.
- */
 
 /**
  * GET /groups
@@ -65,67 +38,13 @@ const endpoint = createRouter()
 endpoint.get(
 	'/',
 	// => permit('anyone'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			// Build a valid query, and then return the result
-			let query = []
-			for (const [field, value] of Object.entries(request.body)) {
-				if (
-					['participants', 'conversations', 'reports', 'tags'].includes(field)
-				)
-					for (const element of value as string[])
-						query.push({
-							field,
-							operator: 'includes',
-							value: element,
-						})
-				else
-					query.push({
-						field,
-						operator: '==',
-						value,
-					})
-			}
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.find(request)
 
-			if (!request.user?.isGroot) {
-				query.push({
-					field: 'participants',
-					operator: 'includes',
-					value: request.user!.id,
-				})
-			}
-
-			query = query as Array<Query<Group>>
-			const groups = await Groups.find(query)
-
-			response.status(200).send({ groups })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
-
-/**
- * The payload needed to create a group.
- *
- * @typedef {object} CreateGroupPayload
- * @property {string} name.required - The group should have this name.
- * @property {ParticipantList} participants.required - The group should have the given participants.
- * @property {ConversationList} conversations.required - The group should be allowed to take part in the given conversations.
- * @property {ReportList} reports.required - The group should be allowed to view the given reports.
- * @property {string} code.required - The group should have this code.
- */
-
-/**
- * The response from the create group endpoint.
- *
- * @typedef {object} CreateGroupResponse
- * @property {Group} group.required - The created group.
- */
 
 /**
  * POST /groups
@@ -157,7 +76,8 @@ endpoint.get(
  * 	"reports": {
  * 		"quiz-score": ["mentor"]
  * 	},
- * 	"code": "join-using-this-code"
+ * 	"code": "join-using-this-code",
+ * 	"tags": ["quiz"]
  * }
  *
  * @endpoint
@@ -165,38 +85,13 @@ endpoint.get(
 endpoint.post(
 	'/',
 	permit('groot'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const id = generateId()
-			const group = await Groups.create(id, {
-				...request.body,
-				id,
-			})
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.create(request)
 
-			response.status(201).send({ group })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
-
-/**
- * The payload needed to join a group.
- *
- * @typedef {object} JoinGroupPayload
- * @property {string} code.required - The code to be used to join the group.
- */
-
-/**
- * The response from the join group endpoint.
- *
- * @typedef {object} JoinGroupResponse
- * @property {Group} group.required - The group the user was added to.
- */
 
 /**
  * PUT /groups/join
@@ -221,37 +116,11 @@ endpoint.post(
 endpoint.put(
 	'/join',
 	// => permit('anyone'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			// Get the group with that code
-			const groups = await Groups.find([
-				{
-					field: 'code',
-					operator: '==',
-					value: request.body.code,
-				},
-			])
-			if (groups.length === 0) {
-				throw new ServerError(
-					'entity-not-found',
-					'Could not find any group to join using that code.'
-				)
-			}
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.join(request)
 
-			// Once we find the group, update the participants list and add the user as
-			// a mentee
-			let group = groups[0]
-			group.participants[request.user!.id] = 'mentee'
-			group = await Groups.update(group.id, group)
-
-			response.status(200).send({ group })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
@@ -287,18 +156,11 @@ endpoint.get(
 		subject: 'group',
 		roles: ['participant'],
 	}),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const group = await Groups.get(request.params.groupId)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.get(request)
 
-			response.status(200).send({ group })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
@@ -347,18 +209,11 @@ endpoint.put(
 		subject: 'group',
 		roles: ['supermentor'],
 	}),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const group = await Groups.update(request.params.groupId, request.body)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.update(request)
 
-			response.status(200).send({ group })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
@@ -384,20 +239,13 @@ endpoint.put(
 endpoint.delete(
 	'/:groupId',
 	permit('groot'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			await Groups.delete(request.params.groupId)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await groups.delete(request)
 
-			response.sendStatus(204)
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
 // Export the router
-export default endpoint
+export { endpoint }

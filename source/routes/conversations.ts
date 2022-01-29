@@ -1,38 +1,15 @@
 // @/routes/conversations.ts
-// List, retrieve, create, update and delete API endpoint handler
+// Request handlers for conversation related endpoints.
 
-import {
-	Router as createRouter,
-	Request,
-	Response,
-	NextFunction,
-} from 'express'
+import { Router as createRouter } from 'express'
+import type { Request, Response } from 'express'
 
-import permit from '../middleware/authorization.js'
-import Conversation from '../models/conversation.js'
-import Conversations from '../providers/data/conversations.js'
-import { generateId } from '../utils/index.js'
-import { Query } from '../types.js'
+import { permit } from '@/middleware/authorization'
+import { service as conversations } from '@/services/conversations'
+import { service as questions } from '@/services/conversations/questions'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
-
-/**
- * The payload needed to make a request to list/find for conversations.
- *
- * @typedef {object} ListOrFindConversationsPayload
- * @property {string} name - The conversation should have this name.
- * @property {string} description - The conversation should have this description.
- * @property {boolean} once - The conversation should be allowed to be taken only once.
- * @property {array<string>} tags - The conversation should have all these tags.
- */
-
-/**
- * The response from the list/find conversations endpoint.
- *
- * @typedef {object} ListOrFindConversationsResponse
- * @property {array<Conversation>} conversations.required - The conversations returned from the query.
- */
 
 /**
  * GET /conversations
@@ -65,56 +42,13 @@ endpoint.get(
 		subject: 'conversation',
 		roles: 'dynamic',
 	}),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			// Build a valid query, and then return the result
-			let query = []
-			for (const [field, value] of Object.entries(request.body)) {
-				if (field === 'tags')
-					for (const tag of value as string[])
-						query.push({
-							field,
-							operator: 'includes',
-							value: tag,
-						})
-				else
-					query.push({
-						field,
-						operator: '==',
-						value,
-					})
-			}
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await conversations.find(request)
 
-			query = query as Array<Query<Conversation>>
-			const conversations = await Conversations.find(query)
-
-			response.status(200).send({ conversations })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
-
-/**
- * The payload needed to create a conversation.
- *
- * @typedef {object} CreateConversationPayload
- * @property {string} name.required - The name of the conversation.
- * @property {string} description.required - The description of the conversation.
- * @property {boolean} once.required - Whether the conversation should be taken only once.
- * @property {array<string>} tags.required - The tags of the conversation.
- */
-
-/**
- * The response from the create conversation endpoint.
- *
- * @typedef {object} CreateConversationResponse
- * @property {Conversation} conversation.required - The created conversation.
- */
 
 /**
  * POST /conversations
@@ -147,31 +81,13 @@ endpoint.get(
 endpoint.post(
 	'/',
 	permit('groot'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const id = generateId()
-			const conversation = await Conversations.create(id, {
-				...request.body,
-				id,
-			})
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await conversations.create(request)
 
-			response.status(201).send({ conversation })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
-
-/**
- * The response from the retrieve conversation endpoint.
- *
- * @typedef {object} RetrieveConversationResponse
- * @property {Conversation} conversation.required - The requested conversation.
- */
 
 /**
  * GET /conversations/{conversationId}
@@ -198,39 +114,13 @@ endpoint.get(
 		subject: 'conversation',
 		roles: 'dynamic',
 	}),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const conversation = await Conversations.get(
-				request.params.conversationId
-			)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await conversations.get(request)
 
-			response.status(200).send({ conversation })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
-
-/**
- * The payload needed to update a conversation.
- *
- * @typedef {object} UpdateConversationPayload
- * @property {string} name.required - The name of the conversation.
- * @property {string} description.required - The description of the conversation.
- * @property {boolean} once.required - Whether the conversation should be taken only once.
- * @property {array<string>} tags.required - The tags of the conversation.
- */
-
-/**
- * The response from the update conversation endpoint.
- *
- * @typedef {object} UpdateConversationResponse
- * @property {Conversation} conversation.required - The updated conversation.
- */
 
 /**
  * PUT /conversations/{conversationId}
@@ -256,21 +146,11 @@ endpoint.get(
 endpoint.put(
 	'/:conversationId',
 	permit('groot'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			const conversation = await Conversations.update(
-				request.params.conversationId,
-				request.body
-			)
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await conversations.update(request)
 
-			response.status(200).send({ conversation })
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
@@ -296,21 +176,236 @@ endpoint.put(
 endpoint.delete(
 	'/:conversationId',
 	permit('groot'),
-	async (
-		request: Request,
-		response: Response,
-		next: NextFunction
-	): Promise<void> => {
-		try {
-			await Conversations.delete(request.params.conversationId)
-			// TODO: Delete all questions that are part of the conversation too
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await conversations.delete(request)
 
-			response.sendStatus(204)
-		} catch (error: unknown) {
-			next(error)
-		}
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * GET /conversations/{conversationId}/questions
+ *
+ * @summary List/find questions
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} conversationId.path.required - The ID of the user whose questions to list.
+ * @param {ListOrFindQuestionsPayload} request.body - The query to run and find questions.
+ *
+ * @returns {ListOrFindQuestionsResponse} 200 - The questions returned from the query. If no parameters are passed, then it returns all the questions part of the conversation.
+ * @returns {ImproperPayloadError} 400 - The query was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @example request - An example query that returns all questions that have the tag `quiz`.
+ * {
+ * 	"tags": ["quiz"]
+ * }
+ *
+ * @endpoint
+ */
+endpoint.get(
+	'/:conversationId/questions',
+	permit({
+		subject: 'conversation',
+		roles: 'dynamic',
+	}),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.find(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * POST /conversations/{conversationId}/questions
+ *
+ * @summary Create a question
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} conversationId.path.required - The ID of the user whose question to create.
+ * @param {CreateQuestionPayload} request.body - The necessary details to create a question.
+ *
+ * @returns {CreateQuestionResponse} 201 - The created question. You must be Groot to create a question.
+ * @returns {ImproperPayloadError} 400 - The query was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @example request - An example query that creates a question
+ * {
+ * 	"text": "Some question?",
+ * 	"options": [
+ * 		{
+ * 			"position": 1,
+ * 			"type": "select",
+ * 			"text": "An Option",
+ * 			"attribute": {
+ * 				"id": "answered-question",
+ * 				"value": 1
+ * 			},
+ * 		},
+ * 	],
+ * 	"first": true,
+ * 	"last": false,
+ * 	"randomizeOptionOrder": true
+ * }
+ *
+ * @endpoint
+ */
+endpoint.post(
+	'/:conversationId/questions',
+	permit('groot'),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.create(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * GET /conversations/{conversationId}/questions/{questionId}
+ *
+ * @summary Retrieve a requested question
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} conversationId.path.required - The ID of the user whose question to return.
+ * @param {string} questionId.path.required - The ID of the question to return.
+ *
+ * @returns {RetrieveQuestionResponse} 200 - The requested question. You must be part of a group that is allowed to take the conversation.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.get(
+	'/:conversationId/questions/:questionId',
+	permit({
+		subject: 'conversation',
+		roles: 'dynamic',
+	}),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.get(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * PUT /conversations/{conversationId}/questions/{questionId}
+ *
+ * @summary Update a certain question
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} conversationId.path.required - The ID of the user whose question to update.
+ * @param {string} questionId.path.required - The ID of the question to update.
+ * @param {UpdateQuestionPayload} request.body.required - The new question.
+ *
+ * @returns {UpdateQuestionResponse} 200 - The updated question. You must be Groot to update a question.
+ * @returns {ImproperPayloadError} 400 - The payload was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.put(
+	'/:conversationId/questions/:questionId',
+	permit('groot'),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.update(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * DELETE /conversations/{conversationId}/questions/{questionId}
+ *
+ * @summary Delete a certain question
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} conversationId.path.required - The ID of the user whose question to delete.
+ * @param {string} questionId.path.required - The ID of the question to delete.
+ *
+ * @returns {object} 204 - You must be Groot to delete a question.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.delete(
+	'/:conversationId/questions/:questionId',
+	permit('groot'),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.delete(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
+	}
+)
+
+/**
+ * PUT /conversations/{conversationId}/questions/{questionId}/answer
+ *
+ * @summary Answer a question
+ * @tags questions - Question related endpoints
+ *
+ * @security bearer
+ *
+ * @param {AnswerQuestionPayload} request.body.required - The details required for joining a group.
+ *
+ * @returns {AnswerQuestionResponse} 200 - The next question the user should answer.
+ * @returns {ImproperPayloadError} 400 - The payload was invalid.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {EntityNotFoundError} 404 - There was no group that can be joined using the passed code.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.put(
+	'/:conversationId/questions/:questionId/answer',
+	permit({
+		subject: 'conversation',
+		roles: 'dynamic',
+	}),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await questions.answer(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status ?? 200).send(result.data)
 	}
 )
 
 // Export the router
-export default endpoint
+export { endpoint }

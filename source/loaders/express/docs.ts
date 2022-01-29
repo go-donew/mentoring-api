@@ -4,7 +4,9 @@
 import { dirname, resolve as getAbsolutePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Application, Response, static as serve } from 'express'
+import type { Application, Response } from 'express'
+
+import { static as serve } from 'express'
 import { middleware as validate } from 'express-openapi-validator'
 import generateOpenApiSpec from 'express-jsdoc-swagger'
 
@@ -42,8 +44,9 @@ const config = {
 	baseDir: getAbsolutePath(__dirname, '../source/'),
 	filesPattern: [
 		'routes/**/*.ts',
+		'services/**/*.ts',
 		'models/**/*.ts',
-		'utils/errors.ts',
+		'errors/**/*.ts',
 		'types.ts',
 	],
 	// Expose the generated JSON spec as /docs/spec.json
@@ -57,12 +60,10 @@ const config = {
  *
  * @param {Application} app - The Express application instance.
  */
-const load = async (app: Application): Promise<void> => {
+export const load = async (app: Application): Promise<void> => {
 	// Generate the documentation
 	const spec = await new Promise((resolve) => {
-		generateOpenApiSpec(app)(config)
-			.on('finish', resolve)
-			.on('error', console.error)
+		generateOpenApiSpec(app)(config).on('finish', resolve).on('error', console.error)
 	})
 	// Render documentation using Elements
 	app.use(
@@ -82,5 +83,3 @@ const load = async (app: Application): Promise<void> => {
 		})
 	)
 }
-
-export default load
