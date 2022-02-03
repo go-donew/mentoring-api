@@ -22,6 +22,25 @@ jobs:
         run: pnpm install
       - name: Build the project
         run: pnpm compile
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 6
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.6
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Lint code
+        run: pnpm lint
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -39,5 +58,5 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Run all tests
-        run: pnpm test
+      - name: Run integration tests
+        run: pnpm run-s test:*
