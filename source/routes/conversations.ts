@@ -46,7 +46,7 @@ endpoint.get(
 		const result = await conversations.find(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -85,7 +85,7 @@ endpoint.post(
 		const result = await conversations.create(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -118,7 +118,7 @@ endpoint.get(
 		const result = await conversations.get(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -150,7 +150,7 @@ endpoint.put(
 		const result = await conversations.update(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -180,7 +180,7 @@ endpoint.delete(
 		const result = await conversations.delete(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -220,7 +220,7 @@ endpoint.get(
 		const result = await questions.find(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -271,7 +271,7 @@ endpoint.post(
 		const result = await questions.create(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -305,7 +305,7 @@ endpoint.get(
 		const result = await questions.get(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -338,7 +338,7 @@ endpoint.put(
 		const result = await questions.update(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -369,7 +369,7 @@ endpoint.delete(
 		const result = await questions.delete(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -403,7 +403,7 @@ endpoint.put(
 		const result = await questions.answer(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 

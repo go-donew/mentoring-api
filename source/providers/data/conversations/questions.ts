@@ -22,9 +22,9 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Lists/searches through all questions.
 	 *
-	 * @param {Array<Query>} queries A list of queries to filter the questions.
+	 * @param {Array<Query>} queries - A list of queries to filter the questions.
 	 *
-	 * @returns {Question[]} Array of questions matching the query.
+	 * @returns {Question[]} - Array of questions matching the query.
 	 * @throws {ServerError} - 'backend-error'
 	 */
 	async find(queries: Array<Query<Question>>): Promise<Question[]> {
@@ -79,9 +79,9 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Retrieves a question from the database.
 	 *
-	 * @param {string} id The ID of the question to retrieve.
+	 * @param {string} id - The ID of the question to retrieve.
 	 *
-	 * @returns {Question} The requested question.
+	 * @returns {Question} - The requested question.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async get(id: string): Promise<Question> {
@@ -124,9 +124,9 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Stores a question in the database.
 	 *
-	 * @param {Question} data The data to store in the question.
+	 * @param {Question} data - The data to store in the question.
 	 *
-	 * @returns {Question} The created question.
+	 * @returns {Question} - The created question.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
 	async create(data: Question): Promise<Question> {
@@ -174,9 +174,9 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Updates a question in the database.
 	 *
-	 * @param {Partial<Question>} data A list of properties to update and the value to set.
+	 * @param {Partial<Question>} data - A list of properties to update and the value to set.
 	 *
-	 * @returns {Question} The updated question.
+	 * @returns {Question} - The updated question.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async update(data: Partial<Question>): Promise<Question> {
@@ -231,7 +231,7 @@ class QuestionProvider implements DataProvider<Question> {
 	/**
 	 * Deletes a question in the database.
 	 *
-	 * @param {string} id The ID of the question to delete.
+	 * @param {string} id - The ID of the question to delete.
 	 *
 	 * @returns {void}
 	 * @throws {ServerError} - 'not-found' | 'backend-error'

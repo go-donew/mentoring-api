@@ -6,7 +6,7 @@
 			"type": "select",
 			"text": "Delhi",
 			"attribute": {
-				"id": "knows-india-capital",
+				"id": "{knowsCapital}",
 				"value": 1
 			},
 			"nextQuestion": "{cleanest}"
@@ -16,7 +16,7 @@
 			"type": "select",
 			"text": "Kolkata",
 			"attribute": {
-				"id": "knows-india-capital",
+				"id": "{knowsCapital}",
 				"value": 0
 			},
 			"nextQuestion": "{cleanest}"
@@ -26,7 +26,7 @@
 			"type": "select",
 			"text": "Mumbai",
 			"attribute": {
-				"id": "knows-india-capital",
+				"id": "{knowsCapital}",
 				"value": 0
 			},
 			"nextQuestion": "{cleanest}"

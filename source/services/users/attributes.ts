@@ -4,7 +4,7 @@
 import type { ServiceRequest, ServiceResponse } from '@/types'
 
 import { ServerError } from '@/errors'
-import { Attribute, BlamedMessage } from '@/models/attribute'
+import { UserAttribute, BlamedMessage } from '@/models/attribute'
 import { provider as attributes } from '@/providers/data/users/attributes'
 
 /**
@@ -21,10 +21,10 @@ export type ListOrFindUserAttributesPayload = {
  * The response from the list/find user attributes endpoint.
  *
  * @typedef {object} ListOrFindUserAttributesResponse
- * @property {array<Attribute>} attributes.required - The attributes returned from the query.
+ * @property {array<UserAttribute>} attributes.required - The attributes returned from the query.
  */
 export type ListOrFindUserAttributesResponse = {
-	attributes: Attribute[]
+	attributes: UserAttribute[]
 }
 
 /**
@@ -39,7 +39,7 @@ const find = async (
 ): Promise<ServiceResponse<ListOrFindUserAttributesResponse>> => {
 	try {
 		attributes.userId = request.params.userId
-		const foundAttributes = await attributes.find(
+		const foundUserAttributes = await attributes.find(
 			request.body.value
 				? [
 						{
@@ -51,7 +51,7 @@ const find = async (
 				: []
 		)
 
-		const data = { attributes: foundAttributes }
+		const data = { attributes: foundUserAttributes }
 		return {
 			status: 200,
 			data,
@@ -81,10 +81,10 @@ export type CreateUserAttributePayload = {
  * The response from the create attribute endpoint.
  *
  * @typedef {object} CreateUserAttributeResponse
- * @property {Attribute} attribute.required - The created attribute.
+ * @property {UserAttribute} attribute.required - The created attribute.
  */
 export type CreateUserAttributeResponse = {
-	attribute: Attribute
+	attribute: UserAttribute
 }
 
 /**
@@ -100,7 +100,7 @@ const create = async (
 	try {
 		attributes.userId = request.params.userId
 		const attribute = await attributes.create(
-			new Attribute(
+			new UserAttribute(
 				request.body.id,
 				request.body.value,
 				[
@@ -131,10 +131,10 @@ const create = async (
  * The response from the retrieve attribute endpoint.
  *
  * @typedef {object} RetrieveUserAttributeResponse
- * @property {Attribute} attribute.required - The requested attribute.
+ * @property {UserAttribute} attribute.required - The requested attribute.
  */
 export type RetrieveUserAttributeResponse = {
-	attribute: Attribute
+	attribute: UserAttribute
 }
 
 /**
@@ -179,10 +179,10 @@ export type UpdateUserAttributePayload = {
  * The response from the update attribute endpoint.
  *
  * @typedef {object} UpdateUserAttributeResponse
- * @property {Attribute} attribute.required - The updated attribute.
+ * @property {UserAttribute} attribute.required - The updated attribute.
  */
 export type UpdateUserAttributeResponse = {
-	attribute: Attribute
+	attribute: UserAttribute
 }
 
 /**

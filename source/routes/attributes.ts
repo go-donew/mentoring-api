@@ -1,26 +1,26 @@
-// @/routes/groups.ts
-// Request handlers for group related endpoints.
+// @/routes/attributes.ts
+// Request handlers for attribute related endpoints.
 
 import { Router as createRouter } from 'express'
 import type { Request, Response } from 'express'
 
 import { permit } from '@/middleware/authorization'
-import { service as groups } from '@/services/groups'
+import { service as attributes } from '@/services/attributes'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
 
 /**
- * GET /groups
+ * GET /attributes
  *
- * @summary List/find groups
- * @tags groups - Group related endpoints
+ * @summary List/find attributes
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
- * @param {ListOrFindGroupsPayload} request.body - The query to run and find groups.
+ * @param {ListOrFindAttributesPayload} request.body - The query to run and find attributes.
  *
- * @returns {ListOrFindGroupsResponse} 200 - The groups returned from the query. If no parameters are passed, then it returns all the groups the user is a part of.
+ * @returns {ListOrFindAttributesResponse} 200 - The attributes returned from the query. If no parameters are passed, then it returns all the attributes.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
@@ -28,9 +28,9 @@ const endpoint = createRouter()
  * @returns {BackendError} 500 - An error occurred while interacting with the backend.
  * @returns {ServerCrashError} 500 - The server crashed.
  *
- * @example request - An example query that returns all groups that have the user ID `LZfXLFzPPR4NNrgjlWDxn`
+ * @example request - An example query that returns all attributes that have the `computed` tag
  * {
- * 	"participants": ["LZfXLFzPPR4NNrgjlWDxn"]
+ * 	"tags": ["computed"]
  * }
  *
  * @endpoint
@@ -39,7 +39,7 @@ endpoint.get(
 	'/',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.find(request)
+		const result = await attributes.find(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -47,16 +47,16 @@ endpoint.get(
 )
 
 /**
- * POST /groups
+ * POST /attributes
  *
- * @summary Create a group
- * @tags groups - Group related endpoints
+ * @summary Create an attribute
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
- * @param {CreateGroupPayload} request.body - The necessary details to create a group.
+ * @param {CreateAttributePayload} request.body - The necessary details to create an attribute.
  *
- * @returns {CreateGroupResponse} 201 - The created group. You must be Groot to create a group.
+ * @returns {CreateAttributeResponse} 201 - The created attribute. You must be Groot to create an attribute.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
@@ -64,20 +64,12 @@ endpoint.get(
  * @returns {BackendError} 500 - An error occurred while interacting with the backend.
  * @returns {ServerCrashError} 500 - The server crashed.
  *
- * @example request - An example query that creates a group
+ * @example request - An example query that creates an attribute
  * {
- * 	"name": "A Group",
- * 	"participants": {
- * 		"LZfXLFzPPR4NNrgjlWDxn"	: "mentee"
- * 	},
- * 	"conversations": {
- * 		"quiz": ["mentee"]
- * 	},
- * 	"reports": {
- * 		"quiz-score": ["mentor"]
- * 	},
- * 	"code": "join-using-this-code",
- * 	"tags": ["quiz"]
+ * 	"name": "An Attribute",
+ * 	"description": "An attribute that tells us something about the person",
+ * 	"tags": ["quiz"],
+ * 	"conversations": ["LZfXLFzPPR4NNrgjlWDxn"]
  * }
  *
  * @endpoint
@@ -86,7 +78,7 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.create(request)
+		const result = await attributes.create(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -94,47 +86,16 @@ endpoint.post(
 )
 
 /**
- * PUT /groups/join
+ * GET /attributes/{attributeId}
  *
- * @summary Join a certain group
- * @tags groups - Group related endpoints
- *
- * @security bearer
- *
- * @param {JoinGroupPayload} request.body.required - The details required for joining a group.
- *
- * @returns {JoinGroupResponse} 200 - The group the user was added to.
- * @returns {ImproperPayloadError} 400 - The payload was invalid.
- * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
- * @returns {EntityNotFoundError} 404 - There was no group that can be joined using the passed code.
- * @returns {TooManyRequestsError} 429 - The client was rate-limited.
- * @returns {BackendError} 500 - An error occurred while interacting with the backend.
- * @returns {ServerCrashError} 500 - The server crashed.
- *
- * @endpoint
- */
-endpoint.put(
-	'/join',
-	// => permit('anyone'),
-	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.join(request)
-
-		if (result.error) response.sendError(result.error)
-		else response.status(result.status!).send(result.data)
-	}
-)
-
-/**
- * GET /groups/{groupId}
- *
- * @summary Retrieve a requested group
- * @tags groups - Group related endpoints
+ * @summary Retrieve a requested attribute
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
- * @param {string} groupId.path.required - The ID of the group to return.
+ * @param {string} attributeId.path.required - The ID of the attribute to return.
  *
- * @returns {RetrieveGroupResponse} 200 - The requested group. You must be a part of the group.
+ * @returns {RetrieveAttributeResponse} 200 - The requested attribute. You must be a part of the attribute.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
  * @returns {TooManyRequestsError} 429 - The client was rate-limited.
@@ -144,13 +105,10 @@ endpoint.put(
  * @endpoint
  */
 endpoint.get(
-	'/:groupId',
-	permit({
-		subject: 'group',
-		roles: ['participant'],
-	}),
+	'/:attributeId',
+	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.get(request)
+		const result = await attributes.get(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -158,17 +116,17 @@ endpoint.get(
 )
 
 /**
- * PUT /groups/{groupId}
+ * PUT /attributes/{attributeId}
  *
- * @summary Update a certain group
- * @tags groups - Group related endpoints
+ * @summary Update a certain attribute
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
- * @param {string} groupId.path.required - The ID of the group to update.
- * @param {UpdateGroupPayload} request.body.required - The new group.
+ * @param {string} attributeId.path.required - The ID of the attribute to update.
+ * @param {UpdateAttributePayload} request.body.required - The new attribute.
  *
- * @returns {UpdateGroupResponse} 200 - The updated group. You must be a supermentor of the group to update its details.
+ * @returns {UpdateAttributeResponse} 200 - The updated attribute. You must be Groot to update its details.
  * @returns {ImproperPayloadError} 400 - The payload was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
@@ -179,13 +137,10 @@ endpoint.get(
  * @endpoint
  */
 endpoint.put(
-	'/:groupId',
-	permit({
-		subject: 'group',
-		roles: ['supermentor'],
-	}),
+	'/:attributeId',
+	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.update(request)
+		const result = await attributes.update(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -193,16 +148,16 @@ endpoint.put(
 )
 
 /**
- * DELETE /groups/{groupId}
+ * DELETE /attributes/{attributeId}
  *
- * @summary Delete a certain group
- * @tags groups - Group related endpoints
+ * @summary Delete a certain attribute
+ * @tags attributes - Attribute related endpoints
  *
  * @security bearer
  *
- * @param {string} groupId.path.required - The ID of the group to delete.
+ * @param {string} attributeId.path.required - The ID of the attribute to delete.
  *
- * @returns {object} 204 - You must be Groot to delete a group.
+ * @returns {object} 204 - You must be Groot to delete an attribute.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
  * @returns {TooManyRequestsError} 429 - The client was rate-limited.
@@ -212,10 +167,10 @@ endpoint.put(
  * @endpoint
  */
 endpoint.delete(
-	'/:groupId',
+	'/:attributeId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.delete(request)
+		const result = await attributes.delete(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

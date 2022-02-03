@@ -25,6 +25,17 @@ const groups: { bosses: any; interns: any; groots: any } = {
 	interns: {},
 	groots: {},
 }
+const attributes: {
+	smartness: any
+	niceness: any
+	knowsCapital: any
+	knowsCleanest: any
+} = {
+	smartness: {},
+	niceness: {},
+	knowsCapital: {},
+	knowsCleanest: {},
+}
 const conversations: { quiz: any; updates: any } = {
 	quiz: {},
 	updates: {},
@@ -655,6 +666,247 @@ describe('groups', () => {
 })
 
 /**
+ * Test the attribute endpoints.
+ */
+describe('attributes', () => {
+	describe('post /attributes', () => {
+		it.each([
+			['an invalid name is passed', { name: { invalid: 'value' } }],
+			['an invalid description is passed', { description: { invalid: 'value' } }],
+			['an invalid conversation list is passed', { conversations: 'quiz' }],
+			['an invalid tag list is passed', { tags: 'computed' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('attributes/create/smartness')
+				const error = await fetchError({
+					method: 'post',
+					url: `attributes`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const data = await testData('attributes/create/smartness')
+			const error = await fetchError({
+				method: 'post',
+				url: `attributes`,
+				json: data,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['smartness', 'niceness', 'knowsCapital', 'knowsCleanest'])(
+			'should return the created attribute upon a valid request (%s)',
+			async (attributeName: string) => {
+				const data = await testData(`attributes/create/${attributeName}`, {
+					quiz: conversations.quiz.id,
+				})
+				const { body, status } = await fetch({
+					method: 'post',
+					url: `attributes`,
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(201)
+				expect(body.attribute).toMatchShapeOf({
+					id: 'string',
+					name: 'string',
+					conversations: ['string'],
+					tags: ['string'],
+				})
+
+				attributes[
+					attributeName as 'smartness' | 'niceness' | 'knowsCapital' | 'knowsCleanest'
+				] = body.attribute
+			}
+		)
+	})
+
+	describe('put /attributes/{attributeId}', () => {
+		it.each([
+			['an invalid name is passed', { name: { invalid: 'value' } }],
+			['an invalid description is passed', { description: { invalid: 'value' } }],
+			['an invalid conversation list is passed', { conversations: 'quiz' }],
+			['an invalid tag list is passed', { tags: 'computed' }],
+		])(
+			'should return a `improper-payload` error when %s',
+			async (_situation: string, additionalTestData: any) => {
+				const data = await testData('attributes/update/smartness')
+				const error = await fetchError({
+					method: 'put',
+					url: `attributes/${attributes.smartness.id}`,
+					json: { ...data, ...additionalTestData },
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(error?.status).toEqual(400)
+				expect(error?.code).toEqual('improper-payload')
+			}
+		)
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const data = await testData('attributes/update/smartness')
+			const error = await fetchError({
+				method: 'put',
+				url: `attributes/${attributes.smartness.id}`,
+				json: data,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['smartness', 'knowsCapital', 'knowsCleanest'])(
+			'should return the updated attribute upon a valid request (%s)',
+			async (attributeName: string) => {
+				const data = await testData(`attributes/update/${attributeName}`, {
+					quiz: conversations.quiz.id,
+				})
+				const { body, status } = await fetch({
+					method: 'put',
+					url: `attributes/${
+						attributes[attributeName as 'smartness' | 'knowsCapital' | 'knowsCleanest'].id
+					}`,
+					json: data,
+					headers: {
+						authorization: tokens.groot.bearer,
+					},
+				})
+
+				expect(status).toEqual(200)
+				expect(body.attribute).toMatchShapeOf({
+					id: 'string',
+					name: 'string',
+					conversations: ['string'],
+					tags: ['string'],
+				})
+
+				attributes[attributeName as 'smartness' | 'knowsCapital' | 'knowsCleanest'] =
+					body.attribute
+			}
+		)
+	})
+
+	describe('get /attributes', () => {
+		it('should return all attributes upon a valid request', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `attributes`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attributes.length).toEqual(4)
+			expect(body.attributes).toMatchShapeOf([
+				{
+					id: 'string',
+					name: 'string',
+					conversations: ['string'],
+					tags: ['string'],
+				},
+			])
+		})
+	})
+
+	describe('get /attributes/{attributeId}', () => {
+		it('should return a `entity-not-found` error when the requested attribute is not found', async () => {
+			const error = await fetchError({
+				method: 'get',
+				url: `attributes/weird`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return the requested attribute upon a valid request', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `attributes/${attributes.smartness.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.attribute).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				conversations: ['string'],
+				tags: ['string'],
+			})
+		})
+	})
+
+	describe('delete /attributes/{attributeId}', () => {
+		// FIXME: Known issue: even if the document does not exist, Firebase just returns a successful response
+		it.skip('should return a `entity-not-found` error when the requested attribute is not found', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `attributes/weird`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should return a `not-allowed` error when the requesting user is not groot', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `attributes/${attributes.niceness.id}`,
+				headers: {
+					authorization: tokens.pfy.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should delete the specified attribute when requesting user is groot', async () => {
+			const { status } = await fetch({
+				method: 'delete',
+				url: `attributes/${attributes.niceness.id}`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(status).toEqual(204)
+		})
+	})
+})
+
+/**
  * Test the user profile endpoints.
  */
 describe('users', () => {
@@ -776,9 +1028,9 @@ describe('users', () => {
 })
 
 /**
- * Test the attribute endpoints.
+ * Test the user attribute endpoints.
  */
-describe('attributes', () => {
+describe('users/attributes', () => {
 	describe('post /users/{userId}/attributes', () => {
 		it.each([
 			['an invalid ID is passed', { id: { invalid: 'value' } }],
@@ -786,7 +1038,9 @@ describe('attributes', () => {
 		])(
 			'should return a `improper-payload` error when %s',
 			async (_situation: string, additionalTestData: any) => {
-				const data = await testData('attributes/create/smartness')
+				const data = await testData('users/attributes/create/smartness', {
+					id: attributes.smartness.id,
+				})
 				const error = await fetchError({
 					method: 'post',
 					url: `users/${users.pfy.id}/attributes`,
@@ -802,7 +1056,9 @@ describe('attributes', () => {
 		)
 
 		it('should return a `not-allowed` error when creating an attribute for another user and you are not their mentor/supermentor', async () => {
-			const data = await testData('attributes/create/smartness')
+			const data = await testData('users/attributes/create/smartness', {
+				id: attributes.smartness.id,
+			})
 			const error = await fetchError({
 				method: 'post',
 				url: `users/${users.bofh.id}/attributes`,
@@ -816,10 +1072,29 @@ describe('attributes', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['smartness', 'niceness'])(
+		it('should return a `not-allowed` error when creating an attribute that does not exist in the global list', async () => {
+			const data = await testData('users/attributes/create/niceness', {
+				id: 'weird',
+			})
+			const error = await fetchError({
+				method: 'post',
+				url: `users/${users.bofh.id}/attributes`,
+				json: data,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it.each(['smartness'])(
 			'should return the created attribute upon a valid request (%s)',
 			async (attributeId: string) => {
-				const data = await testData(`attributes/create/${attributeId}`)
+				const data = await testData(`users/attributes/create/${attributeId}`, {
+					id: attributes[attributeId as 'smartness'].id,
+				})
 				const { body, status } = await fetch({
 					method: 'post',
 					url: `users/${users.pfy.id}/attributes`,
@@ -852,10 +1127,12 @@ describe('attributes', () => {
 		])(
 			'should return a `improper-payload` error when %s',
 			async (_situation: string, additionalTestData: any) => {
-				const data = await testData('attributes/update/smartness')
+				const data = await testData('users/attributes/update/smartness', {
+					id: attributes.smartness.id,
+				})
 				const error = await fetchError({
 					method: 'put',
-					url: `users/${users.pfy.id}/attributes/smartness`,
+					url: `users/${users.pfy.id}/attributes/${attributes.smartness.id}`,
 					json: { ...data, ...additionalTestData },
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -868,10 +1145,12 @@ describe('attributes', () => {
 		)
 
 		it('should return a `not-allowed` error when updating an attribute for another user and you are not their mentor/supermentor', async () => {
-			const data = await testData('attributes/update/smartness')
+			const data = await testData('users/attributes/update/smartness', {
+				id: attributes.smartness.id,
+			})
 			const error = await fetchError({
 				method: 'put',
-				url: `users/${users.bofh.id}/attributes/smartness`,
+				url: `users/${users.bofh.id}/attributes/${attributes.smartness.id}`,
 				json: data,
 				headers: {
 					authorization: tokens.pfy.bearer,
@@ -882,13 +1161,17 @@ describe('attributes', () => {
 			expect(error?.code).toEqual('not-allowed')
 		})
 
-		it.each(['smartness', 'niceness'])(
+		it.each(['smartness'])(
 			'should return the updated attribute upon a valid request (%s)',
 			async (attributeId: string) => {
-				const data = await testData(`attributes/update/${attributeId}`)
+				const data = await testData(`users/attributes/update/${attributeId}`, {
+					id: attributes[attributeId as 'smartness'].id,
+				})
 				const { body, status } = await fetch({
 					method: 'put',
-					url: `users/${users.pfy.id}/attributes/${attributeId}`,
+					url: `users/${users.pfy.id}/attributes/${
+						attributes[attributeId as 'smartness'].id
+					}`,
 					json: data,
 					headers: {
 						authorization: tokens.groot.bearer,
@@ -915,7 +1198,7 @@ describe('attributes', () => {
 		it('should return a `not-allowed` error when the requesting user is not the user themselves or their mentor/supermentor', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: `users/${users.bofh.id}/attributes/niceness`,
+				url: `users/${users.bofh.id}/attributes`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -935,7 +1218,7 @@ describe('attributes', () => {
 			})
 
 			expect(status).toEqual(200)
-			expect(body.attributes.length).toEqual(2)
+			expect(body.attributes.length).toEqual(1)
 			expect(body.attributes).toMatchShapeOf([
 				{
 					id: 'string',
@@ -961,7 +1244,7 @@ describe('attributes', () => {
 			})
 
 			expect(status).toEqual(200)
-			expect(body.attributes.length).toEqual(2)
+			expect(body.attributes.length).toEqual(1)
 			expect(body.attributes).toMatchShapeOf([
 				{
 					id: 'string',
@@ -995,7 +1278,7 @@ describe('attributes', () => {
 		it('should return a `not-allowed` error when the requesting user is not the user themselves or their mentor/supermentor', async () => {
 			const error = await fetchError({
 				method: 'get',
-				url: `users/${users.bofh.id}/attributes/niceness`,
+				url: `users/${users.bofh.id}/attributes/${attributes.smartness.id}`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -1008,7 +1291,7 @@ describe('attributes', () => {
 		it('should return the requested attribute when requesting user is the user themselves', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: `users/${users.pfy.id}/attributes/niceness`,
+				url: `users/${users.pfy.id}/attributes/${attributes.smartness.id}`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -1031,7 +1314,7 @@ describe('attributes', () => {
 		it('should return the requested attribute when requesting user is a mentor/supermentor of the user', async () => {
 			const { body, status } = await fetch({
 				method: 'get',
-				url: `users/${users.pfy.id}/attributes/niceness`,
+				url: `users/${users.pfy.id}/attributes/${attributes.smartness.id}`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -1070,7 +1353,7 @@ describe('attributes', () => {
 		it('should return a `not-allowed` error when the requesting user is the user themselves', async () => {
 			const error = await fetchError({
 				method: 'delete',
-				url: `users/${users.pfy.id}/attributes/niceness`,
+				url: `users/${users.pfy.id}/attributes/${attributes.smartness.id}`,
 				headers: {
 					authorization: tokens.pfy.bearer,
 				},
@@ -1083,7 +1366,7 @@ describe('attributes', () => {
 		it('should delete the specified attribute when requesting user is a supermentor of the user', async () => {
 			const { status } = await fetch({
 				method: 'delete',
-				url: `users/${users.pfy.id}/attributes/niceness`,
+				url: `users/${users.pfy.id}/attributes/${attributes.smartness.id}`,
 				headers: {
 					authorization: tokens.bofh.bearer,
 				},
@@ -1460,6 +1743,8 @@ describe('questions', () => {
 			async (questionName: string) => {
 				const data = await testData(`questions/create/${questionName}`, {
 					cleanest: questions.cleanest.id,
+					knowsCapital: attributes.knowsCapital.id,
+					knowsCleanest: attributes.knowsCleanest.id,
 				})
 				const { body, status } = await fetch({
 					method: 'post',
@@ -1542,6 +1827,8 @@ describe('questions', () => {
 			async (questionName: string) => {
 				const data = await testData(`questions/update/${questionName}`, {
 					cleanest: questions.cleanest.id,
+					knowsCapital: attributes.knowsCapital.id,
+					knowsCleanest: attributes.knowsCleanest.id,
 				})
 				const { body, status } = await fetch({
 					method: 'put',

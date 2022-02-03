@@ -5,7 +5,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Question, Option } from '@/models/question'
-import { Attribute } from '@/models/attribute'
+import { UserAttribute } from '@/models/attribute'
 import { provider as questions } from '@/providers/data/conversations/questions'
 import { provider as attributes } from '@/providers/data/users/attributes'
 import { generateId } from '@/utils'
@@ -328,7 +328,7 @@ const answer = async (
 			await attributes.update(attribute)
 		} catch {
 			// If the attribute does not exist, create it.
-			const attribute = new Attribute(
+			const attribute = new UserAttribute(
 				selectedOption.attribute.id,
 				answer,
 				[

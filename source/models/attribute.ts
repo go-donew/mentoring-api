@@ -33,14 +33,14 @@ export type AttributeSnapshot = {
 }
 
 /**
- * A class representing a attribute.
+ * A class representing an attribute of a certain user.
  *
- * @typedef {object} Attribute
+ * @typedef {object} UserAttribute
  * @property {string} id.required - The attribute ID.
  * @property {string | number | boolean} value.required - The attribute's value.
  * @property {array<AttributeSnapshot>} history - A list of changes that have been made to the attribute's value.
  */
-export class Attribute {
+export class UserAttribute {
 	id: string
 	value: string | number | boolean
 	history: AttributeSnapshot[]
@@ -58,5 +58,37 @@ export class Attribute {
 		this.history = history
 
 		this._userId = userId
+	}
+}
+
+/**
+ * A class representing an attribute.
+ *
+ * @typedef {object} Attribute
+ * @property {string} id.required - The attribute ID.
+ * @property {string} name.required - The attribute's name.
+ * @property {string} description.required - The attribute's description.
+ * @property {array<string>} tags.required - Tags to enhance the attribute's searchability.
+ * @property {array<string>} conversations.required - A list of conversations that might set this attribute.
+ */
+export class Attribute {
+	id: string
+	name: string
+	description: string
+	tags: string[]
+	conversations: string[]
+
+	constructor(
+		id: string,
+		name: string,
+		description: string,
+		tags: string[],
+		conversations: string[]
+	) {
+		this.id = id
+		this.name = name
+		this.description = description
+		this.tags = tags
+		this.conversations = conversations
 	}
 }

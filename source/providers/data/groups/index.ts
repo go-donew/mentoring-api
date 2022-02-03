@@ -16,9 +16,9 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Lists/searches through all groups.
 	 *
-	 * @param {Array<Query>} queries A list of queries to filter the groups.
+	 * @param {Array<Query>} queries - A list of queries to filter the groups.
 	 *
-	 * @returns {Group[]} Array of groups matching the query.
+	 * @returns {Group[]} - Array of groups matching the query.
 	 * @throws {ServerError} - 'backend-error'
 	 */
 	async find(queries: Array<Query<Group>>): Promise<Group[]> {
@@ -67,9 +67,9 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Retrieves a group from the database.
 	 *
-	 * @param {string} id The ID of the group to retrieve.
+	 * @param {string} id - The ID of the group to retrieve.
 	 *
-	 * @returns {Group} The requested group.
+	 * @returns {Group} - The requested group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async get(id: string): Promise<Group> {
@@ -102,9 +102,9 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Stores a group in the database.
 	 *
-	 * @param {Group} data The data to store in the group.
+	 * @param {Group} data - The data to store in the group.
 	 *
-	 * @returns {Group} The created group.
+	 * @returns {Group} - The created group.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
 	async create(data: Group): Promise<Group> {
@@ -148,9 +148,9 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Updates a group in the database.
 	 *
-	 * @param {Partial<Group>} data A list of properties to update and the value to set.
+	 * @param {Partial<Group>} data - A list of properties to update and the value to set.
 	 *
-	 * @returns {Group} The updated group.
+	 * @returns {Group} - The updated group.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async update(data: Partial<Group>): Promise<Group> {
@@ -207,7 +207,7 @@ class GroupProvider implements DataProvider<Group> {
 	/**
 	 * Deletes a group in the database.
 	 *
-	 * @param {string} id The ID of the group to delete.
+	 * @param {string} id - The ID of the group to delete.
 	 *
 	 * @returns {void}
 	 * @throws {ServerError} - 'not-found' | 'backend-error'

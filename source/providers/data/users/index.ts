@@ -16,9 +16,9 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Lists/searches through all users.
 	 *
-	 * @param {Array<Query>} queries A list of queries to filter the users.
+	 * @param {Array<Query>} queries - A list of queries to filter the users.
 	 *
-	 * @returns {User[]} Array of users matching the query.
+	 * @returns {User[]} - Array of users matching the query.
 	 * @throws {ServerError} - 'backend-error'
 	 */
 	async find(queries: Array<Query<User>>): Promise<User[]> {
@@ -69,9 +69,9 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Retrieves a user from the database.
 	 *
-	 * @param {string} id The ID of the user to retrieve.
+	 * @param {string} id - The ID of the user to retrieve.
 	 *
-	 * @returns {User} The requested user.
+	 * @returns {User} - The requested user.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async get(id: string): Promise<User> {
@@ -107,9 +107,9 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Stores a user in the database.
 	 *
-	 * @param {User} data The data to store in the user.
+	 * @param {User} data - The data to store in the user.
 	 *
-	 * @returns {User} The created user.
+	 * @returns {User} - The created user.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
 	async create(data: User): Promise<User> {
@@ -139,9 +139,9 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Updates a user in the database.
 	 *
-	 * @param {string} data A list of properties to update and the value to set.
+	 * @param {string} data - A list of properties to update and the value to set.
 	 *
-	 * @returns {User} The updated user.
+	 * @returns {User} - The updated user.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async update(data: Partial<User>): Promise<User> {
@@ -176,7 +176,7 @@ class UserProvider implements DataProvider<User> {
 	/**
 	 * Deletes a user in the database.
 	 *
-	 * @param {string} id The ID of the user to delete.
+	 * @param {string} id - The ID of the user to delete.
 	 *
 	 * @returns {void}
 	 * @throws {ServerError} - 'not-found' | 'backend-error'

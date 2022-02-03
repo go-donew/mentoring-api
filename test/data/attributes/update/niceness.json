@@ -1,4 +1,6 @@
 {
-	"id": "niceness",
-	"value": 5
+	"name": "Niceness",
+	"description": "A measure of the kindness of a person",
+	"conversations": [],
+	"tags": ["observed", "to-be-deleted"]
 }

@@ -43,7 +43,7 @@ endpoint.get(
 		const result = await users.find(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -76,7 +76,7 @@ endpoint.get(
 		const result = await users.get(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -116,7 +116,7 @@ endpoint.get(
 		const result = await attributes.find(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -141,7 +141,7 @@ endpoint.get(
  *
  * @example request - An example query that creates a attribute
  * {
- * 	"id": "quiz_score",
+ * 	"id": "LZfXLFzPPR4NNrgjlWDxn",
  * 	"value": 10
  * }
  *
@@ -157,7 +157,7 @@ endpoint.post(
 		const result = await attributes.create(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -191,7 +191,7 @@ endpoint.get(
 		const result = await attributes.get(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -227,7 +227,7 @@ endpoint.put(
 		const result = await attributes.update(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
@@ -261,7 +261,7 @@ endpoint.delete(
 		const result = await attributes.delete(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 

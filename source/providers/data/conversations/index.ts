@@ -16,9 +16,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Lists/searches through all conversations.
 	 *
-	 * @param {Array<Query>} queries A list of queries to filter the conversations.
+	 * @param {Array<Query>} queries - A list of queries to filter the conversations.
 	 *
-	 * @returns {Conversation[]} Array of conversations matching the query.
+	 * @returns {Conversation[]} - Array of conversations matching the query.
 	 * @throws {ServerError} - 'backend-error'
 	 */
 	async find(queries: Array<Query<Conversation>>): Promise<Conversation[]> {
@@ -67,9 +67,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Retrieves a conversation from the database.
 	 *
-	 * @param {string} id The ID of the conversation to retrieve.
+	 * @param {string} id - The ID of the conversation to retrieve.
 	 *
-	 * @returns {Conversation} The requested conversation.
+	 * @returns {Conversation} - The requested conversation.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async get(id: string): Promise<Conversation> {
@@ -102,9 +102,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Stores a conversation in the database.
 	 *
-	 * @param {Conversation} data The data to store in the conversation.
+	 * @param {Conversation} data - The data to store in the conversation.
 	 *
-	 * @returns {Conversation} The created conversation.
+	 * @returns {Conversation} - The created conversation.
 	 * @throws {ServerError} - 'already-exists' | 'backend-error'
 	 */
 	async create(data: Conversation): Promise<Conversation> {
@@ -145,9 +145,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Updates a conversation in the database.
 	 *
-	 * @param {Partial<Conversation>} data A list of properties to update and the value to set.
+	 * @param {Partial<Conversation>} data - A list of properties to update and the value to set.
 	 *
-	 * @returns {Conversation} The updated conversation.
+	 * @returns {Conversation} - The updated conversation.
 	 * @throws {ServerError} - 'not-found' | 'backend-error'
 	 */
 	async update(data: Partial<Conversation>): Promise<Conversation> {
@@ -195,7 +195,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 	/**
 	 * Deletes a conversation in the database.
 	 *
-	 * @param {string} id The ID of the conversation to delete.
+	 * @param {string} id - The ID of the conversation to delete.
 	 *
 	 * @returns {void}
 	 * @throws {ServerError} - 'not-found' | 'backend-error'

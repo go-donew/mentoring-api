@@ -6,7 +6,7 @@
 			"type": "select",
 			"text": "Indore",
 			"attribute": {
-				"id": "knows-cleanest",
+				"id": "{knowsCleanest}",
 				"value": 1
 			}
 		},
@@ -15,7 +15,7 @@
 			"type": "select",
 			"text": "Bhopal",
 			"attribute": {
-				"id": "knows-cleanest",
+				"id": "{knowsCleanest}",
 				"value": 0
 			}
 		},
@@ -24,7 +24,7 @@
 			"type": "select",
 			"text": "Pune",
 			"attribute": {
-				"id": "knows-cleanest",
+				"id": "{knowsCleanest}",
 				"value": 0
 			}
 		},
@@ -33,7 +33,7 @@
 			"type": "select",
 			"text": "Mawsynram",
 			"attribute": {
-				"id": "knows-cleanest",
+				"id": "{knowsCleanest}",
 				"value": 0
 			}
 		}

@@ -37,7 +37,7 @@ endpoint.post('/signup', async (request: Request, response: Response): Promise<v
 	const result = await auth.signUp(request)
 
 	if (result.error) response.sendError(result.error)
-	else response.status(result.status ?? 200).send(result.data)
+	else response.status(result.status!).send(result.data)
 })
 
 /**
@@ -68,7 +68,7 @@ endpoint.post('/signin', async (request: Request, response: Response): Promise<v
 	const result = await auth.signIn(request)
 
 	if (result.error) response.sendError(result.error)
-	else response.status(result.status ?? 200).send(result.data)
+	else response.status(result.status!).send(result.data)
 })
 
 /**
@@ -99,7 +99,7 @@ endpoint.post(
 		const result = await auth.refreshToken(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status ?? 200).send(result.data)
+		else response.status(result.status!).send(result.data)
 	}
 )
 
