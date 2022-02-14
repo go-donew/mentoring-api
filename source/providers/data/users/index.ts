@@ -43,7 +43,7 @@ class UserProvider implements DataProvider<User> {
 		try {
 			;({ docs } = await usersQuery.get())
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
@@ -85,7 +85,7 @@ class UserProvider implements DataProvider<User> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}
@@ -124,6 +124,9 @@ class UserProvider implements DataProvider<User> {
 			}
 
 			// Else insert away!
+			// @ts-expect-error This shouldn't even need to happen, but to be safe due to the weirdness
+			// of `class-transformer`
+			delete data.password
 			const serializedUser = instanceToPlain(data)
 			await getFirestore().collection('users').doc(data.id).set(serializedUser)
 
@@ -131,7 +134,7 @@ class UserProvider implements DataProvider<User> {
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -168,7 +171,7 @@ class UserProvider implements DataProvider<User> {
 			})
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -191,7 +194,7 @@ class UserProvider implements DataProvider<User> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}

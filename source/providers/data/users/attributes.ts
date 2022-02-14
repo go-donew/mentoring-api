@@ -49,7 +49,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 		try {
 			;({ docs } = await foundUserAttributes.get())
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
@@ -99,7 +99,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}
@@ -171,7 +171,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -227,7 +227,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			})
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -258,7 +258,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}

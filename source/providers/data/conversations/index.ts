@@ -44,7 +44,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 		try {
 			;({ docs } = await foundConversations.get())
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
@@ -83,7 +83,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}
@@ -137,7 +137,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -187,7 +187,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			)
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -210,7 +210,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}

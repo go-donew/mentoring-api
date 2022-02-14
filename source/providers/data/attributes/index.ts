@@ -44,7 +44,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 		try {
 			;({ docs } = await foundAttributes.get())
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
@@ -83,7 +83,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}
@@ -137,7 +137,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -190,7 +190,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			)
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -213,7 +213,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}

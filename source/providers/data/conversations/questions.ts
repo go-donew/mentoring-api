@@ -56,7 +56,7 @@ class QuestionProvider implements DataProvider<Question> {
 		try {
 			;({ docs } = await foundQuestions.get())
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 
@@ -105,7 +105,7 @@ class QuestionProvider implements DataProvider<Question> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}
@@ -166,7 +166,7 @@ class QuestionProvider implements DataProvider<Question> {
 			return data
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -223,7 +223,7 @@ class QuestionProvider implements DataProvider<Question> {
 			)
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 			throw new ServerError('backend-error')
 		}
 	}
@@ -254,7 +254,7 @@ class QuestionProvider implements DataProvider<Question> {
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
 			} else {
-				console.trace(JSON.stringify(error))
+				console.trace(error)
 				throw new ServerError('backend-error')
 			}
 		}

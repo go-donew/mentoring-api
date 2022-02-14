@@ -98,7 +98,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 
 			if ((error.message as string).startsWith('EMAIL_EXISTS'))
 				throw new ServerError(
@@ -170,7 +170,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 
 			if ((error.message as string).startsWith('EMAIL_NOT_FOUND'))
 				throw new ServerError(
@@ -227,7 +227,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 
 			if ((error.message as string).startsWith('INVALID_REFRESH_TOKEN'))
 				throw new ServerError(
@@ -265,7 +265,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		try {
 			return await getAuth().verifyIdToken(token, true)
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 
 			throw new ServerError('invalid-token')
 		}
@@ -286,7 +286,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		try {
 			user = await getAuth().getUser(userId)
 		} catch (error: unknown) {
-			console.trace(JSON.stringify(error))
+			console.trace(error)
 
 			throw new ServerError('backend-error')
 		}

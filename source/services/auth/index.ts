@@ -56,6 +56,10 @@ const signUp = async (
 			lastSignedIn: new Date(),
 		})
 
+		// @ts-expect-error This is because we pass password when doing ...request.body
+		// above, and `class-transformer` happily adds that as a property.
+		delete user.password
+
 		const data = { user, tokens }
 		return {
 			status: 201,

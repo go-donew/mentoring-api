@@ -105,6 +105,21 @@ export const errors = {
 	},
 
 	/**
+	 * Error to return when the user tries to do something that requires certain
+	 * conditions to be met, and those conditions have not been met.
+	 *
+	 * @typedef {object} PreconditionFailedError
+	 *
+	 * @property {string} code.required - The error code. - enum:precondition-failed
+	 * @property {string} message.required - The error message.
+	 * @property {number} status.required - The HTTP error code. - enum:412
+	 */
+	'precondition-failed': {
+		message: `To perform this action, certain preconditions need to be met. Unfortunately, one or more of these conditions have not been met. Please try again after these preconditions have been met.`,
+		status: 412,
+	},
+
+	/**
 	 * Error to return when the user gets rate limited.
 	 *
 	 * @typedef {object} TooManyRequestsError

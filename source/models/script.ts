@@ -2,18 +2,6 @@
 // Class that represents an script.
 
 /**
- * An interface representing a hook.
- *
- * @typedef {object} Hook
- * @property {string} type.required - The type of hook. - enum:before,after
- * @property {string} script.required - The ID of the script to run.
- */
-export interface Hook {
-	type: 'before' | 'after'
-	script: string
-}
-
-/**
  * An interface representing a dependency for a script.
  *
  * @typedef {object} DependentAttribute
@@ -45,7 +33,6 @@ export interface ComputedAttribute {
  * @property {string} name.required - The script name.
  * @property {string} description.required - The script description.
  * @property {array<string>} tags.required - The list of tags to enhance searchability of the script.
- * @property {array<Hook>} hooks.required - The list of scripts to run before/after the current script.
  * @property {array<DependentAttribute>} input.required - The list of attributes required to run the script.
  * @property {array<ComputedAttribute>} computed.required - The list of attributes computed and set by this script.
  * @property {string} content.required - The script to run.
@@ -55,7 +42,6 @@ export class Script {
 	name: string
 	description: string
 	tags: string[]
-	hooks: Hook[]
 	input: DependentAttribute[]
 	computed: ComputedAttribute[]
 	content: string
@@ -65,7 +51,6 @@ export class Script {
 		name: string,
 		description: string,
 		tags: string[],
-		hooks: Hook[],
 		input: DependentAttribute[],
 		computed: ComputedAttribute[],
 		content: string
@@ -74,7 +59,6 @@ export class Script {
 		this.name = name
 		this.description = description
 		this.tags = tags
-		this.hooks = hooks
 		this.input = input
 		this.computed = computed
 		this.content = content
