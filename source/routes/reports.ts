@@ -73,7 +73,10 @@ endpoint.get(
  * 	"description": "The report generated once you have completed a conversation",
  * 	"tags": ["quiz"],
  * 	"template": "<div align='center'> Your score on the quiz is *{}",
- * 	"input": ["LZfXLFzPPR4NNrgjlWDxn"]
+ * 	"input": [{
+ * 		"id": "LZfXLFzPPR4NNrgjlWDxn",
+ * 		"optional": false
+ * 	}]
  * }
  *
  * @endpoint

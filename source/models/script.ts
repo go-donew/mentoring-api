@@ -35,7 +35,7 @@ export interface ComputedAttribute {
  * @property {array<string>} tags.required - The list of tags to enhance searchability of the script.
  * @property {array<DependentAttribute>} input.required - The list of attributes required to run the script.
  * @property {array<ComputedAttribute>} computed.required - The list of attributes computed and set by this script.
- * @property {string} content.required - The script to run.
+ * @property {string} content.required - The base64 encoded lua code to run.
  */
 export class Script {
 	id: string

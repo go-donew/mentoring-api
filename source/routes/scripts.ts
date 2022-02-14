@@ -77,7 +77,7 @@ endpoint.get(
  * 		"id": "LZfXLFzPPR4NNrgjlWDxn",
  * 		"optional": false
  * 	}],
- * 	"content": "function compute(input)\n\treturn input[\"LZfXLFzPPR4NNrgjlWDxn\"].value\nend"
+ * 	"content": "<base64 encoded script>"
  * }
  *
  * @endpoint

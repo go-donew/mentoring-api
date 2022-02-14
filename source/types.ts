@@ -37,6 +37,7 @@ declare global {
  * GET /ping
  *
  * @summary Check if server is ready to accept connections
+ * @tags internal
  *
  * @returns {string} 200 - A message
  *
@@ -46,6 +47,7 @@ declare global {
  * GET /pong
  *
  * @summary Check if your authentication token is valid
+ * @tags internal
  *
  * @security bearer
  *

@@ -4,7 +4,7 @@
 import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
-import { Report } from '@/models/report'
+import { Report, DependentAttribute } from '@/models/report'
 import { provider as reports } from '@/providers/data/reports'
 import { generateId } from '@/utils'
 
@@ -19,7 +19,7 @@ import { generateId } from '@/utils'
 export type ListOrFindReportsPayload = {
 	name?: string
 	tags?: string[]
-	input?: string[]
+	input?: DependentAttribute[]
 }
 
 /**
@@ -73,14 +73,14 @@ const find = async (
  * @property {string} description.required - The report description.
  * @property {array<string>} tags.required - The list of tags to enhance searchability of the report.
  * @property {string} template.required - The EJS template used to generate the report.
- * @property {array<string>} input.required - The list of attribute IDs required to generate the report.
+ * @property {array<DependentAttribute>} input.required - The list of attribute IDs required to generate the report.
  */
 export type CreateReportPayload = {
 	name: string
 	description: string
 	tags: string[]
 	template: string
-	input: string[]
+	input: DependentAttribute[]
 }
 
 /**
@@ -161,14 +161,14 @@ const get = async (
  * @property {string} description.required - The report description.
  * @property {array<string>} tags.required - The list of tags to enhance searchability of the report.
  * @property {string} template.required - The EJS template used to generate the report.
- * @property {array<string>} input.required - The list of attribute IDs required to generate the report.
+ * @property {array<DependentAttribute>} input.required - The list of attribute IDs required to generate the report.
  */
 export type UpdateReportPayload = {
 	name: string
 	description: string
 	tags: string[]
 	template: string
-	input: string[]
+	input: DependentAttribute[]
 }
 
 /**

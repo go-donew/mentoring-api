@@ -39,6 +39,7 @@
 		"@google-cloud/functions-framework": "2.1.1",
 		"class-transformer": "0.5.1",
 		"cors": "2.8.5",
+		"ejs": "3.1.6",
 		"express": "4.17.2",
 		"express-jsdoc-swagger": "1.6.7",
 		"express-openapi-validator": "4.13.5",
@@ -54,6 +55,7 @@
 		"redent": "4.0.0"
 	},
 	"devDependencies": {
+		"@types/ejs": "3.1.0",
 		"@types/express": "4.17.13",
 		"@types/express-request-id": "1.4.3",
 		"@types/jest": "27.4.0",
@@ -139,5 +141,11 @@
 	},
 	"lint-staged": {
 		"{source,test}/**/*.ts": "xo --fix"
+	},
+	"pnpm": {
+		"overrides": {
+			"node-forge@<1.0.0": ">=1.0.0",
+			"node-fetch@<2.6.7": ">=2.6.7"
+		}
 	}
 }

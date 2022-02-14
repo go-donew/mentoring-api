@@ -7,6 +7,7 @@ import type { Request, Response } from 'express'
 import { permit } from '@/middleware/authorization'
 import { service as users } from '@/services/users'
 import { service as attributes } from '@/services/users/attributes'
+import { service as reports } from '@/services/users/reports'
 
 // Create a router for the endpoint
 const endpoint = createRouter()
@@ -84,7 +85,7 @@ endpoint.get(
  * GET /users/{userId}/attributes
  *
  * @summary List/find a user's attributes
- * @tags attributes - Attribute related endpoints
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -124,7 +125,7 @@ endpoint.get(
  * POST /users/{userId}/attributes
  *
  * @summary Create an attribute for a user
- * @tags attributes - Attribute related endpoints
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -164,8 +165,8 @@ endpoint.post(
 /**
  * GET /users/{userId}/attributes/{attributeId}
  *
- * @summary Retrieve a requested attribute
- * @tags attributes - Attribute related endpoints
+ * @summary Retrieve an attribute for a certain user
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -198,8 +199,8 @@ endpoint.get(
 /**
  * PUT /users/{userId}/attributes/{attributeId}
  *
- * @summary Update a certain attribute
- * @tags attributes - Attribute related endpoints
+ * @summary Update an attribute for a certain user
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -234,8 +235,8 @@ endpoint.put(
 /**
  * DELETE /users/{userId}/attributes/{attributeId}
  *
- * @summary Delete a certain attribute
- * @tags attributes - Attribute related endpoints
+ * @summary Delete an attribute for a certain user
+ * @tags users - User related endpoints
  *
  * @security bearer
  *
@@ -259,6 +260,40 @@ endpoint.delete(
 	}),
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.delete(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status!).send(result.data)
+	}
+)
+
+/**
+ * GET /users/{userId}/reports/{reportId}
+ *
+ * @summary Render a report using the report template for a user
+ * @tags users - User related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} userId.path.required - The ID of the user whose report to return.
+ * @param {string} reportId.path.required - The ID of the report to return.
+ *
+ * @returns {string} 200 - The requested report, as HTML. You must be allowed to view the report to render it.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.get(
+	'/:userId/reports/:reportId',
+	permit({
+		subject: 'report',
+		roles: 'dynamic',
+	}),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await reports.get(request)
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
