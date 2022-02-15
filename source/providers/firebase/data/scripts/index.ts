@@ -1,4 +1,4 @@
-// @/providers/data/script.ts
+// @/providers/firebase/data/script.ts
 // Retrieves, creates, updates and deletes scripts in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'

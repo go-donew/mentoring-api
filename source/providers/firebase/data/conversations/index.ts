@@ -1,4 +1,4 @@
-// @/providers/data/conversation.ts
+// @/providers/firebase/data/conversation.ts
 // Retrieves, creates, updates and deletes conversations in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'

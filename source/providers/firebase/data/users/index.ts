@@ -1,4 +1,4 @@
-// @/providers/data/users.ts
+// @/providers/firebase/data/users.ts
 // Retrieves, creates, updates and deletes users in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'

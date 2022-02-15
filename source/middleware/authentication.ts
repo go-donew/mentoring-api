@@ -4,8 +4,8 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express'
 
 import { ServerError } from '@/errors'
-import { provider as auth } from '@/providers/auth'
-import { provider as users } from '@/providers/data/users'
+import { provider as auth } from '@/providers/firebase/auth'
+import { provider as users } from '@/providers/firebase/data/users'
 import { handleAsyncErrors } from '@/utils'
 
 /**

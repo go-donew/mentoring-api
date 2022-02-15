@@ -5,7 +5,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Attribute } from '@/models/attribute'
-import { provider as attributes } from '@/providers/data/attributes'
+import { provider as attributes } from '@/providers/firebase/data/attributes'
 import { generateId } from '@/utils'
 
 /**

@@ -4,7 +4,7 @@
 import type { Request, RequestHandler, Response, NextFunction } from 'express'
 
 import { ServerError } from '@/errors'
-import { provider as groups } from '@/providers/data/groups'
+import { provider as groups } from '@/providers/firebase/data/groups'
 import { handleAsyncErrors } from '@/utils'
 
 /**

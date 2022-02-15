@@ -1,4 +1,4 @@
-// @/providers/data/group.ts
+// @/providers/firebase/data/group.ts
 // Retrieves, creates, updates and deletes groups in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'

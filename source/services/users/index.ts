@@ -6,7 +6,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 import { ServerError } from '@/errors'
 import { User } from '@/models/user'
 import { service as auth } from '@/services/auth'
-import { provider as users } from '@/providers/data/users'
+import { provider as users } from '@/providers/firebase/data/users'
 
 /**
  * The payload needed to make a request to list/find for users.

@@ -1,4 +1,4 @@
-// @/loaders/firebase/index.ts
+// @/providers/firebase/init/index.ts
 // Loader that initializes the Firebase Admin SDK.
 
 import process from 'node:process'

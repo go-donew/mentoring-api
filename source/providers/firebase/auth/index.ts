@@ -1,4 +1,4 @@
-// @/providers/auth.ts
+// @/providers/firebase/auth.ts
 // Firebase auth provider.
 
 import process from 'node:process'

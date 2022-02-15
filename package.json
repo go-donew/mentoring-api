@@ -7,8 +7,8 @@
 		"url": "https://github.com/gamemaker1"
 	},
 	"license": "ISC",
-	"main": "./dist/index.js",
-	"exports": "./dist/index.js",
+	"main": "./build/index.js",
+	"exports": "./build/index.js",
 	"type": "module",
 	"files": [
 		"build",
@@ -19,7 +19,7 @@
 		"readme.md"
 	],
 	"scripts": {
-		"clean": "del-cli dist/ coverage/ test-export/ *.log",
+		"clean": "del-cli build/ coverage/ test-export/ *.log",
 		"build": "tsup",
 		"watch": "tsup --watch",
 		"format": "xo --fix source/**/*.ts",
@@ -78,13 +78,14 @@
 	},
 	"tsup": {
 		"entry": [
-			"source/index.ts"
+			"source/providers/firebase/init/startup/index.ts"
 		],
 		"format": [
 			"esm"
 		],
 		"target": "esnext",
-		"tsconfig": "config/tsconfig.json"
+		"tsconfig": "config/tsconfig.json",
+		"outDir": "build/"
 	},
 	"xo": {
 		"prettier": true,

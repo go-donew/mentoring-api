@@ -5,8 +5,8 @@ import type { ServiceRequest, ServiceResponse, Tokens } from '@/types'
 
 import { ServerError } from '@/errors'
 import { User } from '@/models/user'
-import { provider as users } from '@/providers/data/users'
-import { provider as auth } from '@/providers/auth'
+import { provider as users } from '@/providers/firebase/data/users'
+import { provider as auth } from '@/providers/firebase/auth'
 
 /**
  * The payload needed to make a request to sign up a user.

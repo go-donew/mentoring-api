@@ -1,4 +1,4 @@
-// @/providers/data/question.ts
+// @/providers/firebase/data/question.ts
 // Retrieves, creates, updates and deletes questions in Firebase.
 
 import type { FirebaseError } from 'firebase-admin'

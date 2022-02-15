@@ -3,7 +3,7 @@
 
 import type { Application } from 'express'
 
-import { load as loadFirebase } from '@/loaders/firebase'
+import { load as loadProvider } from '@/loaders/provider'
 import { load as loadMiddleware } from '@/loaders/express/middleware'
 import { load as loadDocumentation } from '@/loaders/express/docs'
 import { load as loadRoutes } from '@/loaders/express/routes'
@@ -15,8 +15,8 @@ import { load as loadRoutes } from '@/loaders/express/routes'
  * @param {Application} app - The Express application instance.
  */
 export const load = async (app: Application): Promise<void> => {
-	// Initialize the Firebase Admin SDK
-	await loadFirebase(app)
+	// Initialize the data and auth provider
+	await loadProvider(app)
 	// Register Express middleware
 	await loadMiddleware(app)
 	// Generate the documentation
