@@ -9,8 +9,8 @@ import { UserAttribute } from '@/models/attribute'
 import { provider as scripts } from '@/providers/firebase/data/scripts'
 import { provider as users } from '@/providers/firebase/data/users'
 import { provider as attributes } from '@/providers/firebase/data/users/attributes'
-import { generateId } from '@/utils'
-import { runLua } from '@/utils/lua'
+import { generateId } from '@/utilities'
+import { runLua } from '@/utilities/lua'
 import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 /**

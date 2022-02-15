@@ -5,9 +5,11 @@ import process from 'node:process'
 
 import { getAuth } from 'firebase-admin/auth'
 import fetch from 'got'
+
 import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
 
 import { ServerError } from '@/errors'
+import { logger, stringify } from '@/utilities/logger'
 
 // The auth endpoint to sign in/up users
 const signInUpEndpoint =
@@ -22,7 +24,9 @@ const tokenExchangeEndpoint =
 		: `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST!}/securetoken.googleapis.com/v1`
 // The API key to use while making calls to the above endpoints
 const apiKey =
-	process.env.NODE_ENV === 'production' ? process.env.FIREBASE_API_KEY! : 'fake-key'
+	process.env.NODE_ENV === 'production'
+		? process.env.FIREBASE_API_KEY!
+		: 'the-answer-to-life-the-universe-and-everything:42'
 
 /**
  * The response to expect from the auth endpoints.
@@ -64,10 +68,13 @@ export class FirebaseAuthProvider implements AuthProvider {
 		email: string,
 		password: string
 	): Promise<{ userId: string; tokens: Tokens }> {
+		logger.info('signing user up')
+
 		// Make a manual REST API call to sign up the user
 		let body: FirebaseAuthApiResponse
 		try {
 			// Sign up the user via email and password
+			logger.silly('making api call to sign up')
 			body = await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:signUp`,
@@ -80,8 +87,10 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
+			logger.silly('received succesful response from endpoint')
 
 			// Also set their display name
+			logger.silly('making api call to set display name')
 			await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:update`,
@@ -94,11 +103,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
+			logger.silly('received sucessful response from endpoint')
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(error)
+			logger.silly('received error while signing user up - %s', stringify(error))
 
 			if ((error.message as string).startsWith('EMAIL_EXISTS'))
 				throw new ServerError(
@@ -126,6 +136,8 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
 
+		logger.info('successfully signed user up')
+
 		// Return them all
 		return {
 			userId: body.localId,
@@ -151,9 +163,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 		userId: string
 		tokens: Tokens
 	}> {
+		logger.info('signing user in')
+
 		// Make a manual REST API call to sign the user in
 		let body: FirebaseAuthApiResponse
 		try {
+			logger.silly('making api call to sign in')
 			body = await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:signInWithPassword`,
@@ -166,11 +181,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
+			logger.silly('received sucessful response from endpoint')
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(error)
+			logger.silly('received error while signing in - %s', stringify(error))
 
 			if ((error.message as string).startsWith('EMAIL_NOT_FOUND'))
 				throw new ServerError(
@@ -191,6 +207,8 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// bearer token once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
 
+		logger.info('successfully signed user in')
+
 		// Return them all
 		return {
 			userId: body.localId,
@@ -209,9 +227,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async refreshTokens(refreshToken: string): Promise<Tokens> {
+		logger.info('refreshing user tokens')
+
 		// Make a manual REST API call to refresh the token
 		let body: FirebaseTokenApiResponse
 		try {
+			logger.silly('making api call to refresh token')
 			body = await fetch({
 				method: 'post',
 				url: `${tokenExchangeEndpoint}/token`,
@@ -223,11 +244,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
+			logger.silly('received sucessful response from endpoint')
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			console.trace(error)
+			logger.silly('received error while refreshing tokens - %s', stringify(error))
 
 			if ((error.message as string).startsWith('INVALID_REFRESH_TOKEN'))
 				throw new ServerError(
@@ -242,6 +264,8 @@ export class FirebaseAuthProvider implements AuthProvider {
 
 			throw new ServerError('backend-error')
 		}
+
+		logger.info('successfully refreshed user tokens')
 
 		// Return the 'rejuvenated' tokens
 		return {
@@ -261,11 +285,15 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async verifyToken(token: string): Promise<DecodedToken> {
+		logger.info('verifying user token')
 		// Verify and decode the bearer token
 		try {
-			return await getAuth().verifyIdToken(token, true)
+			const decodedToken = await getAuth().verifyIdToken(token, true)
+
+			logger.info('successfully decoded and verified user token')
+			return decodedToken
 		} catch (error: unknown) {
-			console.trace(error)
+			logger.silly('received error while verifying auth token - %s', stringify(error))
 
 			throw new ServerError('invalid-token')
 		}
@@ -282,14 +310,18 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async retrieveClaims(userId: string): Promise<CustomClaims> {
+		logger.info('retrieving claims for user %s', userId)
+
 		let user
 		try {
 			user = await getAuth().getUser(userId)
 		} catch (error: unknown) {
-			console.trace(error)
+			logger.silly('received error while retrieving user claims - %s', stringify(error))
 
 			throw new ServerError('backend-error')
 		}
+
+		logger.info('successfully retrieved user claims')
 
 		return user.customClaims as CustomClaims
 	}

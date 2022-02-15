@@ -1,4 +1,4 @@
-// @/utils/index.ts
+// @/utilities/index.ts
 // Utility functions that are used in multiple places.
 
 import type { Request, Response, NextFunction, RequestHandler } from 'express'

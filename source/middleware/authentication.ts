@@ -6,7 +6,8 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import { ServerError } from '@/errors'
 import { provider as auth } from '@/providers/firebase/auth'
 import { provider as users } from '@/providers/firebase/data/users'
-import { handleAsyncErrors } from '@/utils'
+import { handleAsyncErrors } from '@/utilities'
+import { logger } from '@/utilities/logger'
 
 /**
  * Ensure that users accessing the API are authenticated, except for
@@ -27,6 +28,8 @@ import { handleAsyncErrors } from '@/utils'
 export const authenticateRequests = (): RequestHandler =>
 	handleAsyncErrors(
 		async (request: Request, _response: Response, next: NextFunction): Promise<void> => {
+			logger.info('authenticating user')
+
 			// Don't do anything for docs and auth related routes. Also disable auth
 			// for the `/ping` route, but not `/pong` - useful for tests!
 			if (
@@ -34,6 +37,8 @@ export const authenticateRequests = (): RequestHandler =>
 				request.url.startsWith('/auth') ||
 				request.url.startsWith('/docs')
 			) {
+				logger.info('skipping authentication on request', request.url)
+
 				next()
 				return
 			}
@@ -42,6 +47,8 @@ export const authenticateRequests = (): RequestHandler =>
 			let token = request.headers.authorization
 			// If there is nothing in either header, throw an error
 			if (typeof token !== 'string') {
+				logger.silly('found non-string token in authorization header')
+
 				next(new ServerError('invalid-token'))
 				return
 			}
@@ -50,12 +57,18 @@ export const authenticateRequests = (): RequestHandler =>
 			// access token
 			token = token.replace(/bearer/i, '').trim()
 
+			logger.silly('found token in auth header')
+
 			// Fetch the user's details from the database and store the user in the
 			// request object, so the request handlers know who is making the request
 			try {
+				logger.silly('verifying token, retrieving user data')
+
 				const tokenData = await auth.verifyToken(token)
 				const user = await users.get(tokenData.sub)
 				const claims = await auth.retrieveClaims(user.id)
+
+				logger.silly('sucessfully verified token and retrieved user data')
 
 				request.user = {
 					...user,
@@ -63,9 +76,13 @@ export const authenticateRequests = (): RequestHandler =>
 					token,
 				}
 			} catch (error: unknown) {
+				logger.warn('error while verifying token', error)
+
 				next(error)
 				return
 			}
+
+			logger.info('sucessfully authenticated user %s', request.user.id)
 
 			// We are good to go!
 			next()

@@ -10,7 +10,9 @@ import addRequestId from 'express-request-id'
 import rateLimitRequests from 'express-rate-limit'
 
 import { authenticateRequests } from '@/middleware/authentication'
+import { logRequests } from '@/middleware/logger'
 import { ServerError, ErrorCode } from '@/errors'
+import { logger, stringify } from '@/utilities/logger'
 
 /**
  * Registers middleware with the express application instance passed.
@@ -27,6 +29,8 @@ export const load = async (app: Application): Promise<void> => {
 	app.use((_request: Request, response: Response, next: NextFunction): void => {
 		response.sendError = (error: ErrorCode | ServerError) => {
 			const serverError = typeof error === 'string' ? new ServerError(error) : error
+
+			logger.http('sending error - %s', stringify(serverError))
 			response.status(serverError.status).send({
 				error: serverError,
 			})
@@ -35,6 +39,8 @@ export const load = async (app: Application): Promise<void> => {
 		next()
 	})
 
+	// Log all requests
+	app.use(logRequests())
 	// Register body-parsing middleware
 	app.use(parseJson())
 	// Make our responses secure using the `helmet` library
@@ -66,7 +72,8 @@ export const load = async (app: Application): Promise<void> => {
 					? 500
 					: 50,
 			// Send a `too-many-requests` error when you have exceeded the limit
-			handler: (_request: Request, response: Response) => {
+			handler(request: Request, response: Response) {
+				logger.http('rate limited request %s', stringify(request.user))
 				response.sendError('too-many-requests')
 			},
 			// Use the IP address of the client as the key

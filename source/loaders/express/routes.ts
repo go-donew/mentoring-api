@@ -11,6 +11,7 @@ import { endpoint as conversations } from '@/routes/conversations'
 import { endpoint as reports } from '@/routes/reports'
 import { endpoint as scripts } from '@/routes/scripts'
 import { ServerError } from '@/errors'
+import { logger, stringify } from '@/utilities/logger'
 
 /**
  * Registers API endpoint handlers with the express application instance passed.
@@ -44,6 +45,8 @@ export const load = async (app: Application): Promise<void> => {
 	// Handle any other errors that are thrown
 	app.use(
 		(caughtError: Error, _request: Request, response: Response, _next: NextFunction) => {
+			logger.silly('handling error - %s', stringify(caughtError))
+
 			if (caughtError instanceof ServerError) {
 				// We threw this error, so pass it on
 				response.sendError(caughtError)
@@ -66,7 +69,8 @@ export const load = async (app: Application): Promise<void> => {
 				response.sendError(new ServerError('route-not-found'))
 			} else {
 				// We crashed :/
-				console.trace('Unexpected error:', caughtError)
+				logger.error('server crashed due to error - %j', caughtError)
+
 				response.sendError('server-crash')
 			}
 		}

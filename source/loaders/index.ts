@@ -7,6 +7,7 @@ import { load as loadProvider } from '@/loaders/provider'
 import { load as loadMiddleware } from '@/loaders/express/middleware'
 import { load as loadDocumentation } from '@/loaders/express/docs'
 import { load as loadRoutes } from '@/loaders/express/routes'
+import { logger } from '@/utilities/logger'
 
 /**
  * Calls all the loaders in this directory one by one, and passes the epxress
@@ -15,6 +16,8 @@ import { load as loadRoutes } from '@/loaders/express/routes'
  * @param {Application} app - The Express application instance.
  */
 export const load = async (app: Application): Promise<void> => {
+	logger.info('running loaders')
+
 	// Initialize the data and auth provider
 	await loadProvider(app)
 	// Register Express middleware
@@ -23,4 +26,6 @@ export const load = async (app: Application): Promise<void> => {
 	await loadDocumentation(app)
 	// Register API endpoints
 	await loadRoutes(app)
+
+	logger.info('all loaders ran without errors')
 }

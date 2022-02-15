@@ -1,4 +1,4 @@
-// @/utils/lua/index.ts
+// @/utilities/lua/index.ts
 // Helper functions to run lua scripts.
 
 // @ts-expect-error No type defs

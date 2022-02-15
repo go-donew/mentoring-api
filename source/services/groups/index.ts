@@ -6,7 +6,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 import { ServerError } from '@/errors'
 import { Group, ParticipantList, ConversationList, ReportList } from '@/models/group'
 import { provider as groups } from '@/providers/firebase/data/groups'
-import { generateId } from '@/utils'
+import { generateId } from '@/utilities'
 
 /**
  * The payload needed to make a request to list/find for groups.

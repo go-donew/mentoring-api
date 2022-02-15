@@ -25,11 +25,13 @@
 		"format": "xo --fix source/**/*.ts",
 		"lint": "xo source/**/*.ts",
 		"test:tsc": "tsc --project config/tsconfig.json",
-		"test:lib": "firebase emulators:exec --project today-api --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=\"config/tsconfig.json\" NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand\"",
-		"start": "firebase emulators:start --project today-api",
+		"test:lib": "firebase emulators:exec --project mentoring-api --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=config/tsconfig.json FORCE_COLOR=2 NODE_OPTIONS=--experimental-vm-modules jest --runInBand\"",
+		"start": "cross-env FORCE_COLOR=2 pnpm firebase emulators:start --project mentoring-api",
+		"develop": "run-p watch start",
 		"compile": "run-s clean build",
 		"test": "run-s compile lint test:*",
-		"prepare": "run-s compile && husky install config/husky"
+		"patch": "patch --forward node_modules/firebase-tools/lib/emulator/functionsEmulator.js patches/firebase-tools@10.2.0:verbosity.patch || true",
+		"prepare": "run-s patch compile && husky install config/husky"
 	},
 	"engines": {
 		"node": "16",
@@ -37,6 +39,7 @@
 	},
 	"dependencies": {
 		"@google-cloud/functions-framework": "2.1.1",
+		"chalk": "5.0.0",
 		"class-transformer": "0.5.1",
 		"cors": "2.8.5",
 		"ejs": "3.1.6",
@@ -52,7 +55,8 @@
 		"got": "12.0.1",
 		"helmet": "5.0.2",
 		"nanoid": "3.2.0",
-		"redent": "4.0.0"
+		"redent": "4.0.0",
+		"winston": "3.6.0"
 	},
 	"devDependencies": {
 		"@types/ejs": "3.1.0",

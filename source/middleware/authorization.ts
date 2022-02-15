@@ -5,7 +5,8 @@ import type { Request, RequestHandler, Response, NextFunction } from 'express'
 
 import { ServerError } from '@/errors'
 import { provider as groups } from '@/providers/firebase/data/groups'
-import { handleAsyncErrors } from '@/utils'
+import { handleAsyncErrors } from '@/utilities'
+import { logger, stringify } from '@/utilities/logger'
 
 /**
  * The context in which a request is to be allowed to pass. The `subject` indicates
@@ -46,23 +47,33 @@ export type AuthorizationContext =
 export const permit = (context: AuthorizationContext): RequestHandler =>
 	handleAsyncErrors(
 		async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+			logger.info('authorizing user')
+
 			// Make sure the user exists
 			if (!request.user) {
+				logger.warn('an unauthenticated user cannot be authorized')
+
 				throw new ServerError('invalid-token')
 			}
 
 			// Retrieve the user's custom claims and check if groot is present and
 			// set to true
 			if (request.user.isGroot) {
+				logger.info('successfully authorized groot')
+
 				// If so, let them access any endpoint
 				next()
 				return
 			}
 
+			logger.silly('parsing authorization context - %s', stringify(context))
+
 			// In this context, only groot can access the endpoint
 			if (context === 'groot') {
 				// If the client is groot, then we have already let them through in the
 				// previous check
+				logger.info('user is not authorized as they are not groot')
+
 				response.sendError('not-allowed')
 				return
 			}
@@ -75,6 +86,10 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 				for (const role of context.roles) {
 					if (role === 'self') {
 						if (request.params.userId === request.user.id) {
+							logger.info(
+								'authorized user as they are accessing information about themselves'
+							)
+
 							next()
 							return
 						}
@@ -102,12 +117,15 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 					if (
 						foundGroups.some((group) => group.participants[request.user!.id] === role)
 					) {
+						logger.info('authorized user as they are %s of the user in a group', role)
+
 						next()
 						return
 					}
 				}
 
 				// If the client matches none of the above roles, return a 403
+				logger.info('user is unauthorized to access the requested user data')
 				response.sendError('not-allowed')
 				return
 			}
@@ -129,18 +147,28 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 						role === 'participant' && // The client just needs to be part of the group
 						Object.keys(group.participants).includes(request.user.id)
 					) {
+						logger.info(
+							'authorized user as they are a participant in the group being accessed/modified'
+						)
+
 						next()
 						return
 					}
 
 					// Else the client needs to be a <role> in the group
 					if (group.participants[request.user.id] === role) {
+						logger.info(
+							'authorized user as they are a %s in the group being accessed/modified',
+							role
+						)
+
 						next()
 						return
 					}
 				}
 
 				// If the client matches none of the above roles, return a 403
+				logger.info('user is unauthorized to access the requested group data')
 				response.sendError('not-allowed')
 				return
 			}
@@ -172,11 +200,16 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 						)
 					)
 				) {
+					logger.info(
+						'user is authorized as they are in a group that is allowed to take the conversation'
+					)
+
 					next()
 					return
 				}
 
 				// If the client matches none of the above roles, return a 403
+				logger.info('user is unauthorized to access conversation data')
 				response.sendError('not-allowed')
 				return
 			}
@@ -213,17 +246,22 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 						)
 					)
 				) {
+					logger.info(
+						'user is authorized as they are a in a group that is allowed to view the report'
+					)
 					next()
 					return
 				}
 
 				// If the client matches none of the above roles, return a 403
+				logger.info('user is unauthorized to access report data')
 				response.sendError('not-allowed')
 				return
 			}
 
 			// To be safe, if somehow none of the above conditions match, err on the
 			// side of safety/caution and return a 403
+			logger.warn('user is unauthorized as no context matched')
 			response.sendError('not-allowed')
 		}
 	)

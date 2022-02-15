@@ -8,7 +8,7 @@ import { Question, Option } from '@/models/question'
 import { UserAttribute } from '@/models/attribute'
 import { provider as questions } from '@/providers/firebase/data/conversations/questions'
 import { provider as attributes } from '@/providers/firebase/data/users/attributes'
-import { generateId } from '@/utils'
+import { generateId } from '@/utilities'
 
 /**
  * The payload needed to make a request to list/find for questions.

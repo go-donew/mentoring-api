@@ -10,6 +10,8 @@ import { static as serve } from 'express'
 import { middleware as validate } from 'express-openapi-validator'
 import generateOpenApiSpec from 'express-jsdoc-swagger'
 
+import { logger } from '@/utilities/logger'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 /**
@@ -61,10 +63,15 @@ const config = {
  * @param {Application} app - The Express application instance.
  */
 export const load = async (app: Application): Promise<void> => {
+	logger.silly('generating open api spec with config', config)
+
 	// Generate the documentation
 	const spec = await new Promise((resolve) => {
 		generateOpenApiSpec(app)(config).on('finish', resolve).on('error', console.error)
 	})
+
+	logger.silly('spec generated successfully', spec)
+
 	// Render documentation using Elements
 	app.use(
 		'/docs',

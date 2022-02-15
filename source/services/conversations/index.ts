@@ -7,7 +7,7 @@ import { ServerError } from '@/errors'
 import { Conversation } from '@/models/conversation'
 import { provider as conversations } from '@/providers/firebase/data/conversations'
 import { provider as questions } from '@/providers/firebase/data/conversations/questions'
-import { generateId } from '@/utils'
+import { generateId } from '@/utilities'
 
 /**
  * The payload needed to make a request to list/find for conversations.
