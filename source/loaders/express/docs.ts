@@ -27,7 +27,7 @@ const config = {
 	},
 	servers: [
 		{
-			url: 'http://today.godonew.com',
+			url: 'http://mentoring.godonew.com/api',
 			description: 'Public facing API server',
 		},
 		{
