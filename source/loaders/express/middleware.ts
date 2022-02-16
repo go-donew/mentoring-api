@@ -30,7 +30,7 @@ export const load = async (app: Application): Promise<void> => {
 		response.sendError = (error: ErrorCode | ServerError) => {
 			const serverError = typeof error === 'string' ? new ServerError(error) : error
 
-			logger.http('sending error - %s', stringify(serverError))
+			logger.http('[http/response] sending error - %s', stringify(serverError))
 			response.status(serverError.status).send({
 				error: serverError,
 			})
@@ -73,7 +73,7 @@ export const load = async (app: Application): Promise<void> => {
 					: 50,
 			// Send a `too-many-requests` error when you have exceeded the limit
 			handler(request: Request, response: Response) {
-				logger.http('rate limited request %s', stringify(request.user))
+				logger.http('[http/request] rate limited request %s', stringify(request.user))
 				response.sendError('too-many-requests')
 			},
 			// Use the IP address of the client as the key

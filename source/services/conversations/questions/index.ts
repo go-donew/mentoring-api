@@ -6,8 +6,8 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 import { ServerError } from '@/errors'
 import { Question, Option } from '@/models/question'
 import { UserAttribute } from '@/models/attribute'
-import { provider as questions } from '@/providers/firebase/data/conversations/questions'
-import { provider as attributes } from '@/providers/firebase/data/users/attributes'
+import { provider as questions } from '@/provider/data/conversations/questions'
+import { provider as attributes } from '@/provider/data/users/attributes'
 import { generateId } from '@/utilities'
 
 /**

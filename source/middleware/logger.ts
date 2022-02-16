@@ -16,7 +16,7 @@ export const logRequests =
 		// Log the received request
 		const requestTimestamp = Date.now()
 		logger.http(
-			'received request from %s - %s %s (%s)',
+			'[http/request] received request from %s - %s %s (%s)',
 			request.headers['x-forwarded-for'] ??
 				request.connection.remoteAddress ??
 				request.headers['fastly-client-ip'] ??
@@ -30,7 +30,7 @@ export const logRequests =
 		response.on('finish', () => {
 			const responseTimestamp = Date.now()
 			logger.http(
-				'returned %d in %d ms',
+				'[http/response] returned %d in %d ms',
 				response.statusCode,
 				responseTimestamp - requestTimestamp
 			)

@@ -1,4 +1,4 @@
-// @/providers/firebase/data/report.ts
+// @/provider/data/report.ts
 // Retrieves, creates, updates and deletes reports in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'

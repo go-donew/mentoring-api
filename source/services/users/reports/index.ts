@@ -7,10 +7,10 @@ import type { ServiceRequest, ServiceResponse } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Attribute } from '@/models/attribute'
-import { provider as users } from '@/providers/firebase/data/users'
-import { provider as attributes } from '@/providers/firebase/data/attributes'
-import { provider as userAttributes } from '@/providers/firebase/data/users/attributes'
-import { provider as reports } from '@/providers/firebase/data/reports'
+import { provider as users } from '@/provider/data/users'
+import { provider as attributes } from '@/provider/data/attributes'
+import { provider as userAttributes } from '@/provider/data/users/attributes'
+import { provider as reports } from '@/provider/data/reports'
 
 /**
  * The HTML report rendered by the retrieve report endpoint.

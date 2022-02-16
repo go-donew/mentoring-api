@@ -45,7 +45,7 @@ export const load = async (app: Application): Promise<void> => {
 	// Handle any other errors that are thrown
 	app.use(
 		(caughtError: Error, _request: Request, response: Response, _next: NextFunction) => {
-			logger.silly('handling error - %s', stringify(caughtError))
+			logger.silly('[http/response] handling error - %s', stringify(caughtError))
 
 			if (caughtError instanceof ServerError) {
 				// We threw this error, so pass it on

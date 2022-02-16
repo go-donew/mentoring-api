@@ -21,7 +21,7 @@ const colors = {
 	warn: 'yellow',
 	info: 'green',
 	http: 'cyan',
-	silly: 'magenta',
+	silly: 'grey',
 }
 // Tell winston about these colors
 addColors(colors)
@@ -48,5 +48,5 @@ export const logger = createLogger({
 export const stringify = (object: any): string => {
 	return typeof object === 'undefined'
 		? ''
-		: `\n${redent(json.stringify(object, undefined, 2), 2)}`
+		: `\n${chalk.dim(redent(json.stringify(object, undefined, 2), 2))}`
 }

@@ -25,7 +25,7 @@
 		"format": "xo --fix source/**/*.ts",
 		"lint": "xo source/**/*.ts",
 		"test:tsc": "tsc --project config/tsconfig.json",
-		"test:lib": "firebase emulators:exec --project mentoring-api --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=config/tsconfig.json FORCE_COLOR=2 NODE_OPTIONS=--experimental-vm-modules jest --runInBand\"",
+		"test:lib": "cross-env FORCE_COLOR=2 pnpm firebase emulators:exec --project mentoring-api --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=config/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest --runInBand\"",
 		"start": "cross-env FORCE_COLOR=2 pnpm firebase emulators:start --project mentoring-api",
 		"develop": "run-p watch start",
 		"compile": "run-s clean build",
@@ -82,7 +82,7 @@
 	},
 	"tsup": {
 		"entry": [
-			"source/providers/firebase/init/startup/index.ts"
+			"source/provider/init/startup/index.ts"
 		],
 		"format": [
 			"esm"

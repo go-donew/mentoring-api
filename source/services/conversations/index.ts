@@ -5,8 +5,8 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Conversation } from '@/models/conversation'
-import { provider as conversations } from '@/providers/firebase/data/conversations'
-import { provider as questions } from '@/providers/firebase/data/conversations/questions'
+import { provider as conversations } from '@/provider/data/conversations'
+import { provider as questions } from '@/provider/data/conversations/questions'
 import { generateId } from '@/utilities'
 
 /**

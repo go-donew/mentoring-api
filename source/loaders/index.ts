@@ -16,7 +16,7 @@ import { logger } from '@/utilities/logger'
  * @param {Application} app - The Express application instance.
  */
 export const load = async (app: Application): Promise<void> => {
-	logger.info('running loaders')
+	logger.info(' [loaders] running loaders')
 
 	// Initialize the data and auth provider
 	await loadProvider(app)
@@ -27,5 +27,5 @@ export const load = async (app: Application): Promise<void> => {
 	// Register API endpoints
 	await loadRoutes(app)
 
-	logger.info('all loaders ran without errors')
+	logger.info('[loaders] all loaders succeeded')
 }

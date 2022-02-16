@@ -1,4 +1,4 @@
-// @/providers/firebase/init/startup.ts
+// @/provider/init/startup.ts
 // Exports the server so it can be accessed by Firebase Functions.
 
 import { https } from 'firebase-functions'

@@ -1,4 +1,4 @@
-// @/providers/firebase/auth.ts
+// @/provider/auth.ts
 // Firebase auth provider.
 
 import process from 'node:process'
@@ -68,13 +68,13 @@ export class FirebaseAuthProvider implements AuthProvider {
 		email: string,
 		password: string
 	): Promise<{ userId: string; tokens: Tokens }> {
-		logger.info('signing user up')
+		logger.info('[firebase/auth/signup] signing user up')
 
 		// Make a manual REST API call to sign up the user
 		let body: FirebaseAuthApiResponse
 		try {
 			// Sign up the user via email and password
-			logger.silly('making api call to sign up')
+			logger.silly('[firebase/auth/signup] making api call to sign up')
 			body = await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:signUp`,
@@ -87,10 +87,10 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
-			logger.silly('received succesful response from endpoint')
+			logger.silly('[firebase/auth/signup] received succesful response from endpoint')
 
 			// Also set their display name
-			logger.silly('making api call to set display name')
+			logger.silly('[firebase/auth/signup] making api call to set display name')
 			await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:update`,
@@ -103,12 +103,15 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
-			logger.silly('received sucessful response from endpoint')
+			logger.silly('[firebase/auth/signup] received sucessful response from endpoint')
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			logger.silly('received error while signing user up - %s', stringify(error))
+			logger.silly(
+				'[firebase/auth/signup] received error while signing user up - %s',
+				stringify(error)
+			)
 
 			if ((error.message as string).startsWith('EMAIL_EXISTS'))
 				throw new ServerError(
@@ -136,7 +139,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
 
-		logger.info('successfully signed user up')
+		logger.info('[firebase/auth/signup] successfully signed user up')
 
 		// Return them all
 		return {
@@ -163,12 +166,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 		userId: string
 		tokens: Tokens
 	}> {
-		logger.info('signing user in')
+		logger.info('[firebase/auth/signin] signing user in')
 
 		// Make a manual REST API call to sign the user in
 		let body: FirebaseAuthApiResponse
 		try {
-			logger.silly('making api call to sign in')
+			logger.silly('[firebase/auth/signin] making api call to sign in')
 			body = await fetch({
 				method: 'post',
 				url: `${signInUpEndpoint}/accounts:signInWithPassword`,
@@ -181,12 +184,15 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
-			logger.silly('received sucessful response from endpoint')
+			logger.silly('[firebase/auth/signin] received sucessful response from endpoint')
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			logger.silly('received error while signing in - %s', stringify(error))
+			logger.silly(
+				'[firebase/auth/signin] received error while signing in - %s',
+				stringify(error)
+			)
 
 			if ((error.message as string).startsWith('EMAIL_NOT_FOUND'))
 				throw new ServerError(
@@ -207,7 +213,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		// bearer token once the current one expires
 		const { refreshToken: refresh, idToken: bearer } = body
 
-		logger.info('successfully signed user in')
+		logger.info('[firebase/auth/signin] successfully signed user in')
 
 		// Return them all
 		return {
@@ -227,12 +233,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async refreshTokens(refreshToken: string): Promise<Tokens> {
-		logger.info('refreshing user tokens')
+		logger.info('[firebase/auth/token-refresh] refreshing user tokens')
 
 		// Make a manual REST API call to refresh the token
 		let body: FirebaseTokenApiResponse
 		try {
-			logger.silly('making api call to refresh token')
+			logger.silly('[firebase/auth/token-refresh] making api call to refresh token')
 			body = await fetch({
 				method: 'post',
 				url: `${tokenExchangeEndpoint}/token`,
@@ -244,12 +250,17 @@ export class FirebaseAuthProvider implements AuthProvider {
 					key: apiKey,
 				},
 			}).json()
-			logger.silly('received sucessful response from endpoint')
+			logger.silly(
+				'[firebase/auth/token-refresh] received sucessful response from endpoint'
+			)
 		} catch (caughtError: unknown) {
 			const { error } = JSON.parse(
 				(caughtError as any).response?.body ?? '{"error": {"message": ""}}'
 			)
-			logger.silly('received error while refreshing tokens - %s', stringify(error))
+			logger.silly(
+				'[firebase/auth/token-refresh] received error while refreshing tokens - %s',
+				stringify(error)
+			)
 
 			if ((error.message as string).startsWith('INVALID_REFRESH_TOKEN'))
 				throw new ServerError(
@@ -265,7 +276,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 			throw new ServerError('backend-error')
 		}
 
-		logger.info('successfully refreshed user tokens')
+		logger.info('[firebase/auth/token-refresh] successfully refreshed user tokens')
 
 		// Return the 'rejuvenated' tokens
 		return {
@@ -285,15 +296,20 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async verifyToken(token: string): Promise<DecodedToken> {
-		logger.info('verifying user token')
+		logger.info('[firebase/auth/token-verify] verifying user token')
 		// Verify and decode the bearer token
 		try {
 			const decodedToken = await getAuth().verifyIdToken(token, true)
 
-			logger.info('successfully decoded and verified user token')
+			logger.info(
+				'[firebase/auth/token-verify] successfully decoded and verified user token'
+			)
 			return decodedToken
 		} catch (error: unknown) {
-			logger.silly('received error while verifying auth token - %s', stringify(error))
+			logger.silly(
+				'[firebase/auth/token-verify] received error while verifying auth token - %s',
+				stringify(error)
+			)
 
 			throw new ServerError('invalid-token')
 		}
@@ -310,18 +326,21 @@ export class FirebaseAuthProvider implements AuthProvider {
 	 * @async
 	 */
 	async retrieveClaims(userId: string): Promise<CustomClaims> {
-		logger.info('retrieving claims for user %s', userId)
+		logger.info('[firebase/auth/claims] retrieving claims for user %s', userId)
 
 		let user
 		try {
 			user = await getAuth().getUser(userId)
 		} catch (error: unknown) {
-			logger.silly('received error while retrieving user claims - %s', stringify(error))
+			logger.silly(
+				'[firebase/auth/claims] received error while retrieving user claims - %s',
+				stringify(error)
+			)
 
 			throw new ServerError('backend-error')
 		}
 
-		logger.info('successfully retrieved user claims')
+		logger.info('[firebase/auth/claims] successfully retrieved user claims')
 
 		return user.customClaims as CustomClaims
 	}

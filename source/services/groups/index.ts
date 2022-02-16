@@ -5,7 +5,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Group, ParticipantList, ConversationList, ReportList } from '@/models/group'
-import { provider as groups } from '@/providers/firebase/data/groups'
+import { provider as groups } from '@/provider/data/groups'
 import { generateId } from '@/utilities'
 
 /**

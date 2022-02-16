@@ -5,7 +5,7 @@ import type { ServiceRequest, ServiceResponse } from '@/types'
 
 import { ServerError } from '@/errors'
 import { UserAttribute, BlamedMessage } from '@/models/attribute'
-import { provider as attributes } from '@/providers/firebase/data/users/attributes'
+import { provider as attributes } from '@/provider/data/users/attributes'
 
 /**
  * The payload needed to make a request to list/find a user's attributes.

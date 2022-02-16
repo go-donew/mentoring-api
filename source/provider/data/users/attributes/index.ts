@@ -1,4 +1,4 @@
-// @/providers/firebase/data/attributes.ts
+// @/provider/data/attributes.ts
 // Retrieves, creates, updates and deletes a user's attributes in Firebase.
 
 import { getFirestore } from 'firebase-admin/firestore'
