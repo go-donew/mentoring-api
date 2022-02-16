@@ -6,7 +6,7 @@
 	"hosting": {
 		"rewrites": [
 			{
-				"source": "**",
+				"source": "/api/**",
 				"function": "app"
 			}
 		]

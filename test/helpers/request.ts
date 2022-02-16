@@ -9,7 +9,7 @@ import { ServerError } from '../../source/errors'
  * A `got` instance with the prefixUrl set to the Firebase Hosting Emulator URL.
  */
 const _fetch = got.extend({
-	prefixUrl: 'http://localhost:5000',
+	prefixUrl: 'http://localhost:5000/api',
 })
 
 /**

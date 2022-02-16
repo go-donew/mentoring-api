@@ -33,9 +33,9 @@ export const authenticateRequests = (): RequestHandler =>
 			// Don't do anything for docs and auth related routes. Also disable auth
 			// for the `/ping` route, but not `/pong` - useful for tests!
 			if (
-				request.url.startsWith('/ping') ||
-				request.url.startsWith('/auth') ||
-				request.url.startsWith('/docs')
+				request.url.startsWith('/api/ping') ||
+				request.url.startsWith('/api/auth') ||
+				request.url.startsWith('/api/docs')
 			) {
 				logger.info('[authentication] skipping authentication on request', request.url)
 

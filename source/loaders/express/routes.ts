@@ -21,7 +21,7 @@ import { logger, stringify } from '@/utilities/logger'
 export const load = async (app: Application): Promise<void> => {
 	// Register the API endpoints
 	// `/ping` and `/pong` are test routes
-	app.all(/p[i|o]ng/, (_: Request, response: Response) =>
+	app.all(/api\/p[i|o]ng/, (_: Request, response: Response) =>
 		response
 			.status(200)
 			.send(
@@ -29,13 +29,13 @@ export const load = async (app: Application): Promise<void> => {
 			)
 	)
 
-	app.use('/auth', auth)
-	app.use('/users', users)
-	app.use('/groups', groups)
-	app.use('/attributes', attributes)
-	app.use('/conversations', conversations)
-	app.use('/reports', reports)
-	app.use('/scripts', scripts)
+	app.use('/api/auth', auth)
+	app.use('/api/users', users)
+	app.use('/api/groups', groups)
+	app.use('/api/attributes', attributes)
+	app.use('/api/conversations', conversations)
+	app.use('/api/reports', reports)
+	app.use('/api/scripts', scripts)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.

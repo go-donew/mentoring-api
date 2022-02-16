@@ -68,7 +68,7 @@ export const load = async (app: Application): Promise<void> => {
 					? request.user.isGroot
 						? 10_000
 						: 2000
-					: request.url.startsWith('/docs')
+					: request.url.startsWith('/api/docs')
 					? 500
 					: 50,
 			// Send a `too-many-requests` error when you have exceeded the limit

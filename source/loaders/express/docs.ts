@@ -31,7 +31,7 @@ const config = {
 			description: 'Public facing API server',
 		},
 		{
-			url: 'http://localhost:5000',
+			url: 'http://localhost:5000/api',
 			description: 'For local development only',
 		},
 	],
@@ -51,14 +51,14 @@ const config = {
 		'errors/**/*.ts',
 		'types.ts',
 	],
-	// Expose the generated JSON spec as /docs/spec.json
+	// Expose the generated JSON spec as /api/docs/spec.json
 	exposeApiDocs: true,
-	apiDocsPath: '/docs/spec.json',
+	apiDocsPath: '/api/docs/spec.json',
 }
 
 /**
  * Parses the comments and generates the OpenAPI documentation for the API.
- * Exposes the generated spec with the /docs/spec.json endpoint.
+ * Exposes the generated spec with the /api/docs/spec.json endpoint.
  *
  * @param {Application} app - The Express application instance.
  */
@@ -74,7 +74,7 @@ export const load = async (app: Application): Promise<void> => {
 
 	// Render documentation using Elements
 	app.use(
-		'/docs',
+		'/api/docs',
 		serve(getAbsolutePath(__dirname, '../assets/docs.html'), {
 			// FIXME: Is this dangerous?
 			setHeaders: (response: Response) =>
