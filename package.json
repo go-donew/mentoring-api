@@ -32,7 +32,8 @@
 		"compile": "run-s clean build",
 		"test": "run-s compile lint test:*",
 		"patch": "patch --forward node_modules/firebase-tools/lib/emulator/functionsEmulator.js patches/firebase-tools@10.2.0:verbosity.patch || true",
-		"prepare": "run-s patch compile && husky install config/husky"
+		"hooks": "husky install config/husky",
+		"prepare": "bash -c \"[[ -z \\\"$FIREBASE_DEPLOY\\\" ]] && pnpm run-s patch compile hooks || true\""
 	},
 	"engines": {
 		"node": "16",
