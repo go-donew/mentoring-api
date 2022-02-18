@@ -1,6 +1,6 @@
 <!--
-	~/readme.md
-	Tells you about the project
+	readme.md
+	Tells you about the project.
 -->
 
 # <div align="center"> DoNew Mentoring API </div>

@@ -1,4 +1,4 @@
-// @/index.ts
+// @/app.ts
 // Exports the server so it can be run by anyone
 
 import createServer from 'express'

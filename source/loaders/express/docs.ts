@@ -75,7 +75,7 @@ export const load = async (app: Application): Promise<void> => {
 	// Render documentation using Elements
 	app.use(
 		'/api/docs',
-		serve(getAbsolutePath(__dirname, '../assets/docs.html'), {
+		serve(getAbsolutePath(__dirname, '../docs/api.html'), {
 			// FIXME: Is this dangerous?
 			setHeaders: (response: Response) =>
 				response.setHeader('content-security-policy', ''),
