@@ -1,8 +1,13 @@
+# .github/workflow/ci.yaml
+# CI configuration file that tells GitHub what to do when a commit is pushed.
+
 name: CI
 
+# Run the job whenever a commit is pushed to any branch
 on: [push, pull_request]
 
 jobs:
+  # This job checks if the project can compile succesfully
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -12,7 +17,7 @@ jobs:
       - name: Setup PNPM 6
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.23.6
+          version: 6.31.0
       - name: Setup Node 16
         uses: actions/setup-node@v2
         with:
@@ -22,6 +27,7 @@ jobs:
         run: pnpm install
       - name: Build the project
         run: pnpm compile
+  # This job checks if there are any lint issues in the code
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -31,7 +37,7 @@ jobs:
       - name: Setup PNPM 6
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.23.6
+          version: 6.31.0
       - name: Setup Node 16
         uses: actions/setup-node@v2
         with:
@@ -41,6 +47,7 @@ jobs:
         run: pnpm install
       - name: Lint code
         run: pnpm lint
+  # This job ensures that all the tests pass
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -50,7 +57,7 @@ jobs:
       - name: Setup PNPM 6
         uses: pnpm/action-setup@v2.0.1
         with:
-          version: 6.23.6
+          version: 6.31.0
       - name: Setup Node 16
         uses: actions/setup-node@v2
         with:
@@ -58,8 +65,9 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Run integration tests
+      - name: Run tests
         run: pnpm run-s test:*
+  # This job deploys the site to Firebase Hosting
   deploy:
     name: Deploy
     needs: [build, lint, test]
@@ -78,7 +86,12 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Deploy the project
-        run: pnpm deploy
+      - name: Deploy to sandbox
+        run: pnpm deploy:dev
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Deploy to production
+        if: startsWith(github.ref, 'refs/tags/')
+        run: pnpm deploy:prd
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
