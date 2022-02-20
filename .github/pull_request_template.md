@@ -51,6 +51,6 @@
 - [ ] The issues that this PR fixes/closes have been mentioned above.
 - [ ] What this PR adds/changes/removes has been explained.
 - [ ] The code has been linted using `pnpm lint`.
-- [ ] The code has been commented well, and methods/classes/constants/types have
-      been annotated with TSDoc comments.
+- [ ] The code has been commented well, and methods/classes/constants/types have been
+      annotated with TSDoc comments.
 - [ ] Tests have been added/changed/removed as needed.
