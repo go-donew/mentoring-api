@@ -11,6 +11,8 @@ import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
 import { ServerError } from '@/errors'
 import { logger, stringify } from '@/utilities/logger'
 
+const json = JSON
+
 // The auth endpoint to sign in/up users
 const signInUpEndpoint =
 	process.env.NODE_ENV === 'production'
@@ -25,7 +27,7 @@ const tokenExchangeEndpoint =
 // The API key to use while making calls to the above endpoints
 const apiKey =
 	process.env.NODE_ENV === 'production'
-		? process.env.FIREBASE_API_KEY!
+		? json.parse(process.env.FIREBASE_CONFIG!).apiKey!
 		: 'the-answer-to-life-the-universe-and-everything:42'
 
 /**
