@@ -11,8 +11,6 @@ import { ServerError } from '@/errors'
 import { logger, stringify } from '@/utilities/logger'
 import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
 
-const json = JSON
-
 // The accounts endpoint to create/delete users
 const signInUpEndpoint =
 	process.env.NODE_ENV === 'production'
@@ -27,7 +25,7 @@ const tokenExchangeEndpoint =
 // The API key to use while making calls to the above endpoints
 const apiKey =
 	process.env.NODE_ENV === 'production'
-		? json.parse(process.env.FIREBASE_CONFIG!).apiKey!
+		? process.env.FIREBASE_API_KEY!
 		: 'the-answer-to-life-the-universe-and-everything:42'
 
 /**
