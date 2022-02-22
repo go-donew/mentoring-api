@@ -22,8 +22,12 @@
 		"clean": "del-cli build/ coverage/ test-export/ *.log",
 		"build": "tsup",
 		"watch": "tsup --watch",
-		"format": "xo --fix source/**/*.ts",
-		"lint": "xo source/**/*.ts",
+		"format:code": "xo --fix {source,test}/**/*.ts",
+		"format:rest": "prettier --write --ignore-path .gitignore .",
+		"format": "run-s format:*",
+		"lint:code": "xo {source,test}/**/*.ts",
+		"lint:rest": "prettier --check --ignore-path .gitignore .",
+		"lint": "run-s lint:*",
 		"test:tsc": "tsc --project config/tsconfig.json",
 		"test:lib": "cross-env FORCE_COLOR=2 pnpm firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=config/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest --runInBand\"",
 		"start": "cross-env FORCE_COLOR=2 pnpm firebase emulators:start --project donew-mentoring-api-sandbox",
@@ -79,6 +83,7 @@
 		"jest-to-match-shape-of": "1.3.2",
 		"lint-staged": "12.3.4",
 		"npm-run-all": "4.1.5",
+		"prettier": "2.5.1",
 		"serve": "13.0.2",
 		"ts-jest": "27.1.3",
 		"ts-node": "10.5.0",
@@ -151,17 +156,13 @@
 		}
 	},
 	"lint-staged": {
-		"{source,test}/**/*.ts": "xo --fix"
+		"{source,test}/**/*.ts": "xo --fix",
+		"**/*.{md,json,yaml,html}": "prettier --write"
 	},
 	"pnpm": {
 		"overrides": {
 			"node-forge@<1.0.0": ">=1.0.0",
 			"node-fetch@<2.6.7": ">=2.6.7"
-		}
-	},
-	"config": {
-		"commitizen": {
-			"path": "cz-conventional-changelog"
 		}
 	}
 }
