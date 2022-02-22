@@ -65,7 +65,8 @@ Node. The code is arranged as follows:
 ├── config
 │  ├── husky
 │  │  ├── _
-│  │  └── pre-commit
+│  │  ├── pre-commit
+│  │  └── prepare-commit-message
 │  ├── firebase.json
 │  └── tsconfig.json
 ├── docs
@@ -138,27 +139,15 @@ the changes. To commit the changes you have made locally:
 
 ```sh
 > git add this/folder that/file
-> git commit --message 'commit-message'
+> git commit
 ```
 
-While writing the `commit-message`, try to follow the below guidelines:
+Pick the correct type of change and enter a short message that clearly states the changes
+introduced in the commit in present tense.
 
-1. Prefix the message with `type:`, where `type` is one of the following dependending on
-   what the commit does:
-   - `fix`: Introduces a bug fix.
-   - `feat`: Adds a new feature.
-   - `test`: Any change related to tests.
-   - `perf`: Any performance related change.
-   - `meta`: Any change related to the build process, workflows, issue templates, etc.
-   - `refc`: Any refactoring work.
-   - `docs`: Any documentation related changes.
-2. Keep the first line brief, and less than 60 characters.
-3. Try describing the change in detail in a new paragraph (double newline after the first
-   line).
-
-When you commit files, `husky` and `lint-staged` will automatically lint the code and fix
-most issues. In case an error is not automatically fixable, they will cancel the commit.
-Please fix the errors before committing the changes.
+When you commit files, the git hooks will run the linter to lint the code and fix most
+issues. In case an error is not automatically fixable, they will cancel the commit. Please
+fix the errors before committing the changes.
 
 ## Contributing Changes
 
