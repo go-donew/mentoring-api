@@ -10,15 +10,17 @@ import { testData } from '../helpers/test-data.js'
 /**
  * Data to persist throughout the test
  */
-const users: { bofh: any; pfy: any; groot: any } = {
+const users: { bofh: any; pfy: any; groot: any; ceo: any } = {
 	bofh: {},
 	pfy: {},
 	groot: {},
+	ceo: {},
 }
-const tokens: { bofh: any; pfy: any; groot: any } = {
+const tokens: { bofh: any; pfy: any; groot: any; ceo: any } = {
 	bofh: {},
 	pfy: {},
 	groot: {},
+	ceo: {},
 }
 const groups: { bosses: any; interns: any; groots: any } = {
 	bosses: {},
@@ -70,7 +72,7 @@ describe('auth', () => {
 			}
 		)
 
-		it.each(['bofh', 'pfy', 'groot'])(
+		it.each(['bofh', 'pfy', 'groot', 'ceo'])(
 			'should return the user and tokens upon a valid request (%s)',
 			async (username: string) => {
 				const data = await testData(`auth/signup/${username}`)
@@ -95,8 +97,8 @@ describe('auth', () => {
 					},
 				})
 
-				users[username as 'bofh' | 'pfy' | 'groot'] = body.user
-				tokens[username as 'bofh' | 'pfy' | 'groot'] = body.tokens
+				users[username as 'bofh' | 'pfy' | 'groot' | 'ceo'] = body.user
+				tokens[username as 'bofh' | 'pfy' | 'groot' | 'ceo'] = body.tokens
 
 				if (username === 'groot') {
 					const {
@@ -169,7 +171,7 @@ describe('auth', () => {
 			expect(error?.code).toEqual('entity-not-found')
 		})
 
-		it.each(['bofh', 'pfy', 'groot'])(
+		it.each(['bofh', 'pfy', 'groot', 'ceo'])(
 			'should return the user and tokens upon a valid request (%s)',
 			async (username: string) => {
 				const data = await testData(`auth/signin/${username}`)
@@ -194,8 +196,8 @@ describe('auth', () => {
 					},
 				})
 
-				users[username as 'bofh' | 'pfy' | 'groot'] = body.user
-				tokens[username as 'bofh' | 'pfy' | 'groot'] = body.tokens
+				users[username as 'bofh' | 'pfy' | 'groot' | 'ceo'] = body.user
+				tokens[username as 'bofh' | 'pfy' | 'groot' | 'ceo'] = body.tokens
 			}
 		)
 	})
@@ -934,7 +936,7 @@ describe('users', () => {
 			})
 
 			expect(status).toEqual(200)
-			expect(body.users.length).toEqual(3)
+			expect(body.users.length).toEqual(4)
 			expect(body.users).toMatchShapeOf([
 				{
 					id: 'string',
@@ -1004,6 +1006,65 @@ describe('users', () => {
 				phone: undefined,
 				lastSignedIn: 'string',
 			})
+		})
+
+		it('should return the requested user when requesting user is their mentor/supermentor', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `users/${users.pfy.id}`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body.user).toMatchShapeOf({
+				id: 'string',
+				name: 'string',
+				email: 'string',
+				phone: undefined,
+				lastSignedIn: 'string',
+			})
+		})
+	})
+
+	describe('delete /users/{userId}', () => {
+		it('should return a `not-allowed` error when the requested user is not found but the requesting user is not groot or the user themselves', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `users/${tokens.ceo.bearer}`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(403)
+			expect(error?.code).toEqual('not-allowed')
+		})
+
+		it('should return a `entity-not-found` error when the requested user is not found but the requesting user is groot', async () => {
+			const error = await fetchError({
+				method: 'delete',
+				url: `users/weird`,
+				headers: {
+					authorization: tokens.groot.bearer,
+				},
+			})
+
+			expect(error?.status).toEqual(404)
+			expect(error?.code).toEqual('entity-not-found')
+		})
+
+		it('should delete the user when requesting user is the user themselves', async () => {
+			const { status } = await fetch({
+				method: 'delete',
+				url: `users/${users.ceo.id}`,
+				headers: {
+					authorization: tokens.ceo.bearer,
+				},
+			})
+
+			expect(status).toEqual(204)
 		})
 
 		it('should return the requested user when requesting user is their mentor/supermentor', async () => {

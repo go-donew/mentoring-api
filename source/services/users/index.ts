@@ -5,7 +5,8 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { User } from '@/models/user'
-import { service as auth } from '@/services/auth'
+import { service as authService } from '@/services/auth'
+import { provider as auth } from '@/provider/auth'
 import { provider as users } from '@/provider/data/users'
 
 /**
@@ -136,7 +137,7 @@ export type CreateUserResponse = {
  *
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created user.
  */
-const create = auth.signUp
+const create = authService.signUp
 
 /**
  * The payload needed to update a user.
@@ -183,10 +184,37 @@ const update = async (
 	}
 }
 
+/**
+ * Method to delete a certain user.
+ *
+ * @param {ServiceRequest} request - The request consisting of payload required to perform this operation.
+ *
+ * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
+ */
+const _delete = async (
+	request: ServiceRequest<unknown, { userId: string }>
+): Promise<ServiceResponse<unknown>> => {
+	try {
+		await auth.deleteAccount(request.params.userId)
+		await users.delete(request.params.userId)
+
+		const data = {}
+		return {
+			status: 204,
+			data,
+		}
+	} catch (error: unknown) {
+		return {
+			error: error instanceof ServerError ? error : new ServerError('server-crash'),
+		}
+	}
+}
+
 // Export the functions
 export const service = {
 	find,
 	get,
 	create,
 	update,
+	delete: _delete,
 }

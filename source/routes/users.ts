@@ -82,6 +82,39 @@ endpoint.get(
 )
 
 /**
+ * DELETE /users/{userId}
+ *
+ * @summary Delete the specified user
+ * @tags users - User related endpoints
+ *
+ * @security bearer
+ *
+ * @param {string} userId.path.required - The ID of the user to return.
+ *
+ * @returns {object} 204 - You must be the user themself, or Groot.
+ * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
+ * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation OR the entity does not exist.
+ * @returns {TooManyRequestsError} 429 - The client was rate-limited.
+ * @returns {BackendError} 500 - An error occurred while interacting with the backend.
+ * @returns {ServerCrashError} 500 - The server crashed.
+ *
+ * @endpoint
+ */
+endpoint.delete(
+	'/:userId',
+	permit({
+		subject: 'user',
+		roles: ['self'],
+	}),
+	async (request: Request, response: Response): Promise<void> => {
+		const result = await users.delete(request)
+
+		if (result.error) response.sendError(result.error)
+		else response.status(result.status!).send(result.data)
+	}
+)
+
+/**
  * GET /users/{userId}/attributes
  *
  * @summary List/find a user's attributes

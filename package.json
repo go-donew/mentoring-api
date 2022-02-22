@@ -86,7 +86,7 @@
 	},
 	"tsup": {
 		"entry": [
-			"source/provider/init/startup/index.ts"
+			"source/provider/init/index.ts"
 		],
 		"format": [
 			"esm"

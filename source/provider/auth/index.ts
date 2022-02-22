@@ -5,15 +5,15 @@ import process from 'node:process'
 
 import { getAuth } from 'firebase-admin/auth'
 import fetch from 'got'
-
-import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
+import type { FirebaseError } from 'firebase-admin'
 
 import { ServerError } from '@/errors'
 import { logger, stringify } from '@/utilities/logger'
+import type { AuthProvider, CustomClaims, DecodedToken, Tokens } from '@/types'
 
 const json = JSON
 
-// The auth endpoint to sign in/up users
+// The accounts endpoint to create/delete users
 const signInUpEndpoint =
 	process.env.NODE_ENV === 'production'
 		? 'https://identitytoolkit.googleapis.com/v1'
@@ -345,6 +345,39 @@ export class FirebaseAuthProvider implements AuthProvider {
 		logger.info('[firebase/auth/claims] successfully retrieved user claims')
 
 		return user.customClaims as CustomClaims
+	}
+
+	/**
+	 * Deletes a user's account.
+	 *
+	 * @param {string} userId - The ID of the user whose claims to retrieve.
+	 *
+	 * @returns {void}
+	 * @throws {ServerError} - 'not-found' | 'backend-error'
+	 *
+	 * @async
+	 */
+	async deleteAccount(userId: string): Promise<void> {
+		logger.info(
+			'[firebase/auth/delete-account] deleting user account for user %s',
+			userId
+		)
+
+		try {
+			await getAuth().deleteUser(userId)
+		} catch (caughtError: unknown) {
+			const error = caughtError as FirebaseError
+			logger.silly(
+				'[firebase/auth/delete-account] received error while deleting user account - %s',
+				stringify(error)
+			)
+
+			if (error.code === 'auth/user-not-found') throw new ServerError('entity-not-found')
+
+			throw new ServerError('backend-error')
+		}
+
+		logger.info('[firebase/auth/delete-account] successfully deleted user account')
 	}
 }
 
