@@ -22,14 +22,15 @@
 		"clean": "del-cli build/ coverage/ test-export/ *.log",
 		"build": "tsup",
 		"watch": "tsup --watch",
-		"format:code": "xo --fix {source,test}/**/*.ts",
+		"format:code": "xo --fix {source,tests}/**/*.ts",
 		"format:rest": "prettier --write --ignore-path .gitignore .",
 		"format": "run-s format:*",
-		"lint:code": "xo {source,test}/**/*.ts",
+		"lint:code": "xo {source,tests}/**/*.ts",
 		"lint:rest": "prettier --check --ignore-path .gitignore .",
 		"lint": "run-s lint:*",
+		"jest": "cross-env TS_NODE_PROJECT=config/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
 		"test:tsc": "tsc --project config/tsconfig.json",
-		"test:lib": "cross-env FORCE_COLOR=2 pnpm firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit test-export \"pnpm cross-env TS_NODE_PROJECT=config/tsconfig.json NODE_OPTIONS=--experimental-vm-modules jest --runInBand\"",
+		"test:lib": "cross-env FORCE_COLOR=2 pnpm firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit test-export \"pnpm jest\"",
 		"start": "cross-env FORCE_COLOR=2 pnpm firebase emulators:start --project donew-mentoring-api-sandbox",
 		"deploy:prd": "firebase deploy --only functions,hosting --project donew-mentoring-api",
 		"deploy:dev": "firebase deploy --only functions,hosting --project donew-mentoring-api-sandbox",
@@ -141,10 +142,10 @@
 		"coverageProvider": "v8",
 		"testTimeout": 30000,
 		"testMatch": [
-			"**/test/**/*.test.[jt]s"
+			"**/tests/**/*.test.[jt]s"
 		],
 		"setupFilesAfterEnv": [
-			"./test/setup.ts"
+			"./tests/setup.ts"
 		],
 		"moduleFileExtensions": [
 			"js",
@@ -156,7 +157,7 @@
 		}
 	},
 	"lint-staged": {
-		"{source,test}/**/*.ts": "xo --fix",
+		"{source,tests}/**/*.ts": "xo --fix",
 		"**/*.{md,json,yaml,html}": "prettier --write"
 	},
 	"pnpm": {

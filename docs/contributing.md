@@ -107,7 +107,7 @@ Node. The code is arranged as follows:
 │  │  └── lua.ts
 │  ├── app.ts
 │  └── types.ts
-├── test
+├── tests
 │  ├── data
 │  │  └── ...
 │  ├── helpers
@@ -127,7 +127,10 @@ Node. The code is arranged as follows:
 
 When adding a new endpoint or changing the behaviour of an existing endpoint, please
 add/update the TSDoc comments in the route definition files
-(`source/routes/{endpoint}.ts`) as well as add/update the tests for the same.
+(`source/routes/{endpoint}.ts`) that define the request and responses that the endpoint
+returns, the service files (`source/services/{endpoint}.ts`) that define the required
+request payload and data that will be returned, as well as add/update the tests for the
+same.
 
 Also make sure your code has been linted and that existing tests pass. You can run the
 linter using `pnpm lint`, the tests using `pnpm test` and try to automatically fix most
