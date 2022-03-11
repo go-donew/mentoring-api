@@ -28,7 +28,11 @@ const config = {
 	servers: [
 		{
 			url: 'http://mentoring.godonew.com/api',
-			description: 'Public facing API server',
+			description: 'Public API server',
+		},
+		{
+			url: 'http://mentoring-sandbox.godonew.com/api',
+			description: 'Development server',
 		},
 		{
 			url: 'http://localhost:5000/api',
