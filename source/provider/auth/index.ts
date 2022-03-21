@@ -311,7 +311,12 @@ export class FirebaseAuthProvider implements AuthProvider {
 				stringify(error)
 			)
 
-			throw new ServerError('invalid-token')
+			throw new ServerError(
+				'invalid-token',
+				(error as FirebaseError).code === 'auth/id-token-revoked'
+					? 'This bearer token was revoked. Please sign in again to retrieve a new set of tokens.'
+					: undefined
+			)
 		}
 	}
 
