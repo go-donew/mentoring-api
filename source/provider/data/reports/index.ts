@@ -171,10 +171,7 @@ class ReportProvider implements DataProvider<Report> {
 			for (const tag of Object.keys(serializedReport.tags))
 				serializedReport.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('reports')
-				.doc(data.id!)
-				.set(serializedReport, { merge: true })
+			await getFirestore().collection('reports').doc(data.id!).set(serializedReport)
 
 			// If the transaction was successful, return the updated report
 			return plainToInstance(

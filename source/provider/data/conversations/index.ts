@@ -239,7 +239,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			await getFirestore()
 				.collection('conversations')
 				.doc(data.id!)
-				.set(serializedConversation, { merge: true })
+				.set(serializedConversation)
 
 			// If the transaction was successful, return the updated conversation
 			logger.info('[firebase/conversations/update] successfully updated conversation')

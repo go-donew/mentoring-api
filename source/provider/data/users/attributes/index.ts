@@ -219,7 +219,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 				.doc(this.userId)
 				.collection('attributes')
 				.doc(data.id!)
-				.set(serializedUserAttribute, { merge: true })
+				.set(serializedUserAttribute)
 
 			// If the transaction was successful, return the updated attribute
 			return plainToInstance(UserAttribute, serializedUserAttribute, {

@@ -303,7 +303,7 @@ class QuestionProvider implements DataProvider<Question> {
 				.doc(this.conversationId)
 				.collection('questions')
 				.doc(data.id!)
-				.set(serializedQuestion, { merge: true })
+				.set(serializedQuestion)
 
 			// If the transaction was successful, return the updated question
 			logger.info(

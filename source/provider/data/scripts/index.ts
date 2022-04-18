@@ -178,10 +178,7 @@ class ScriptProvider implements DataProvider<Script> {
 			for (const tag of Object.keys(serializedScript.tags))
 				serializedScript.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('scripts')
-				.doc(data.id!)
-				.set(serializedScript, { merge: true })
+			await getFirestore().collection('scripts').doc(data.id!).set(serializedScript)
 
 			// If the transaction was successful, return the updated script
 			return plainToInstance(

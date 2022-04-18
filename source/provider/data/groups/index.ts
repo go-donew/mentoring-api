@@ -183,10 +183,7 @@ class GroupProvider implements DataProvider<Group> {
 			for (const tag of Object.keys(serializedGroup.tags))
 				serializedGroup.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('groups')
-				.doc(data.id!)
-				.set(serializedGroup, { merge: true })
+			await getFirestore().collection('groups').doc(data.id!).set(serializedGroup)
 
 			// If the transaction was successful, return the updated group
 			return plainToInstance(

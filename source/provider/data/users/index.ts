@@ -159,10 +159,7 @@ class UserProvider implements DataProvider<User> {
 			}
 
 			// Else update away!
-			await getFirestore()
-				.collection('users')
-				.doc(data.id!)
-				.set(instanceToPlain(data), { merge: true })
+			await getFirestore().collection('users').doc(data.id!).set(instanceToPlain(data))
 
 			// If the transaction was successfull, return the updated user
 			return plainToInstance(User, {

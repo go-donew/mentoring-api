@@ -231,10 +231,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				serializedAttribute.__tags[tag] = true
 			// Merge the data with the existing data in the database
 			logger.silly('[firebase/attributes/update] calling merge set on ref')
-			await getFirestore()
-				.collection('attributes')
-				.doc(data.id!)
-				.set(serializedAttribute, { merge: true })
+			await getFirestore().collection('attributes').doc(data.id!).set(serializedAttribute)
 
 			// If the transaction was successful, return the updated attribute
 			logger.info('[firebase/attributes/update] successfully updated attribute')
