@@ -9,7 +9,7 @@ import { provider as reports } from '@/provider/data/reports'
 import { generateId } from '@/utilities'
 
 /**
- * The payload needed to make a request to list/find for reports.
+ * The payload needed to make a request to list/find reports.
  *
  * @typedef {object} ListOrFindReportsPayload
  * @property {string} name.required - The report should have this name.

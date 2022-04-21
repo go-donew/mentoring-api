@@ -9,7 +9,7 @@ import { provider as attributes } from '@/provider/data/attributes'
 import { generateId } from '@/utilities'
 
 /**
- * The payload needed to make a request to list/find for attributes.
+ * The payload needed to make a request to list/find attributes.
  *
  * @typedef {object} ListOrFindAttributesPayload
  * @property {string} name - The attribute should have this name.

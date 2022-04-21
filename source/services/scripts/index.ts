@@ -14,7 +14,7 @@ import { runLua } from '@/utilities/lua'
 import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 /**
- * The payload needed to make a request to list/find for scripts.
+ * The payload needed to make a request to list/find scripts.
  *
  * @typedef {object} ListOrFindScriptsPayload
  * @property {string} name - The script should have this name.

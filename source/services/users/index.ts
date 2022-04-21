@@ -10,7 +10,7 @@ import { provider as auth } from '@/provider/auth'
 import { provider as users } from '@/provider/data/users'
 
 /**
- * The payload needed to make a request to list/find for users.
+ * The payload needed to make a request to list/find users.
  *
  * @typedef {object} ListOrFindUsersPayload
  * @property {string} name - The user should have this name.

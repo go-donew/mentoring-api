@@ -10,7 +10,7 @@ import { provider as questions } from '@/provider/data/conversations/questions'
 import { generateId } from '@/utilities'
 
 /**
- * The payload needed to make a request to list/find for conversations.
+ * The payload needed to make a request to list/find conversations.
  *
  * @typedef {object} ListOrFindConversationsPayload
  * @property {string} name - The conversation should have this name.

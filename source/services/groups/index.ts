@@ -9,7 +9,7 @@ import { provider as groups } from '@/provider/data/groups'
 import { generateId } from '@/utilities'
 
 /**
- * The payload needed to make a request to list/find for groups.
+ * The payload needed to make a request to list/find groups.
  *
  * @typedef {object} ListOrFindGroupsPayload
  * @property {string} name - The group should have this name.

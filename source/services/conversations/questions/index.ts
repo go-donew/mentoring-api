@@ -11,7 +11,7 @@ import { provider as attributes } from '@/provider/data/users/attributes'
 import { generateId } from '@/utilities'
 
 /**
- * The payload needed to make a request to list/find for questions.
+ * The payload needed to make a request to list/find questions.
  *
  * @typedef {object} ListOrFindQuestionsPayload
  * @property {boolean} first - Whether the question should be the first one in the conversation.
