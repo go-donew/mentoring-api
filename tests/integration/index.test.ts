@@ -1803,6 +1803,7 @@ describe('questions', () => {
 			'should return the created question upon a valid request (%s)',
 			async (questionName: string) => {
 				const data = await testData(`questions/create/${questionName}`, {
+					quiz: conversations.quiz.id,
 					cleanest: questions.cleanest.id,
 					knowsCapital: attributes.knowsCapital.id,
 					knowsCleanest: attributes.knowsCleanest.id,
@@ -1887,6 +1888,7 @@ describe('questions', () => {
 			'should return the updated question upon a valid request (%s)',
 			async (questionName: string) => {
 				const data = await testData(`questions/update/${questionName}`, {
+					quiz: conversations.quiz.id,
 					cleanest: questions.cleanest.id,
 					knowsCapital: attributes.knowsCapital.id,
 					knowsCleanest: attributes.knowsCleanest.id,

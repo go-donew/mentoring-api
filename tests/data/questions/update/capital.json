@@ -9,7 +9,10 @@
 				"id": "{knowsCapital}",
 				"value": 1
 			},
-			"nextQuestion": "{cleanest}"
+			"nextQuestion": {
+				"conversation": "{quiz}",
+				"question": "{cleanest}"
+			}
 		},
 		{
 			"position": 2,
@@ -19,7 +22,10 @@
 				"id": "{knowsCapital}",
 				"value": 0
 			},
-			"nextQuestion": "{cleanest}"
+			"nextQuestion": {
+				"conversation": "{quiz}",
+				"question": "{cleanest}"
+			}
 		},
 		{
 			"position": 3,
@@ -29,7 +35,10 @@
 				"id": "{knowsCapital}",
 				"value": 0
 			},
-			"nextQuestion": "{cleanest}"
+			"nextQuestion": {
+				"conversation": "{quiz}",
+				"question": "{cleanest}"
+			}
 		},
 		{
 			"position": 4,
@@ -39,7 +48,10 @@
 				"id": "{knowsCapital}",
 				"value": 0
 			},
-			"nextQuestion": "{cleanest}"
+			"nextQuestion": {
+				"conversation": "{quiz}",
+				"question": "{cleanest}"
+			}
 		}
 	],
 	"first": true,

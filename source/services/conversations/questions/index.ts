@@ -291,6 +291,7 @@ const answer = async (
 ): Promise<ServiceResponse<AnswerQuestionResponse>> => {
 	try {
 		// Retrieve the question
+		questions.conversationId = request.params.conversationId
 		const question = await questions.get(request.params.questionId)
 
 		// Check if the option chosen by the user exists
@@ -349,8 +350,9 @@ const answer = async (
 		}
 
 		// If there is a next question specified, return that to the user
+		questions.conversationId = selectedOption.nextQuestion?.conversation
 		const nextQuestion = selectedOption.nextQuestion
-			? await questions.get(selectedOption.nextQuestion)
+			? await questions.get(selectedOption.nextQuestion.question)
 			: undefined
 
 		const data = { nextQuestion }

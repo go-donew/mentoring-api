@@ -7,11 +7,24 @@
  *
  * @typedef {object} AttributeToSet
  * @property {string} id.required - The ID of the attribute to set.
- * @property {string | number | boolean} value.string - The value of the attribute to set. If the `type` of the question is `input` and the user input is undefined, then this value will be set.
+ * @property {string | number | boolean} value.required - The value of the attribute to set. If the `type` of the question is `input` and the user input is undefined, then this value will be set.
  */
 export type AttributeToSet = {
 	id: string
 	value: string | number | boolean
+}
+
+/**
+ * An object that contains the data about the next question to show a user when
+ * they answer a question with a given option.
+ *
+ * @typedef {object} NextQuestion
+ * @property {string} conversation.required - The ID of the conversation the next question is a part of.
+ * @property {string} question.required - The ID of the question.
+ */
+export type NextQuestion = {
+	conversation: string
+	question: string
 }
 
 /**
@@ -22,14 +35,14 @@ export type AttributeToSet = {
  * @property {string} type.required - The type of option. If it is `input`, the user can enter text as their answer - enum:select,input
  * @property {string} text.required - The question text. Should be shown as a hint for the textbox if `type` is `input`.
  * @property {AttributeToSet} attribute.required - The attribute to set when a user answers the question with this option.
- * @property {string} nextQuestion - The ID of the question to show the user if they select this option.
+ * @property {NextQuestion} nextQuestion - The next question to show the user if they select this option.
  */
 export type Option = {
 	position: number
 	type: 'select' | 'input'
 	text: string
 	attribute: AttributeToSet
-	nextQuestion?: string
+	nextQuestion?: NextQuestion
 }
 
 /**
