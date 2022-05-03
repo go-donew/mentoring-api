@@ -8,7 +8,7 @@ import { Question, Option } from '@/models/question'
 import { UserAttribute } from '@/models/attribute'
 import { provider as questions } from '@/provider/data/conversations/questions'
 import { provider as attributes } from '@/provider/data/users/attributes'
-import { generateId } from '@/utilities'
+import { generateId, shuffle } from '@/utilities'
 
 /**
  * The payload needed to make a request to list/find questions.
@@ -153,6 +153,10 @@ const get = async (
 	try {
 		questions.conversationId = request.params.conversationId
 		const question = await questions.get(request.params.questionId)
+
+		question.options = question.randomizeOptionOrder
+			? shuffle(question.options)
+			: question.options.sort((a, b) => a.position - b.position)
 
 		const data = { question }
 		return {
@@ -354,6 +358,12 @@ const answer = async (
 		const nextQuestion = selectedOption.nextQuestion
 			? await questions.get(selectedOption.nextQuestion.question)
 			: undefined
+
+		if (nextQuestion) {
+			nextQuestion.options = nextQuestion.randomizeOptionOrder
+				? shuffle(nextQuestion.options)
+				: nextQuestion.options.sort((a, b) => a.position - b.position)
+		}
 
 		const data = { nextQuestion }
 		return {
