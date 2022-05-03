@@ -44,7 +44,7 @@
 	},
 	"engines": {
 		"node": "16",
-		"pnpm": "6"
+		"pnpm": "7"
 	},
 	"dependencies": {
 		"@google-cloud/functions-framework": "3.0.0",
