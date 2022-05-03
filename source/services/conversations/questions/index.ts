@@ -58,6 +58,12 @@ const find = async (
 		questions.conversationId = request.params.conversationId
 		const foundQuestions = await questions.find(query)
 
+		for (const question of foundQuestions) {
+			question.options = question.randomizeOptionOrder
+				? shuffle(question.options)
+				: question.options.sort((a, b) => a.position - b.position)
+		}
+
 		const data = { questions: foundQuestions }
 		return {
 			status: 200,
