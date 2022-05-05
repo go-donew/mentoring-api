@@ -10,6 +10,7 @@ import { endpoint as attributes } from '@/routes/attributes'
 import { endpoint as conversations } from '@/routes/conversations'
 import { endpoint as reports } from '@/routes/reports'
 import { endpoint as scripts } from '@/routes/scripts'
+import { endpoint as meta } from '@/routes/meta'
 import { ServerError } from '@/errors'
 import { logger, stringify } from '@/utilities/logger'
 
@@ -36,6 +37,7 @@ export const load = async (app: Application): Promise<void> => {
 	app.use('/api/conversations', conversations)
 	app.use('/api/reports', reports)
 	app.use('/api/scripts', scripts)
+	app.use('/api/meta', meta)
 
 	// If a client calls a random route that has no registered request handler,
 	// return a 404 `route-not-found` error.

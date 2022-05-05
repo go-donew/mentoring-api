@@ -1,6 +1,8 @@
 // @/types.ts
 // Type declarations for the server.
 
+import type { RateLimitInfo } from 'express-rate-limit'
+
 import { ServerError, ErrorCode } from '@/errors'
 import { User } from '@/models/user'
 
@@ -21,6 +23,17 @@ declare global {
 				isGroot: boolean
 				token: string
 			}
+
+			/**
+			 * The rate limit metadata for the request.
+			 *
+			 * @typedef {object} RateLimitInfo
+			 * @property {number} limit.required - The total requests we can make in a window.
+			 * @property {number} current.required - The number of requests made in the current window.
+			 * @property {number} remaining.required - The number of requests we can still make.
+			 * @property {string} resetTime - The time left before the window elapses.
+			 */
+			rateLimit: RateLimitInfo
 		}
 
 		interface Response {
@@ -128,6 +141,11 @@ export declare type ServiceRequest<D, P> = {
 	 * The request parameters.
 	 */
 	params: P | Record<string, any>
+
+	/**
+	 * The request rate limit data.
+	 */
+	rateLimit: RateLimitInfo
 }
 
 /**

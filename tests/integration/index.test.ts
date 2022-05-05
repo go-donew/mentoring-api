@@ -2199,3 +2199,34 @@ describe('questions', () => {
 		})
 	})
 })
+
+/**
+ * Test the metadata endpoints.
+ */
+describe('meta', () => {
+	describe('get /meta', () => {
+		it('should return user metadata when a request is made', async () => {
+			const { body, status } = await fetch({
+				method: 'get',
+				url: `meta`,
+				headers: {
+					authorization: tokens.bofh.bearer,
+				},
+			})
+
+			expect(status).toEqual(200)
+			expect(body).toMatchShapeOf({
+				user: {
+					token: 'string',
+					isGroot: false,
+				},
+				rate: {
+					limit: 0,
+					current: 0,
+					remaining: 0,
+					resetTime: 'date',
+				},
+			})
+		})
+	})
+})
