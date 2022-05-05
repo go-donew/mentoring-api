@@ -301,8 +301,10 @@ const run = async (
 
 		const computedAttributes = []
 		try {
+			// TODO: This should be able to handle groups, reports, etc too.
 			// Run the lua script
-			const computed = await runLua(script.content, { input, user })
+			let { attributes: computed } = await runLua(script.content, { input, user })
+			if (!computed) computed = {}
 
 			// Store the computed attribute(s)
 			for (const [id, snapshot] of Object.entries(computed)) {

@@ -24,9 +24,11 @@ function compute(context)
 	-- The attributes will be set on the user passed in as `context.user`. You must
 	-- specify the value to set as well as the message it was observed in, if any.
 	return {
-		"{smartness}" = {
-			value = quizScore,
-			message = nil,
+		attributes = {
+			"{smartness}" = {
+				value = quizScore,
+				message = nil,
+			}
 		}
 	}
 end
