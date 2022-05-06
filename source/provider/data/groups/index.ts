@@ -197,7 +197,11 @@ class GroupProvider implements DataProvider<Group> {
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
 			console.trace(error)
-			throw new ServerError('backend-error')
+
+			// Forward a ServerError as is, but pass on any other error as a backend error
+			const error_ =
+				error instanceof ServerError ? error : new ServerError('backend-error')
+			throw error_
 		}
 	}
 

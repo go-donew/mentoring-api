@@ -110,11 +110,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 				stringify(error)
 			)
 
-			// Handle a not found error, but pass on the rest as a backend error
+			// Forward a ServerError as is, but pass on any other error as a backend error
 			const error_ =
-				error.code === 'not-found'
-					? new ServerError('entity-not-found')
-					: new ServerError('backend-error')
+				error instanceof ServerError ? error : new ServerError('backend-error')
 			throw error_
 		}
 
@@ -259,7 +257,10 @@ class ConversationProvider implements DataProvider<Conversation> {
 				stringify(error)
 			)
 
-			throw new ServerError('backend-error')
+			// Forward a ServerError as is, but pass on any other error as a backend error
+			const error_ =
+				error instanceof ServerError ? error : new ServerError('backend-error')
+			throw error_
 		}
 	}
 
