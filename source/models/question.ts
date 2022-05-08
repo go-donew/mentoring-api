@@ -34,14 +34,14 @@ export type NextQuestion = {
  * @property {number} position.required - The position to show the option in if `randomizeOptionOrder` is `false`.
  * @property {string} type.required - The type of option. If it is `input`, the user can enter text as their answer - enum:select,input
  * @property {string} text.required - The question text. Should be shown as a hint for the textbox if `type` is `input`.
- * @property {AttributeToSet} attribute.required - The attribute to set when a user answers the question with this option.
+ * @property {AttributeToSet} attribute - The attribute to set when a user answers the question with this option.
  * @property {NextQuestion} nextQuestion - The next question to show the user if they select this option.
  */
 export type Option = {
 	position: number
 	type: 'select' | 'input'
 	text: string
-	attribute: AttributeToSet
+	attribute?: AttributeToSet
 	nextQuestion?: NextQuestion
 }
 

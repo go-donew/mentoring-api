@@ -315,48 +315,50 @@ const answer = async (
 			)
 
 		// If it does, get the value to set as the attribute
-		const answer =
-			selectedOption.type === 'input' // If the option was of type `input`, then set whatever the user has written
-				? request.body.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
-				: selectedOption.attribute.value // Else set the value as given
+		if (selectedOption.attribute) {
+			const answer =
+				selectedOption.type === 'input' // If the option was of type `input`, then set whatever the user has written
+					? request.body.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
+					: selectedOption.attribute.value // Else set the value as given
 
-		attributes.userId = request.user!.id
-		try {
-			// Retrieve the attribute, check if it exists
-			const attribute = await attributes.get(selectedOption.attribute.id)
-			// If it does, update the value
-			attribute.value = answer
-			attribute.history.push({
-				value: answer,
-				observer: 'questioner',
-				timestamp: new Date(),
-				message: {
-					in: 'question',
-					id: request.params.questionId,
-				},
-			})
-			// Save the attribute
-			await attributes.update(attribute)
-		} catch {
-			// If the attribute does not exist, create it.
-			const attribute = new UserAttribute(
-				selectedOption.attribute.id,
-				answer,
-				[
-					{
-						value: answer,
-						observer: request.user!.id,
-						timestamp: new Date(),
-						message: {
-							in: 'question',
-							id: request.params.questionId,
-						},
+			attributes.userId = request.user!.id
+			try {
+				// Retrieve the attribute, check if it exists
+				const attribute = await attributes.get(selectedOption.attribute.id)
+				// If it does, update the value
+				attribute.value = answer
+				attribute.history.push({
+					value: answer,
+					observer: 'questioner',
+					timestamp: new Date(),
+					message: {
+						in: 'question',
+						id: request.params.questionId,
 					},
-				],
-				request.user!.id
-			)
-			// Save the attribute
-			await attributes.create(attribute)
+				})
+				// Save the attribute
+				await attributes.update(attribute)
+			} catch {
+				// If the attribute does not exist, create it.
+				const attribute = new UserAttribute(
+					selectedOption.attribute.id,
+					answer,
+					[
+						{
+							value: answer,
+							observer: request.user!.id,
+							timestamp: new Date(),
+							message: {
+								in: 'question',
+								id: request.params.questionId,
+							},
+						},
+					],
+					request.user!.id
+				)
+				// Save the attribute
+				await attributes.create(attribute)
+			}
 		}
 
 		// If there is a next question specified, return that to the user
